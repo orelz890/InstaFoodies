@@ -14,26 +14,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <ImageView
+                    android:id="@+id/backArrow"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="20dp"
+                    android:src="@drawable/ic_back_arrow"
+                    />
+
                 <TextView
+                    android:id="@+id/profileName"
+                    android:layout_toRightOf="@+id/backArrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="mitch.tabian"
+                    android:text="Options"
                     android:textSize="20sp"
                     android:textColor="@color/black"
-                    android:layout_marginLeft="15dp"
-                    android:id="@+id/profileName"
+                    android:layout_marginStart="5dp"
                     />
 
-                <ImageView
-                    android:id="@+id/profileMenu"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="20dp"
-                    android:src="@drawable/ic_3dots"
-                    />
 
             </RelativeLayout>
 

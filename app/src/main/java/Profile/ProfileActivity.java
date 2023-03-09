@@ -4,10 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -20,11 +24,14 @@ public class ProfileActivity extends AppCompatActivity {
     private Context mContext = ProfileActivity.this;
     private static final int ACTIVITY_NUM = 4;
 
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        mProgressBar = (ProgressBar) findViewById(R.id.profileProgressBar);
+        mProgressBar.setVisibility(View.GONE);
 
         setupBottomNavigationView();
         setupToolbar();
@@ -35,16 +42,13 @@ public class ProfileActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.profileToolBar);
         setSupportActionBar(toolbar);
 
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+        ImageView profileMenu = (ImageView) findViewById(R.id.profileMenu);
+        profileMenu.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Log.d(TAG, "onMenuItemClick: clicked menu item: " + item);
-
-                switch (item.getItemId()){
-                    case R.id.profileMenu:
-                        Log.d(TAG, "onMenuItemClick: Navigation to profile preferences.");
-                }
-                return false;
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating to account settings.");
+                Intent intent = new Intent(mContext, AccountSettingsActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -62,14 +66,4 @@ public class ProfileActivity extends AppCompatActivity {
         menuItem.setChecked(true);
     }
 
-    /**
-     * mandatory for the menu to pop up
-     * @param menu
-     * @return
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.profile_menu, menu);
-        return true;
-    }
 }

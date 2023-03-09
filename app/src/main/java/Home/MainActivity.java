@@ -8,13 +8,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TableLayout;
 
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import Utils.BottomNavigationViewHelper;
+import Utils.SectionPagerAdapter;
 
 
 public class MainActivity extends AppCompatActivity {
