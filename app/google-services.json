@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "399875580263",
+    "project_id": "instafoodies-b1767",
+    "storage_bucket": "instafoodies-b1767.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:399875580263:android:d428dc90cd11a83d600fc2",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "399875580263-plgj9a22rk88ijg4afrorr73d2us7ah9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.android.application",
+            "certificate_hash": "1c4b30e7a05f4f2c32582628d12fd9e79682859d"
+          }
+        },
+        {
+          "client_id": "399875580263-5uoppepepga9etcd34lqdsbtq3rukjqf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvgYsybxPHUdsitM_mArCC8iRVR0vT4iI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "399875580263-5uoppepepga9etcd34lqdsbtq3rukjqf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
