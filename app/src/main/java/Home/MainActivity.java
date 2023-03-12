@@ -12,9 +12,11 @@ import android.view.MenuItem;
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import Utils.BottomNavigationViewHelper;
 import Utils.SectionPagerAdapter;
+import Utils.UniversalImageLoader;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -29,8 +31,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: starting.");
 
+        InitImageLoader();
         setupBottomNavigationView();
         setupViewPager();
+    }
+
+    private void InitImageLoader(){
+        UniversalImageLoader universalImageLoader = new UniversalImageLoader(mContext);
+        ImageLoader.getInstance().init(universalImageLoader.getConfig());
     }
 
     /**
