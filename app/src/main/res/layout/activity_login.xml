@@ -84,6 +84,16 @@
             android:background="@drawable/white_rounded_button"/>
 
         <Button
+            android:id="@+id/acb_patchUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/acb_getUser"
+            android:layout_marginTop="20dp"
+            android:hint="patch"
+            android:padding="12dp"
+            android:background="@drawable/white_rounded_button"/>
+
+        <Button
             android:id="@+id/acb_delUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -92,6 +102,8 @@
             android:hint="delete"
             android:padding="12dp"
             android:background="@drawable/white_rounded_button"/>
+
+
 
     </LinearLayout>
 

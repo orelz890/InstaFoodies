@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.example.instafoodies.R;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import Server.RetrofitInterface;
 import retrofit2.Call;
@@ -64,6 +65,48 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 handleDelUserDialog(view);
+            }
+        });
+        findViewById(R.id.acb_patchUser).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handlePatchUserDialog(view);
+            }
+        });
+    }
+
+    private void handlePatchUserDialog(View view) {
+        final EditText emailEdit = findViewById(R.id.input_email);
+        final EditText passwordEdit = findViewById(R.id.input_password);
+        String email = emailEdit.getText().toString();
+        String pass = passwordEdit.getText().toString();
+
+//        String email = "orelzx13@gmail.com";
+//        String pass = "000";
+
+        HashMap<String, String> map = new HashMap<>();
+
+        map.put("password", pass);
+        Call<Void> call = retrofitInterface.executePatchUser(email, map);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+
+                if (response.code() == 200) {
+                    Toast.makeText(LoginActivity.this, "Updated user: " + email,
+                            Toast.LENGTH_LONG).show();
+                } else if (response.code() == 404) {
+                    Toast.makeText(LoginActivity.this, "Wrong Credentials: " + response.message(),
+                            Toast.LENGTH_LONG).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, t.getMessage(),
+                        Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -169,8 +212,8 @@ public class LoginActivity extends AppCompatActivity {
         viewById.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                HashMap<String, String> map = new HashMap<>();
-                map.put("email", emailEdit.getText().toString());
+//                HashMap<String, String> map = new HashMap<>();
+//                map.put("email", emailEdit.getText().toString());
                 String email = emailEdit.getText().toString();
                 Call<User> call = retrofitInterface.executeGetUser(email);
 

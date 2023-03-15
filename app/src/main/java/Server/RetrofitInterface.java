@@ -18,20 +18,20 @@ import retrofit2.http.Path;
  */
 public interface RetrofitInterface {
 
-    @POST("/login")
+    @POST("/login") // Working!
     Call<User> executeLogin(@Body HashMap<String, String> map);
 
-    @POST("/signup")
+    @POST("/signup") // Working!
     Call<Void> executeSignup (@Body HashMap<String, String> map);
 
-    @GET("/getUser/{email}")
+    @GET("/getUser/{email}") // Working!
     Call<User> executeGetUser (@Path("email") String email);
 
     @PUT("/updateUser/{email}")
     Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);
 
-    @PATCH("/updateUser/{email}")
-    Call<User> patchUser (@Path("email") String email, @Body HashMap<String, String> map);
+    @PATCH("/patchUser/{email}") // Working!
+    Call<Void> executePatchUser (@Path("email") String email, @Body HashMap<String, String> map);
 
     @DELETE("/deleteObjectFromRef/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("email") String email);
