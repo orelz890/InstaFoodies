@@ -72,13 +72,34 @@
             android:textSize="16sp"
             android:textColor="@color/DodgerBlue"/>
 
+
+        <Button
+            android:id="@+id/acb_getUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/link_sign_up"
+            android:layout_marginTop="50dp"
+            android:hint="get user"
+            android:padding="12dp"
+            android:background="@drawable/white_rounded_button"/>
+
+        <Button
+            android:id="@+id/acb_delUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/acb_getUser"
+            android:layout_marginTop="20dp"
+            android:hint="delete"
+            android:padding="12dp"
+            android:background="@drawable/white_rounded_button"/>
+
     </LinearLayout>
 
     <ProgressBar
         android:id="@+id/login_request_loading_progress_bar"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -96,4 +117,7 @@
             />
 
     </LinearLayout>
+
+
+
 </RelativeLayout>
