@@ -135,13 +135,14 @@ public class LoginActivity extends AppCompatActivity {
                         if (response.code() == 200) {
 
                             User result = response.body();
-
-                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
                             assert result != null;
-                            builder1.setTitle(result.getName());
-                            builder1.setMessage(result.getEmail());
-
-                            builder1.show();
+                            Toast.makeText(LoginActivity.this, "Name: " + result.getName(),
+                                    Toast.LENGTH_LONG).show();
+//                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
+//                            builder1.setTitle(result.getName());
+//                            builder1.setMessage(result.getEmail());
+//
+//                            builder1.show();
 
                         } else if (response.code() == 404) {
                             Toast.makeText(LoginActivity.this, "Wrong Credentials",
@@ -246,9 +247,30 @@ public class LoginActivity extends AppCompatActivity {
         final EditText emailEdit = findViewById(R.id.input_email);
 
         String email = emailEdit.getText().toString();
+//        String email = "orelzx13@gmail.com";
         String ref = "users";
-//                retrofitInterface.executeDeleteObjectFromRef(ref, email);
-        retrofitInterface.executeDeleteObjectFromRef(email);
+
+        Call<Void> call = retrofitInterface.executeDeleteObjectFromRef(ref, email);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+
+                if (response.code() == 200) {
+                    Toast.makeText(LoginActivity.this,
+                            "successfully deleted!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(LoginActivity.this,
+                            "Failed to delete.. " + response.message(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Toast.makeText(LoginActivity.this, t.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 }

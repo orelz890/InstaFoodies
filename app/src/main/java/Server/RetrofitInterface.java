@@ -27,15 +27,14 @@ public interface RetrofitInterface {
     @GET("/getUser/{email}") // Working!
     Call<User> executeGetUser (@Path("email") String email);
 
-    @PUT("/updateUser/{email}")
-    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);
+//    @PUT("/setUser/{email}")
+//    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);
 
     @PATCH("/patchUser/{email}") // Working!
     Call<Void> executePatchUser (@Path("email") String email, @Body HashMap<String, String> map);
 
-    @DELETE("/deleteObjectFromRef/{email}")
-    Call<Void> executeDeleteObjectFromRef(@Path("email") String email);
-
+    @DELETE("/deleteObjectFromRef/{ref}/{email}")
+    Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);
 
 
 
