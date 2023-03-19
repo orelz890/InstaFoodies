@@ -27,11 +27,21 @@ public class LoginActivity extends AppCompatActivity {
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
     private String BASE_URL = "http://10.0.2.2:8080";
+    private User user;
+    Button loginBtn;
+    EditText emailEdit;
+    EditText passwordEdit;
+    View acb_getUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        loginBtn = findViewById(R.id.btn_login);
+        emailEdit = findViewById(R.id.input_email);
+        passwordEdit = findViewById(R.id.input_password);
+        acb_getUser = findViewById(R.id.acb_getUser);
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -76,55 +86,78 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handlePatchUserDialog(View view) {
-        final EditText emailEdit = findViewById(R.id.input_email);
-        final EditText passwordEdit = findViewById(R.id.input_password);
         String email = emailEdit.getText().toString();
-        String pass = passwordEdit.getText().toString();
 
-//        String email = "orelzx13@gmail.com";
-//        String pass = "000";
+        Call<User> call = retrofitInterface.executeGetUser(email);
 
-        HashMap<String, String> map = new HashMap<>();
-
-        map.put("password", pass);
-        Call<Void> call = retrofitInterface.executePatchUser(email, map);
-
-        call.enqueue(new Callback<Void>() {
+        call.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
 
                 if (response.code() == 200) {
-                    Toast.makeText(LoginActivity.this, "Updated user: " + email,
-                            Toast.LENGTH_LONG).show();
-                } else if (response.code() == 404) {
-                    Toast.makeText(LoginActivity.this, "Wrong Credentials: " + response.message(),
-                            Toast.LENGTH_LONG).show();
-                }
 
+                    User user = response.body();
+                    if (user != null) {
+                        String pass = passwordEdit.getText().toString();
+                        HashMap<String, String> map = new HashMap<>();
+
+                        map.put("name", user.getName());
+                        map.put("uid", user.getId());
+                        map.put("email", user.getEmail());
+                        map.put("password", pass);
+                        Call<Void> call2 = retrofitInterface.executePatchUser(email, map);
+
+                        call2.enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+
+                                if (response.code() == 200) {
+                                    Toast.makeText(LoginActivity.this, "Updated user: " + email,
+                                            Toast.LENGTH_LONG).show();
+                                } else if (response.code() == 404) {
+                                    Toast.makeText(LoginActivity.this, "Wrong Credentials: " + response.message(),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+                                Toast.makeText(LoginActivity.this, "onFailure: " + t.getMessage(),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                    }
+                } else if (response.code() == 400) {
+                    Toast.makeText(LoginActivity.this,
+                            "handlePatchUserDialog: User is null", Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
-            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
                 Toast.makeText(LoginActivity.this, t.getMessage(),
                         Toast.LENGTH_LONG).show();
             }
         });
+
+
     }
 
     private void handleLoginDialog() {
 
-        Button loginBtn = findViewById(R.id.btn_login);
-        final EditText emailEdit = findViewById(R.id.input_email);
-        final EditText passwordEdit = findViewById(R.id.input_password);
-
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String email = emailEdit.getText().toString();
+                String pass = passwordEdit.getText().toString();
+                String name = "orel";
 
                 HashMap<String, String> map = new HashMap<>();
 
-                map.put("email", emailEdit.getText().toString());
-                map.put("password", passwordEdit.getText().toString());
+                map.put("name", name);
+                map.put("email", email);
+                map.put("password", pass);
 
                 Call<User> call = retrofitInterface.executeLogin(map);
 
@@ -133,10 +166,10 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
 
                         if (response.code() == 200) {
-
-                            User result = response.body();
-                            assert result != null;
-                            Toast.makeText(LoginActivity.this, "Name: " + result.getName(),
+//                            System.out.println("\n\n\n" + response.body() + "\n\n\n");
+                            user = response.body();
+                            assert user != null;
+                            Toast.makeText(LoginActivity.this, "Name: " + user.getName(),
                                     Toast.LENGTH_LONG).show();
 //                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
 //                            builder1.setTitle(result.getName());
@@ -166,8 +199,6 @@ public class LoginActivity extends AppCompatActivity {
     private void handleSignupDialog() {
 
         View viewById = findViewById(R.id.link_sign_up);
-        final EditText emailEdit = findViewById(R.id.input_email);
-        final EditText passwordEdit = findViewById(R.id.input_password);
 
         viewById.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,15 +210,17 @@ public class LoginActivity extends AppCompatActivity {
                 map.put("email", emailEdit.getText().toString());
                 map.put("password", passwordEdit.getText().toString());
 
-                Call<Void> call = retrofitInterface.executeSignup(map);
+                Call<User> call = retrofitInterface.executeSignup(map);
 
-                call.enqueue(new Callback<Void>() {
+                call.enqueue(new Callback<User>() {
                     @Override
-                    public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                    public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
 
                         if (response.code() == 200) {
+                            user = response.body();
+                            assert user != null;
                             Toast.makeText(LoginActivity.this,
-                                    "Signed up successfully", Toast.LENGTH_LONG).show();
+                                    user.getName() + ": Signed up successfully", Toast.LENGTH_LONG).show();
                         } else if (response.code() == 400) {
                             Toast.makeText(LoginActivity.this,
                                     "Already registered", Toast.LENGTH_LONG).show();
@@ -195,7 +228,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
                         Toast.makeText(LoginActivity.this, t.getMessage(),
                                 Toast.LENGTH_LONG).show();
                     }
@@ -207,14 +240,11 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void handleGetUserDialog() {
-        View viewById = findViewById(R.id.acb_getUser);
-        final EditText emailEdit = findViewById(R.id.input_email);
 
-        viewById.setOnClickListener(new View.OnClickListener() {
+        acb_getUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                HashMap<String, String> map = new HashMap<>();
-//                map.put("email", emailEdit.getText().toString());
+
                 String email = emailEdit.getText().toString();
                 Call<User> call = retrofitInterface.executeGetUser(email);
 
@@ -244,10 +274,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleDelUserDialog(View viewById) {
-        final EditText emailEdit = findViewById(R.id.input_email);
 
         String email = emailEdit.getText().toString();
-//        String email = "orelzx13@gmail.com";
         String ref = "users";
 
         Call<Void> call = retrofitInterface.executeDeleteObjectFromRef(ref, email);
