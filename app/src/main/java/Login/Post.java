@@ -36,22 +36,27 @@ public class Post {
     private Recipe recipe = null;
 
     public Post() {
-        this.images = new ArrayList<>();
-        this.comments = new HashMap<>();
-        this.recipe = null;
+        init();
     }
 
     public Post(String authorId, int postNumber, String personalNotes, int likes, int shares,
                 int views, List<String> images, HashMap<String, String> comments, Recipe recipe) {
-        this.authorId = authorId;
-        this.postNumber = postNumber;
-        this.personalNotes = personalNotes;
-        this.likes = likes;
-        this.shares = shares;
-        this.views = views;
-        this.images = images;
-        this.comments = comments;
-        this.recipe = recipe;
+        init();
+        this.setAuthorId(authorId);
+        this.setPostNumber(postNumber);
+        this.setPersonalNotes(personalNotes);
+        this.setLikes(likes);
+        this.setShares(shares);
+        this.setViews(views);
+        this.setImages(images);
+        this.setComments(comments);
+        this.setRecipe(recipe);
+    }
+
+    public void init(){
+        this.images = new ArrayList<>();
+        this.comments = new HashMap<>();
+        this.recipe = null;
     }
 
     public String getAuthorId() {

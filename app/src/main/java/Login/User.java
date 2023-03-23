@@ -41,27 +41,36 @@ public class User {
 
 
     public User(String name, String email, String password) {
-        this.name = name;
-        this.email = email;
-        this.passwordHash = password;
-        this.isBusiness = false;
+        init();
+        this.setName(name);
+        this.setEmail(email);
+        this.setPasswordHash(passwordHash);
+        this.setBusiness(false);
     }
 
     public User(String id, String name, String email, String passwordHash, boolean isBusiness,
                 List<String> followers, List<String> following, Map<String, String> cart,
                 Map<String, String> likes, List<Post> myPosts) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.isBusiness = isBusiness;
-        this.followers = followers;
-        this.following = following;
-        Cart = cart;
-        Likes = likes;
-        this.myPosts = myPosts;
+        init();
+        this.setId(id);
+        this.setName(name);
+        this.setEmail(email);
+        this.setPasswordHash(passwordHash);
+        this.setBusiness(isBusiness);
+        this.setFollowers(followers);
+        this.setFollowing(following);
+        this.setCart(cart);
+        this.setLikes(likes);
+        this.setMyPosts(myPosts);
     }
 
+    private void init(){
+        this.followers = new ArrayList<>();
+        this.following = new ArrayList<>();
+        this.Cart = new HashMap<>();
+        this.Likes = new HashMap<>();
+        this.myPosts = new ArrayList<>();
+    }
 
     public HashMap<String, Object> userHash(){
         HashMap<String, Object> ans = new HashMap<>();
@@ -161,11 +170,11 @@ public class User {
         Likes = likes;
     }
 
-    public List<Post> getMyRecipes() {
+    public List<Post> getMyPosts() {
         return myPosts;
     }
 
-    public void setMyRecipes(List<Post> myRecipes) {
+    public void setMyPosts(List<Post> myRecipes) {
         this.myPosts.clear();
         this.myPosts.addAll(myRecipes);
     }
