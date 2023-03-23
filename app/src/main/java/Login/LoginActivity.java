@@ -140,8 +140,6 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
             }
         });
-
-
     }
 
     private void handleLoginDialog() {
@@ -195,6 +193,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
+
 
     private void handleSignupDialog() {
 
