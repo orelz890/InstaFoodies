@@ -153,8 +153,8 @@ public class LoginActivity extends AppCompatActivity {
                 HashMap<String, String> map = new HashMap<>();
                 map.put("email", email);
                 map.put("password", pass);
-                Toast.makeText(LoginActivity.this, "pass= "+pass+", len= "+pass.length(),
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(LoginActivity.this, "pass= "+pass+", len= "+pass.length(),
+//                        Toast.LENGTH_LONG).show();
                 Call<User> call = retrofitInterface.executeLogin(map);
 
                 call.enqueue(new Callback<User>() {
@@ -173,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
 //
 //                            builder1.show();
 
-                        } else if (response.code() == 404) {
+                        } else if (response.code() == 404 || response.code() == 400) {
                             Toast.makeText(LoginActivity.this, "Wrong Credentials",
                                     Toast.LENGTH_LONG).show();
                         }
