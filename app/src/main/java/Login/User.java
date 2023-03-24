@@ -39,6 +39,8 @@ public class User {
     @SerializedName("myPosts")
     private List<Post> myPosts = new ArrayList<>();
 
+    @SerializedName("myRecipePosts")
+    private List<Post> myRecipePosts = new ArrayList<>();
 
     public User(String name, String email, String password) {
         init();
@@ -48,9 +50,10 @@ public class User {
         this.setBusiness(false);
     }
 
+
     public User(String id, String name, String email, String passwordHash, boolean isBusiness,
                 List<String> followers, List<String> following, Map<String, String> cart,
-                Map<String, String> likes, List<Post> myPosts) {
+                Map<String, String> likes, List<Post> myPosts, List<Post> myRecipePosts) {
         init();
         this.setId(id);
         this.setName(name);
@@ -62,6 +65,7 @@ public class User {
         this.setCart(cart);
         this.setLikes(likes);
         this.setMyPosts(myPosts);
+        this.setMyRecipePosts(myRecipePosts);
     }
 
     private void init(){
@@ -70,6 +74,7 @@ public class User {
         this.Cart = new HashMap<>();
         this.Likes = new HashMap<>();
         this.myPosts = new ArrayList<>();
+        this.myRecipePosts = new ArrayList<>();
     }
 
     public HashMap<String, Object> userHash(){
@@ -84,6 +89,7 @@ public class User {
         ans.put("Cart", this.Cart);
         ans.put("Likes", this.Likes);
         ans.put("myPosts", this.myPosts);
+        ans.put("myRecipePosts", this.myRecipePosts);
         return ans;
     }
 
@@ -179,5 +185,14 @@ public class User {
     public void setMyPosts(List<Post> myRecipes) {
         this.myPosts = new ArrayList<>();
         this.myPosts.addAll(myRecipes);
+    }
+
+    public List<Post> getMyRecipePosts() {
+        return myRecipePosts;
+    }
+
+    public void setMyRecipePosts(List<Post> myRecipePosts) {
+        this.myRecipePosts = new ArrayList<>();
+        this.myRecipePosts.addAll(myRecipePosts);
     }
 }
