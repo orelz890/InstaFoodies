@@ -75,6 +75,7 @@ public class User {
     public HashMap<String, Object> userHash(){
         HashMap<String, Object> ans = new HashMap<>();
         ans.put("uid", this.id);
+        ans.put("name", this.name);
         ans.put("email", this.email);
         ans.put("password", this.passwordHash);
         ans.put("isBusiness", this.isBusiness);
@@ -139,7 +140,7 @@ public class User {
     }
 
     public void setFollowers(List<String> followers) {
-        this.followers.clear();
+        this.followers = new ArrayList<>();
         this.followers.addAll(followers);
     }
 
@@ -149,7 +150,7 @@ public class User {
     }
 
     public void setFollowing(List<String> following) {
-        this.following.clear();
+        this.following = new ArrayList<>();
         this.following.addAll(following);
     }
 
@@ -158,7 +159,7 @@ public class User {
     }
 
     public void setCart(Map<String, String> cart) {
-        this.Cart.clear();
+        this.Cart = new HashMap<>();
         this.Cart.putAll(cart);
     }
 
@@ -167,7 +168,8 @@ public class User {
     }
 
     public void setLikes(Map<String, String> likes) {
-        Likes = likes;
+        Likes = new HashMap<>();
+        Likes.putAll(likes);
     }
 
     public List<Post> getMyPosts() {
@@ -175,7 +177,7 @@ public class User {
     }
 
     public void setMyPosts(List<Post> myRecipes) {
-        this.myPosts.clear();
+        this.myPosts = new ArrayList<>();
         this.myPosts.addAll(myRecipes);
     }
 }

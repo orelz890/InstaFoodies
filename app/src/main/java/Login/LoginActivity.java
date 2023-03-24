@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.example.instafoodies.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,12 +81,12 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.acb_patchUser).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                handlePatchUserDialog(view);
+                handlePatchUserDialog();
             }
         });
     }
 
-    private void handlePatchUserDialog(View view) {
+    private void handlePatchUserDialog() {
         String email = emailEdit.getText().toString();
 
         Call<User> call = retrofitInterface.executeGetUser(email);
@@ -98,14 +99,13 @@ public class LoginActivity extends AppCompatActivity {
 
                     User user = response.body();
                     if (user != null) {
+                        // >>>>>> If you want to change more attributes do so here <<<<<<
                         String pass = passwordEdit.getText().toString();
-                        HashMap<String, String> map = new HashMap<>();
-
-                        map.put("name", user.getName());
-                        map.put("uid", user.getId());
-                        map.put("email", user.getEmail());
-                        map.put("password", pass);
-                        Call<Void> call2 = retrofitInterface.executePatchUser(email, map);
+                        user.setPasswordHash(pass);
+                        ArrayList<String> f63 = new ArrayList<>();
+                        f63.add("aaa");
+                        user.setFollowing(f63);
+                        Call<Void> call2 = retrofitInterface.executePatchUser(email, user.userHash());
 
                         call2.enqueue(new Callback<Void>() {
                             @Override
@@ -149,14 +149,12 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String email = emailEdit.getText().toString();
                 String pass = passwordEdit.getText().toString();
-                String name = "orel";
 
                 HashMap<String, String> map = new HashMap<>();
-
-                map.put("name", name);
                 map.put("email", email);
                 map.put("password", pass);
-
+                Toast.makeText(LoginActivity.this, "pass= "+pass+", len= "+pass.length(),
+                        Toast.LENGTH_LONG).show();
                 Call<User> call = retrofitInterface.executeLogin(map);
 
                 call.enqueue(new Callback<User>() {
@@ -202,12 +200,16 @@ public class LoginActivity extends AppCompatActivity {
         viewById.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String email = emailEdit.getText().toString();
+                String pass = passwordEdit.getText().toString();
 
-                HashMap<String, String> map = new HashMap<>();
-
+                HashMap<String, Object> map = new HashMap<>();
                 map.put("name", "baruch");
-                map.put("email", emailEdit.getText().toString());
-                map.put("password", passwordEdit.getText().toString());
+                map.put("email", email);
+                map.put("password", pass);
+
+//                User user1 = new User("baruch", emailEdit.getText().toString(),passwordEdit.getText().toString());
+//                HashMap<String, Object> stringObjectHashMap = user1.userHash();
 
                 Call<User> call = retrofitInterface.executeSignup(map);
 

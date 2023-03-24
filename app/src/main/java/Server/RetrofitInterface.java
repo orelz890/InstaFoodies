@@ -21,8 +21,11 @@ public interface RetrofitInterface {
     @POST("/login") // Working!
     Call<User> executeLogin(@Body HashMap<String, String> map);
 
+//    @POST("/signup") // Working!
+//    Call<User> executeSignup (@Body HashMap<String, String> map);
+
     @POST("/signup") // Working!
-    Call<User> executeSignup (@Body HashMap<String, String> map);
+    Call<User> executeSignup (@Body HashMap<String, Object> map);
 
     @GET("/getUser/{email}") // Working!
     Call<User> executeGetUser (@Path("email") String email);
@@ -31,7 +34,7 @@ public interface RetrofitInterface {
 //    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);
 
     @PATCH("/patchUser/{email}") // Working!
-    Call<Void> executePatchUser (@Path("email") String email, @Body HashMap<String, String> map);
+    Call<Void> executePatchUser (@Path("email") String email, @Body HashMap<String, Object> map);
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);
