@@ -33,8 +33,8 @@ public interface RetrofitInterface {
 //    @PUT("/setUser/{email}")
 //    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);
 
-    @PATCH("/patchUser/{email}") // Working!
-    Call<Void> executePatchUser (@Path("email") String email, @Body HashMap<String, Object> map);
+    @PATCH("/patchUser") // Working!
+    Call<Void> executePatchUser (@Body HashMap<String, Object> map);
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);

@@ -2,7 +2,11 @@ package Login;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,12 +39,17 @@ public class Post {
     @SerializedName("recipe")
     private Recipe recipe = null;
 
+    @SerializedName("timeStamp")
+    private String timeStamp;
+
+
     public Post() {
         init();
     }
 
     public Post(String authorId, int postNumber, String personalNotes, int likes, int shares,
-                int views, List<String> images, HashMap<String, String> comments, Recipe recipe) {
+                int views, List<String> images, HashMap<String, String> comments, Recipe recipe,
+                String timeStamp) {
         init();
         this.setAuthorId(authorId);
         this.setPostNumber(postNumber);
@@ -51,6 +60,7 @@ public class Post {
         this.setImages(images);
         this.setComments(comments);
         this.setRecipe(recipe);
+        this.setTimeStamp(timeStamp);
     }
 
     public void init(){
@@ -131,6 +141,20 @@ public class Post {
 
     public void setRecipe(Recipe recipe) {
         this.recipe = recipe;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    public void setTimeStampToNow(){
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Calendar cal = Calendar.getInstance();
+        this.setTimeStamp(dateFormat.format(cal.getTime()));
     }
 
 }

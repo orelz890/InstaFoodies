@@ -101,11 +101,10 @@ public class LoginActivity extends AppCompatActivity {
                     if (user != null) {
                         // >>>>>> If you want to change more attributes do so here <<<<<<
                         String pass = passwordEdit.getText().toString();
-                        user.setPasswordHash(pass);
                         ArrayList<String> f63 = new ArrayList<>();
                         f63.add("aaa");
                         user.setFollowing(f63);
-                        Call<Void> call2 = retrofitInterface.executePatchUser(email, user.userHash());
+                        Call<Void> call2 = retrofitInterface.executePatchUser(user.userHash());
 
                         call2.enqueue(new Callback<Void>() {
                             @Override
@@ -165,6 +164,7 @@ public class LoginActivity extends AppCompatActivity {
 //                            System.out.println("\n\n\n" + response.body() + "\n\n\n");
                             user = response.body();
                             assert user != null;
+
                             Toast.makeText(LoginActivity.this, "Name: " + user.getName(),
                                     Toast.LENGTH_LONG).show();
 //                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
