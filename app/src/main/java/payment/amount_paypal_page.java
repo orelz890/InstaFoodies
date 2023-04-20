@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.example.instafoodies.R;
 import com.paypal.android.sdk.payments.PayPalConfiguration;
@@ -25,7 +26,7 @@ import java.math.BigDecimal;
 
 public class amount_paypal_page extends AppCompatActivity {
 
-    Button btn;
+    ImageView btn;
     EditText amount;
 
     public static final String clientId = "AbvMu5a2zAFu5qfPTwmu6RiavvuJxOLdRxw-qsD8oKSylPCCUpZlcn_HlOvja3V978u82JEOhZ7oJ4aq";
