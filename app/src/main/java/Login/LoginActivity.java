@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,17 +12,20 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.instafoodies.R;
+import com.paypal.android.sdk.payments.PaymentActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import Server.RetrofitInterface;
+import payment.amount_paypal_page;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -140,7 +144,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
+//    private void intent_to(){
+//        Toast.makeText(LoginActivity.this, "!!!!!!!!!!!!!!!!!!!!!!", Toast.LENGTH_SHORT).show();
+//        Intent intent = new Intent(LoginActivity.this, amount_paypal_page.class);
+//        startActivity(intent);
+//
+//    }
     private void handleLoginDialog() {
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
@@ -164,9 +173,11 @@ public class LoginActivity extends AppCompatActivity {
 //                            System.out.println("\n\n\n" + response.body() + "\n\n\n");
                             user = response.body();
                             assert user != null;
-
+//                            intent_to();
                             Toast.makeText(LoginActivity.this, "Name: " + user.getName(),
                                     Toast.LENGTH_LONG).show();
+
+
 //                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
 //                            builder1.setTitle(result.getName());
 //                            builder1.setMessage(result.getEmail());
