@@ -188,12 +188,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-//    private void intent_to(){
-//        Toast.makeText(LoginActivity.this, "!!!!!!!!!!!!!!!!!!!!!!", Toast.LENGTH_SHORT).show();
-//        Intent intent = new Intent(LoginActivity.this, amount_paypal_page.class);
-//        startActivity(intent);
-//
-//    }
+
     private void handleLoginDialog() {
         Intent main_acticity_intent = new Intent(this, MainActivity.class);
         loginBtn.setOnClickListener(new View.OnClickListener() {
@@ -223,6 +218,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Name: " + user.getUsername(),
                             Toast.LENGTH_LONG).show();
                             startActivity(main_acticity_intent);
+                            finish();
 
 //                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
 //                            builder1.setTitle(result.getName());
@@ -285,6 +281,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this,
                                     user.getUsername() + ": Signed up successfully", Toast.LENGTH_LONG).show();
                             startActivity(main_acticity_intent);
+                            finish();
                         } else if (response.code() == 400) {
                             Toast.makeText(LoginActivity.this,
                                     "Already registered", Toast.LENGTH_LONG).show();
