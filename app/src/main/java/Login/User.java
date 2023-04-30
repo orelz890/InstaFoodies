@@ -2,119 +2,60 @@ package Login;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class User {
-
-    @SerializedName("id")
-    private String id;
-
-    @SerializedName("name")
-    private String name;
-
-    @SerializedName("email")
-    private String email;
 
     @SerializedName("passwordHash")
     private String passwordHash;
 
-    @SerializedName("isBusiness")
-    private boolean isBusiness;
+    @SerializedName("user_id")
+    private String user_id;
 
-    @SerializedName("followers")
-    private List<String> followers = new ArrayList<>();
+    @SerializedName("email")
+    private String email;
 
-    @SerializedName("following")
-    private List<String> following = new ArrayList<>();
+    @SerializedName("phone_number")
+    private String phone_number;
 
-    @SerializedName("Cart")
-    private Map<String, String> Cart = new HashMap<>();
+    @SerializedName("username")
+    private String username;
 
-    @SerializedName("Likes")
-    private Map<String, String> Likes = new HashMap<>();
-
-    @SerializedName("myPosts")
-    private List<Post> myPosts = new ArrayList<>();
-
-    @SerializedName("myRecipePosts")
-    private List<Post> myRecipePosts = new ArrayList<>();
-
-    public User(String name, String email, String password) {
-        init();
-        this.setName(name);
-        this.setEmail(email);
-        this.setPasswordHash(passwordHash);
-        this.setBusiness(false);
-    }
-
-
-    public User(String id, String name, String email, String passwordHash, boolean isBusiness,
-                List<String> followers, List<String> following, Map<String, String> cart,
-                Map<String, String> likes, List<Post> myPosts, List<Post> myRecipePosts) {
-        init();
-        this.setId(id);
-        this.setName(name);
-        this.setEmail(email);
-        this.setPasswordHash(passwordHash);
-        this.setBusiness(isBusiness);
-        this.setFollowers(followers);
-        this.setFollowing(following);
-        this.setCart(cart);
-        this.setLikes(likes);
-        this.setMyPosts(myPosts);
-        this.setMyRecipePosts(myRecipePosts);
-    }
-
-    private void init(){
-        this.followers = new ArrayList<>();
-        this.following = new ArrayList<>();
-        this.Cart = new HashMap<>();
-        this.Likes = new HashMap<>();
-        this.myPosts = new ArrayList<>();
-        this.myRecipePosts = new ArrayList<>();
-    }
-
-    public HashMap<String, Object> userHash(){
+    public HashMap<String, Object> userHashForServer(String password, String email,
+                                                     String phone_number, String username){
         HashMap<String, Object> ans = new HashMap<>();
-        ans.put("uid", this.id);
-        ans.put("name", this.name);
-        ans.put("email", this.email);
-        ans.put("password", this.passwordHash);
-        ans.put("isBusiness", this.isBusiness);
-        ans.put("followers", this.followers);
-        ans.put("following", this.following);
-        ans.put("Cart", this.Cart);
-        ans.put("Likes", this.Likes);
-        ans.put("myPosts", this.myPosts);
-        ans.put("myRecipePosts", this.myRecipePosts);
+        ans.put("password", password);
+        ans.put("email", email);
+        ans.put("phone_number", phone_number);
+        ans.put("username", username);
         return ans;
     }
 
-//    public void init(){
-//        this.followers = new ArrayList<>();
-//        this.following = new ArrayList<>();
-//        this.Cart = new HashMap<>();
-//        this.Likes = new HashMap<>();
-//        this.myPosts = new ArrayList<>();
-//    }
+    public User(String passwordHash, String user_id, String email, String phone_number,
+                String username) {
 
-    public String getId() {
-        return id;
+        this.passwordHash = passwordHash;
+        this.user_id = user_id;
+        this.email = email;
+        this.phone_number = phone_number;
+        this.username = username;
     }
 
-    public void setId(String id) {
-        this.id = id;
+
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public String getName() {
-        return name;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
     public String getEmail() {
@@ -125,74 +66,19 @@ public class User {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPhone_number() {
+        return phone_number;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
     }
 
-    public boolean isBusiness() {
-        return isBusiness;
+    public String getUsername() {
+        return username;
     }
 
-    public void setBusiness(boolean business) {
-        isBusiness = business;
-    }
-
-    public List<String> getFollowers() {
-        return followers;
-    }
-
-    public void setFollowers(List<String> followers) {
-        this.followers = new ArrayList<>();
-        this.followers.addAll(followers);
-    }
-
-
-    public List<String> getFollowing() {
-        return following;
-    }
-
-    public void setFollowing(List<String> following) {
-        this.following = new ArrayList<>();
-        this.following.addAll(following);
-    }
-
-    public Map<String, String> getCart() {
-        return Cart;
-    }
-
-    public void setCart(Map<String, String> cart) {
-        this.Cart = new HashMap<>();
-        this.Cart.putAll(cart);
-    }
-
-    public Map<String, String> getLikes() {
-        return Likes;
-    }
-
-    public void setLikes(Map<String, String> likes) {
-        Likes = new HashMap<>();
-        Likes.putAll(likes);
-    }
-
-    public List<Post> getMyPosts() {
-        return myPosts;
-    }
-
-    public void setMyPosts(List<Post> myRecipes) {
-        this.myPosts = new ArrayList<>();
-        this.myPosts.addAll(myRecipes);
-    }
-
-    public List<Post> getMyRecipePosts() {
-        return myRecipePosts;
-    }
-
-    public void setMyRecipePosts(List<Post> myRecipePosts) {
-        this.myRecipePosts = new ArrayList<>();
-        this.myRecipePosts.addAll(myRecipePosts);
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

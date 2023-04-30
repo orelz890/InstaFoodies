@@ -1,7 +1,6 @@
 package Login;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -12,11 +11,22 @@ import android.widget.Toast;
 
 import com.example.instafoodies.R;
 
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
+import Server.ClientInfo;
 import Server.RetrofitInterface;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,15 +34,24 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity {
+    String ipAddress = (new ClientInfo()).getIpAddress();
+    String email;
 
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
+//    The IP address 10.0.2.2 is a special alias to your host loopback interface (localhost)
+//    on the development machine when you are running an Android emulator
+
     private String BASE_URL = "http://10.0.2.2:8080";
+//    private String BASE_URL = "https://10.0.2.2:443";
+//    private String BASE_URL = "http://" + ipAddress + ":8080";
+    //    private String BASE_URL = "http://localhost:8080";
     private User user;
     Button loginBtn;
     EditText emailEdit;
     EditText passwordEdit;
     View acb_getUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +63,29 @@ public class LoginActivity extends AppCompatActivity {
         passwordEdit = findViewById(R.id.input_password);
         acb_getUser = findViewById(R.id.acb_getUser);
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+
+        OkHttpClient client = null;
+        try {
+            client = new OkHttpClient.Builder()
+                    .sslSocketFactory(getSSLContext().getSocketFactory(),
+                            (X509TrustManager) trustAllCerts[0])
+                    .hostnameVerifier((hostname, session) -> true)
+                    .build();
+
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+
 
         retrofitInterface = retrofit.create(RetrofitInterface.class);
 
@@ -86,56 +124,62 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private SSLContext getSSLContext() throws Exception {
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
+                TrustManagerFactory.getDefaultAlgorithm());
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(null, null);
+        trustManagerFactory.init(keyStore);
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+        return sslContext;
+    }
+
+    private TrustManager[] trustAllCerts = new TrustManager[] {
+        new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[]{};
+            }
+        }
+    };
+
     private void handlePatchUserDialog() {
         String email = emailEdit.getText().toString();
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("email", email);
+//        map.put("username", "orel");
+        map.put("display_name", "baruch");
 
-        Call<User> call = retrofitInterface.executeGetUser(email);
+//        Call<Void> call = retrofitInterface.executePatchUser(map);
+        Call<Void> call = retrofitInterface.executePatchUserAccountSettings(map);
 
-        call.enqueue(new Callback<User>() {
+        call.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
 
                 if (response.code() == 200) {
-
-                    User user = response.body();
-                    if (user != null) {
-                        // >>>>>> If you want to change more attributes do so here <<<<<<
-                        String pass = passwordEdit.getText().toString();
-                        ArrayList<String> f63 = new ArrayList<>();
-                        f63.add("aaa");
-                        user.setFollowing(f63);
-                        Call<Void> call2 = retrofitInterface.executePatchUser(user.userHash());
-
-                        call2.enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-
-                                if (response.code() == 200) {
-                                    Toast.makeText(LoginActivity.this, "Updated user: " + email,
-                                            Toast.LENGTH_LONG).show();
-                                } else if (response.code() == 404) {
-                                    Toast.makeText(LoginActivity.this, "Wrong Credentials: " + response.message(),
-                                            Toast.LENGTH_LONG).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull Call<Void> call, Throwable t) {
-                                Toast.makeText(LoginActivity.this, "onFailure: " + t.getMessage(),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        });
-
-                    }
-                } else if (response.code() == 400) {
-                    Toast.makeText(LoginActivity.this,
-                            "handlePatchUserDialog: User is null", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, "Updated user: " + email,
+                            Toast.LENGTH_LONG).show();
+                } else if (response.code() == 404) {
+                    Toast.makeText(LoginActivity.this, "Wrong Credentials: " + response.message(),
+                            Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(LoginActivity.this, response.message(),
+                            Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-                Toast.makeText(LoginActivity.this, t.getMessage(),
+            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "onFailure: " + t.getMessage(),
                         Toast.LENGTH_LONG).show();
             }
         });
@@ -146,7 +190,7 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = emailEdit.getText().toString();
+                email = emailEdit.getText().toString();
                 String pass = passwordEdit.getText().toString();
 
                 HashMap<String, String> map = new HashMap<>();
@@ -154,6 +198,8 @@ public class LoginActivity extends AppCompatActivity {
                 map.put("password", pass);
 //                Toast.makeText(LoginActivity.this, "pass= "+pass+", len= "+pass.length(),
 //                        Toast.LENGTH_LONG).show();
+                Date currentDate = new Date();
+                String ifModifiedSince = currentDate.toString();
                 Call<User> call = retrofitInterface.executeLogin(map);
 
                 call.enqueue(new Callback<User>() {
@@ -165,7 +211,7 @@ public class LoginActivity extends AppCompatActivity {
                             user = response.body();
                             assert user != null;
 
-                            Toast.makeText(LoginActivity.this, "Name: " + user.getName(),
+                            Toast.makeText(LoginActivity.this, "Name: " + user.getUsername(),
                                     Toast.LENGTH_LONG).show();
 //                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
 //                            builder1.setTitle(result.getName());
@@ -175,6 +221,10 @@ public class LoginActivity extends AppCompatActivity {
 
                         } else if (response.code() == 404 || response.code() == 400) {
                             Toast.makeText(LoginActivity.this, "Wrong Credentials",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            Toast.makeText(LoginActivity.this, response.message(),
                                     Toast.LENGTH_LONG).show();
                         }
 
@@ -200,7 +250,7 @@ public class LoginActivity extends AppCompatActivity {
         viewById.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = emailEdit.getText().toString();
+                email = emailEdit.getText().toString();
                 String pass = passwordEdit.getText().toString();
 
                 HashMap<String, Object> map = new HashMap<>();
@@ -221,10 +271,14 @@ public class LoginActivity extends AppCompatActivity {
                             user = response.body();
                             assert user != null;
                             Toast.makeText(LoginActivity.this,
-                                    user.getName() + ": Signed up successfully", Toast.LENGTH_LONG).show();
+                                    user.getUsername() + ": Signed up successfully", Toast.LENGTH_LONG).show();
                         } else if (response.code() == 400) {
                             Toast.makeText(LoginActivity.this,
                                     "Already registered", Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            Toast.makeText(LoginActivity.this, response.message(),
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -246,26 +300,29 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String email = emailEdit.getText().toString();
-                Call<User> call = retrofitInterface.executeGetUser(email);
+                Call<User_account_settings> call = retrofitInterface.executeGetUser(email);
 
-                call.enqueue(new Callback<User>() {
+                call.enqueue(new Callback<User_account_settings>() {
                     @Override
-                    public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+                    public void onResponse(@NonNull Call<User_account_settings> call, @NonNull Response<User_account_settings> response) {
 
-                        User result = response.body();
+                        User_account_settings result = response.body();
                         if (response.code() == 200) {
                             assert result != null;
                             Toast.makeText(LoginActivity.this,
-                                    "Name: " + result.getName(), Toast.LENGTH_LONG).show();
+                                    "Name: " + result.getUsername(), Toast.LENGTH_LONG).show();
                         } else if (response.code() == 400) {
                             Toast.makeText(LoginActivity.this,
                                     "Don't exist", Toast.LENGTH_LONG).show();
                         }
+                        else {
+                            Toast.makeText(LoginActivity.this, response.message(),
+                                    Toast.LENGTH_LONG).show();
+                        }
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<User_account_settings> call, @NonNull Throwable t) {
                         Toast.makeText(LoginActivity.this, t.getMessage(),
                                 Toast.LENGTH_LONG).show();
                     }
@@ -276,7 +333,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void handleDelUserDialog(View viewById) {
 
-        String email = emailEdit.getText().toString();
         String ref = "users";
 
         Call<Void> call = retrofitInterface.executeDeleteObjectFromRef(ref, email);
