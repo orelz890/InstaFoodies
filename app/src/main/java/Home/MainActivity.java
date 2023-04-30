@@ -1,5 +1,6 @@
 package Home;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
@@ -20,10 +21,14 @@ import Utils.UniversalImageLoader;
 
 
 public class MainActivity extends AppCompatActivity {
-
+// implements MainFeedListAdapter.OnLoadMoreItemsListener
     private static final String TAG = "MainActivity";
     private Context mContext = MainActivity.this;
     private static final int ACTIVITY_NUM = 0;
+
+    //firebase
+//    private  FirebaseAuth mAuth;
+//    private FirebaseeAuth.AuthStateListnerr mAuthLisnter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +36,55 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: starting.");
 
+       // setupFirebaseAuth();
         InitImageLoader();
         setupBottomNavigationView();
         setupViewPager();
     }
 
+
+/*
+---------------------------------------------Firebase------------------------------------
+ */
+//
+//    private void checkCurrentUSer(FirebaseUser user){
+//        log.d(TAG, "checkCurrentUSer: checking if user is logged in.");
+//        if(user == null){
+//            Intent intent = new Intent(mContext, LoginActivity.class);
+//            startActivity(intent);
+//        }
+//    }
+//    private void setupFirebaseAuth(){
+//        log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+//        mAuth = FirebaseAuth.getInstance();
+//        mAuthLisnter = new FirebaseAuth.AuthStateLisntener(){
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
+//                FirebaseUser user = firebaseAuth.getCurrentUser();
+//                 checkCurrentUser(user);
+//                if(user != null){
+//                    //user is signd in
+//                    log.d(TAG, "on AtuhStatrChanged: signed in!" + user.getUid());
+//                }else{
+//                    //user is signd out
+//                    log.d(TAG, "onAothStateChanged_ signed out");
+//                }
+//            }
+//        };
+//    }
+//    @Override
+//    public void onStart(){
+//        super.onStart();
+//        mAuth...
+//    }
+//    @Override
+//    public void onStop(){
+//        super.onStop();
+//        if(mAuthLisntener != null){
+//            mAuth...
+//        }
+//    }
+//-----------------------------------------------------------------------------------
     private void InitImageLoader(){
         UniversalImageLoader universalImageLoader = new UniversalImageLoader(mContext);
         ImageLoader.getInstance().init(universalImageLoader.getConfig());

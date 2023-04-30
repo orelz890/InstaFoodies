@@ -1,6 +1,7 @@
 package Login;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class LoginActivity extends AppCompatActivity {
     String ipAddress = (new ClientInfo()).getIpAddress();
@@ -184,7 +186,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
+//    private void intent_to(){
+//        Toast.makeText(LoginActivity.this, "!!!!!!!!!!!!!!!!!!!!!!", Toast.LENGTH_SHORT).show();
+//        Intent intent = new Intent(LoginActivity.this, amount_paypal_page.class);
+//        startActivity(intent);
+//
+//    }
     private void handleLoginDialog() {
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
@@ -212,7 +219,11 @@ public class LoginActivity extends AppCompatActivity {
                             assert user != null;
 
                             Toast.makeText(LoginActivity.this, "Name: " + user.getUsername(),
-                                    Toast.LENGTH_LONG).show();
+                            Toast.LENGTH_LONG).show();
+//                            intent_to();
+
+
+
 //                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
 //                            builder1.setTitle(result.getName());
 //                            builder1.setMessage(result.getEmail());
