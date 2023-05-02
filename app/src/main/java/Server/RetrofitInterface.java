@@ -35,6 +35,10 @@ public interface RetrofitInterface {
     @GET("/getUser/{email}") // Working!
     Call<User_account_settings> executeGetUser (@Path("email") String email);
 
+
+    @GET("/checkUserName/{username}") // Working!
+    Call<Boolean> executeCheckUserName (@Path("userName") String name);
+
     @GET("/getUserAccountSettings/{email}") // Working!
     Call<User_account_settings> getUserAccountSettings (@Path("email") String email);
 
@@ -49,13 +53,6 @@ public interface RetrofitInterface {
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);
-
-
-
-
-
-
-
 
 
 //    @POST("/login") // Working!
