@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +26,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import Home.MainActivity;
 import Server.ClientInfo;
 import Server.RetrofitInterface;
 import okhttp3.OkHttpClient;
@@ -186,14 +188,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-//    private void intent_to(){
-//        Toast.makeText(LoginActivity.this, "!!!!!!!!!!!!!!!!!!!!!!", Toast.LENGTH_SHORT).show();
-//        Intent intent = new Intent(LoginActivity.this, amount_paypal_page.class);
-//        startActivity(intent);
-//
-//    }
-    private void handleLoginDialog() {
 
+    private void handleLoginDialog() {
+        Intent main_acticity_intent = new Intent(this, MainActivity.class);
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -220,9 +217,8 @@ public class LoginActivity extends AppCompatActivity {
 
                             Toast.makeText(LoginActivity.this, "Name: " + user.getUsername(),
                             Toast.LENGTH_LONG).show();
-//                            intent_to();
-
-
+                            startActivity(main_acticity_intent);
+                            finish();
 
 //                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
 //                            builder1.setTitle(result.getName());
@@ -255,6 +251,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void handleSignupDialog() {
+        Intent main_acticity_intent = new Intent(this, MainActivity.class);
 
         View viewById = findViewById(R.id.link_sign_up);
 
@@ -283,6 +280,8 @@ public class LoginActivity extends AppCompatActivity {
                             assert user != null;
                             Toast.makeText(LoginActivity.this,
                                     user.getUsername() + ": Signed up successfully", Toast.LENGTH_LONG).show();
+                            startActivity(main_acticity_intent);
+                            finish();
                         } else if (response.code() == 400) {
                             Toast.makeText(LoginActivity.this,
                                     "Already registered", Toast.LENGTH_LONG).show();
