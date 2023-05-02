@@ -37,7 +37,7 @@ public interface RetrofitInterface {
 
 
     @GET("/checkUserName/{username}") // Working!
-    Call<Boolean> executeCheckUserName (@Path("userName") String name);
+    Call<Boolean> executeCheckUserName (@Path("username") String username);
 
     @GET("/getUserAccountSettings/{email}") // Working!
     Call<User_account_settings> getUserAccountSettings (@Path("email") String email);
