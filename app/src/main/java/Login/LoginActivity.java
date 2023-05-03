@@ -4,11 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.instafoodies.R;
@@ -249,6 +254,57 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    public String showNameInputDialog() {
+        // Create a new dialog box
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        // Create the name input EditText
+        final EditText nameInput = new EditText(this);
+        nameInput.setHint("Enter your name");
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(50, 50, 50, 0);
+        nameInput.setLayoutParams(params);
+
+        // Create the OK button
+        Button okButton = new Button(this);
+        okButton.setText("OK");
+        okButton.setLayoutParams(params);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = nameInput.getText().toString();
+                // Do something with the name input, such as displaying it in a TextView
+                dialog.dismiss();
+            }
+        });
+
+        // Create the Cancel button
+        Button cancelButton = new Button(this);
+        cancelButton.setText("Cancel");
+        cancelButton.setLayoutParams(params);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        // Create the layout and add the name input and buttons
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.addView(nameInput);
+        layout.addView(okButton);
+        layout.addView(cancelButton);
+
+        // Set the dialog's content view to the layout
+        dialog.setContentView(layout);
+
+        // Show the dialog box
+        dialog.show();
+        return ""+nameInput.getText();
+    }
 
     private void handleSignupDialog() {
         Intent main_acticity_intent = new Intent(this, MainActivity.class);
@@ -262,7 +318,7 @@ public class LoginActivity extends AppCompatActivity {
                 String pass = passwordEdit.getText().toString();
 
                 HashMap<String, Object> map = new HashMap<>();
-                map.put("name", "baruch");
+                map.put("name", showNameInputDialog());
                 map.put("email", email);
                 map.put("password", pass);
 
