@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -15,6 +17,16 @@
         android:theme="@style/Theme.Instafoodies"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+<!--        the notficision part-->
+        <activity
+            android:name="Notifications.reminder"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <receiver android:name="Notifications.ReminderBroadcast"/>
+<!--        the payment part-->
         <activity
             android:name="payment.amount_paypal_page"
             android:exported="false">
@@ -22,7 +34,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <activity
             android:name="Login.LoginActivity"
             android:exported="true">
