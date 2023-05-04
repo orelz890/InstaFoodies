@@ -1,13 +1,10 @@
-package Login;
+package models;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-public class User_account_settings {
+public class UserAccountSettings {
 
     @SerializedName("username")
     private String username;
@@ -75,7 +72,7 @@ public class User_account_settings {
         return ans;
     }
 
-    public User_account_settings(){
+    public UserAccountSettings(){
         this.description = "none";
         this.display_name = "none";
         this.followers = 0;
@@ -87,9 +84,9 @@ public class User_account_settings {
         this.isBusiness = false;
     }
 
-    public User_account_settings(String username, String description, String display_name,
-                                 String profile_photo, boolean isBusiness, int followers,
-                                 int following, int posts, String website) {
+    public UserAccountSettings(String username, String description, String display_name,
+                               String profile_photo, boolean isBusiness, int followers,
+                               int following, int posts, String website) {
         this.username = username;
         this.description = description;
         this.display_name = display_name;

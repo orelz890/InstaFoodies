@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 
 import Likes.LikesActivity;
-import Home.MainActivity;
+import Home.HomeActivity;
 import Profile.ProfileActivity;
 import com.example.instafoodies.R;
 import Search.SearchActivity;
@@ -39,7 +39,7 @@ public class BottomNavigationViewHelper {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()){
                     case R.id.ic_house:
-                        Intent intent1 = new Intent(context, MainActivity.class);// ACTIVITY_NUM 0
+                        Intent intent1 = new Intent(context, HomeActivity.class);// ACTIVITY_NUM 0
                         context.startActivity(intent1);
                         break;
 

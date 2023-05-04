@@ -58,9 +58,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="25dp"
-            android:text="Login"
+            android:background="@drawable/white_rounded_button"
             android:padding="12dp"
-            android:background="@drawable/white_rounded_button"/>
+            android:text="Login" />
 
         <TextView
             android:id="@+id/link_sign_up"
@@ -125,6 +125,8 @@
             android:text="Please wait..."
             android:textColor="@color/black"
             android:textSize="20sp"
+            android:id="@+id/pleaseWait"
+
 
             />
 

@@ -1,4 +1,4 @@
-package Login;
+package models;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -29,6 +29,17 @@ public class User {
         ans.put("phone_number", phone_number);
         ans.put("username", username);
         return ans;
+    }
+
+    public HashMap<String, Object> userMapForServer(){
+        HashMap<String, Object> ans = new HashMap<>();
+        ans.put("password", this.passwordHash);
+        ans.put("email", email);
+        ans.put("user_id", this.user_id);
+        ans.put("phone_number", this.phone_number);
+        ans.put("username", this.username);
+        return ans;
+
     }
 
     public User(String passwordHash, String user_id, String email, String phone_number,

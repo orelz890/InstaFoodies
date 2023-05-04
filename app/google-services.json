@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "399875580263-c99ifgrh2ne657srksppomcu3losfvp0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.android.application",
+            "certificate_hash": "05b09c68c8949dbaba602f7650dc6548ce8b06e0"
+          }
+        },
+        {
+          "client_id": "399875580263-jkdpb12id2ksv695dt1vk98hh03c4g69.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.android.application",
+            "certificate_hash": "77ed922f5df2ad987a70a6ce17e11817c9d5a7f6"
+          }
+        },
+        {
           "client_id": "399875580263-plgj9a22rk88ijg4afrorr73d2us7ah9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -21,6 +37,35 @@
             "certificate_hash": "1c4b30e7a05f4f2c32582628d12fd9e79682859d"
           }
         },
+        {
+          "client_id": "399875580263-5uoppepepga9etcd34lqdsbtq3rukjqf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvgYsybxPHUdsitM_mArCC8iRVR0vT4iI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "399875580263-5uoppepepga9etcd34lqdsbtq3rukjqf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:399875580263:android:c8bf698c98c6a560600fc2",
+        "android_client_info": {
+          "package_name": "com.example.instafoodies"
+        }
+      },
+      "oauth_client": [
         {
           "client_id": "399875580263-5uoppepepga9etcd34lqdsbtq3rukjqf.apps.googleusercontent.com",
           "client_type": 3

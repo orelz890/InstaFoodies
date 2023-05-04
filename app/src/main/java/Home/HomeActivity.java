@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,22 +14,25 @@ import android.view.MenuItem;
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import Login.LoginActivity;
 import Utils.BottomNavigationViewHelper;
 import Utils.SectionPagerAdapter;
 import Utils.UniversalImageLoader;
 
 
-public class MainActivity extends AppCompatActivity {
-// implements MainFeedListAdapter.OnLoadMoreItemsListener
-    private static final String TAG = "MainActivity";
-    private Context mContext = MainActivity.this;
+public class HomeActivity extends AppCompatActivity {
+    // implements MainFeedListAdapter.OnLoadMoreItemsListener
+    private static final String TAG = "HomeActivity";
+    private Context mContext = HomeActivity.this;
     private static final int ACTIVITY_NUM = 0;
 
     //firebase
-//    private  FirebaseAuth mAuth;
-//    private FirebaseeAuth.AuthStateListnerr mAuthLisnter;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,55 +40,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: starting.");
 
-       // setupFirebaseAuth();
+        setupFirebaseAuth();
+
+
         InitImageLoader();
         setupBottomNavigationView();
         setupViewPager();
     }
 
-
-/*
----------------------------------------------Firebase------------------------------------
- */
-//
-//    private void checkCurrentUSer(FirebaseUser user){
-//        log.d(TAG, "checkCurrentUSer: checking if user is logged in.");
-//        if(user == null){
-//            Intent intent = new Intent(mContext, LoginActivity.class);
-//            startActivity(intent);
-//        }
-//    }
-//    private void setupFirebaseAuth(){
-//        log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
-//        mAuth = FirebaseAuth.getInstance();
-//        mAuthLisnter = new FirebaseAuth.AuthStateLisntener(){
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
-//                FirebaseUser user = firebaseAuth.getCurrentUser();
-//                 checkCurrentUser(user);
-//                if(user != null){
-//                    //user is signd in
-//                    log.d(TAG, "on AtuhStatrChanged: signed in!" + user.getUid());
-//                }else{
-//                    //user is signd out
-//                    log.d(TAG, "onAothStateChanged_ signed out");
-//                }
-//            }
-//        };
-//    }
-//    @Override
-//    public void onStart(){
-//        super.onStart();
-//        mAuth...
-//    }
-//    @Override
-//    public void onStop(){
-//        super.onStop();
-//        if(mAuthLisntener != null){
-//            mAuth...
-//        }
-//    }
-//-----------------------------------------------------------------------------------
     private void InitImageLoader(){
         UniversalImageLoader universalImageLoader = new UniversalImageLoader(mContext);
         ImageLoader.getInstance().init(universalImageLoader.getConfig());
@@ -123,6 +86,55 @@ public class MainActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
+    }
+
+
+     /*
+    ------------------------------------ Firebase ---------------------------------------------
+     */
+    /**
+     * checks to see if the @param 'user' is logged in
+     * @param user
+     */
+    private void checkCurrentUser(FirebaseUser user){
+        Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
+        if(user == null){
+            Intent intent = new Intent(mContext, LoginActivity.class);
+            startActivity(intent);
+        }
+    }
+    /**
+     * Setup the firebase auth object
+     */
+    private void setupFirebaseAuth(){
+        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            //check if the user is logged in
+            checkCurrentUser(user);
+            if (user != null) {
+                // User is signed in
+                Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+            } else {
+                // User is signed out
+                Log.d(TAG, "onAuthStateChanged:signed_out");
+            }
+            // ...
+        };
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+        checkCurrentUser(mAuth.getCurrentUser());
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 
 }

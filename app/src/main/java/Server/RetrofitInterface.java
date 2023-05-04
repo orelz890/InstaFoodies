@@ -1,16 +1,13 @@
 package Server;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import Login.User;
-import Login.User_account_settings;
-import Login.User_old_version;
+import models.User;
+import models.UserAccountSettings;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -33,14 +30,14 @@ public interface RetrofitInterface {
     Call<User> executeSignup (@Body HashMap<String, Object> map);
 
     @GET("/getUser/{email}") // Working!
-    Call<User_account_settings> executeGetUser (@Path("email") String email);
+    Call<UserAccountSettings> executeGetUser (@Path("email") String email);
 
 
     @GET("/checkUserName/{username}") // Working!
-    Call<Boolean> executeCheckUserName (@Path("userName") String name);
+    Call<Boolean> executeCheckUserName (@Path("username") String name);
 
     @GET("/getUserAccountSettings/{email}") // Working!
-    Call<User_account_settings> getUserAccountSettings (@Path("email") String email);
+    Call<UserAccountSettings> getUserAccountSettings (@Path("email") String email);
 
 //    @PUT("/setUser/{email}")
 //    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);

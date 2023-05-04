@@ -24,7 +24,7 @@
         </activity>
 
         <activity
-            android:name="Login.LoginActivity"
+            android:name="Home.HomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,12 +36,13 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity android:name="Login.RegisterActivity" />
         <activity android:name="Likes.LikesActivity" />
         <activity android:name="Profile.ProfileActivity" />
         <activity android:name="Search.SearchActivity" />
         <activity android:name="Share.ShareActivity" />
         <activity android:name="Profile.AccountSettingsActivity" />
-        <activity android:name="Home.MainActivity" />
+        <activity android:name="Login.LoginActivity" />
     </application>
 
 </manifest>
