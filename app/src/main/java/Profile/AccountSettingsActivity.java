@@ -111,3 +111,5 @@ public class AccountSettingsActivity extends AppCompatActivity {
         menuItem.setChecked(true);
     }
 }
+
+

@@ -185,7 +185,7 @@ public class RegisterActivity extends AppCompatActivity {
 //                                    }
 //                                });
 
-                                mAuth.signOut();
+//                                mAuth.signOut();
                             }else {
                                 mEmail.setError("This Name Is Already Exists");
                                 mEmail.requestFocus();
@@ -198,6 +198,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     }
                 });
+                mAuth.signOut();
                 finish();
 
             } else {
