@@ -35,6 +35,7 @@ import javax.net.ssl.X509TrustManager;
 import Home.HomeActivity;
 import Server.ClientInfo;
 import Server.RetrofitInterface;
+import Utils.ServerMethods;
 import models.User;
 import models.UserAccountSettings;
 import retrofit2.Call;
@@ -57,6 +58,9 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private EditText mEmail, mPassword;
     private TextView mPleaseWait;
+
+    private ServerMethods serverMethods;
+
 
 
     String ipAddress = (new ClientInfo()).getIpAddress();
@@ -82,6 +86,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        serverMethods = new ServerMethods(mContext);
+
 //        FirebaseApp.initializeApp(this);
 
 
@@ -405,8 +411,8 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
             }
         });
-    }
 
+    }
 
     /*
 ------------------------------------ Firebase ---------------------------------------------
@@ -451,6 +457,7 @@ public class LoginActivity extends AppCompatActivity {
                                         try{
                                             if(user.isEmailVerified()){
                                                 Log.d(TAG, "onComplete: success. email is verified.");
+
                                                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                                 startActivity(intent);
                                             }else{

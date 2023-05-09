@@ -33,7 +33,6 @@ public class User {
 
     public HashMap<String, Object> userMapForServer(){
         HashMap<String, Object> ans = new HashMap<>();
-        ans.put("password", this.passwordHash);
         ans.put("email", email);
         ans.put("user_id", this.user_id);
         ans.put("phone_number", this.phone_number);

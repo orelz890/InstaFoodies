@@ -19,9 +19,7 @@ import com.example.instafoodies.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 import Utils.FirebaseMethods;
 import Utils.ServerMethods;
@@ -49,9 +47,6 @@ public class RegisterActivity extends AppCompatActivity {
     private ServerMethods serverMethods;
 
 
-
-
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,8 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if (checkInputs(email, username, password)) {
                     mProgressBar.setVisibility(View.VISIBLE);
                     loadingPleaseWait.setVisibility(View.VISIBLE);
-
-                    firebaseMethods.registerNewEmail(email, password, username);
+                    firebaseMethods.registerNewEmail(email, password, username,mProgressBar,loadingPleaseWait);
                 }
             }
         });
@@ -120,10 +114,6 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-     /*
-    ------------------------------------ Firebase ---------------------------------------------
-     */
-
     /**
      * Setup the firebase auth object
      */
@@ -147,46 +137,42 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
 
                         Boolean result = response.body();
+                        Log.d(TAG, "executeCheckUserName" + result);
                         if (response.code() == 200) {
-                            if(Boolean.TRUE.equals(result)){
-//                                HashMap<String, Object> map = new HashMap<>();
-//                                map.put("name", "baruch");
-//                                map.put("email", email);
-//                                map.put("password", password);
-                                System.out.println("UserUid" + mAuth.getCurrentUser().getUid());
-                                User user1 = new User(password, "nnn",email,"",username);
+                            if (Boolean.TRUE.equals(result)) {
+                                Log.d(TAG, "In the if");
+                                User user1 = new User(password, mAuth.getCurrentUser().getUid(), email, "", username);
                                 HashMap<String, Object> stringObjectHashMap = user1.userMapForServer();
-                                System.out.println("HashMap"+ stringObjectHashMap.toString());
                                 /** zamler check why the user_id not shows correctly on firestore -  now is written undefined.
                                  * remove the comment to execute the call signup for updating the server -> firestore **/
 
-//                                Call<User> call2 = serverMethods.retrofitInterface.executeSignup(stringObjectHashMap);
-//                                call2.enqueue(new Callback<User>() {
-//                                    @Override
-//                                    public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
-//
-//                                        if (response.code() == 200) {
-//                                            Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
-//                                            mAuth.signOut();
-//                                        } else if (response.code() == 400) {
-//                                            Toast.makeText(RegisterActivity.this,
-//                                                    "Already registered", Toast.LENGTH_LONG).show();
-//                                        }
-//                                        else {
-//                                            Toast.makeText(RegisterActivity.this, response.message(),
-//                                                    Toast.LENGTH_LONG).show();
-//                                        }
-//                                    }
-//
-//                                    @Override
-//                                    public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-//                                        Toast.makeText(RegisterActivity.this, t.getMessage(),
-//                                                Toast.LENGTH_LONG).show();
-//                                    }
-//                                });
+                                Call<User> call2 = serverMethods.retrofitInterface.executeSignup(stringObjectHashMap);
+                                call2.enqueue(new Callback<User>() {
+                                    @Override
+                                    public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
 
-//                                mAuth.signOut();
-                            }else {
+                                        if (response.code() == 200) {
+                                            Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
+                                            mAuth.signOut();
+                                        } else if (response.code() == 400) {
+                                            Toast.makeText(RegisterActivity.this,
+                                                    "Already registered", Toast.LENGTH_LONG).show();
+                                        } else {
+                                            Toast.makeText(RegisterActivity.this, response.message(),
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+                                        Toast.makeText(RegisterActivity.this, t.getMessage(),
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                            } else {
+                                Toast.makeText(RegisterActivity.this, "This Name Is Already Exists",
+                                        Toast.LENGTH_LONG).show();
                                 mEmail.setError("This Name Is Already Exists");
                                 mEmail.requestFocus();
                             }
@@ -198,7 +184,6 @@ public class RegisterActivity extends AppCompatActivity {
 
                     }
                 });
-                mAuth.signOut();
                 finish();
 
             } else {
@@ -208,6 +193,10 @@ public class RegisterActivity extends AppCompatActivity {
             // ...
         };
     }
+
+     /*
+    ------------------------------------ Firebase ---------------------------------------------
+     */
 
     @Override
     public void onStart() {
