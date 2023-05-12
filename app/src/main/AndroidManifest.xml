@@ -3,8 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -17,7 +20,18 @@
         android:theme="@style/Theme.Instafoodies"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-<!--        the notficision part-->
+
+        <activity
+            android:name="MLKIT.helpers.ImageHelperActivity"
+            android:exported="true"/>
+        <activity
+            android:name="MLKIT.image.ImageClassificationActivity"
+            android:exported="true"/>
+        <activity
+            android:name="MLKIT.image.ObjectDetectionActivity"
+            android:exported="true"/>
+
+        <!-- the notficision part -->
         <activity
             android:name="Notifications.reminder"
             android:exported="false">
@@ -25,8 +39,8 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <receiver android:name="Notifications.ReminderBroadcast"/>
-<!--        the payment part-->
+
+        <receiver android:name="Notifications.ReminderBroadcast" /> <!-- the payment part -->
         <activity
             android:name="payment.amount_paypal_page"
             android:exported="false">
@@ -54,6 +68,10 @@
         <activity android:name="Share.ShareActivity" />
         <activity android:name="Profile.AccountSettingsActivity" />
         <activity android:name="Login.LoginActivity" />
+
+<!--        <meta-data-->
+<!--            android:name="com.google.firebase.ml.vision.DEPENDENCIES"-->
+<!--            android:value="label" />-->
     </application>
 
 </manifest>
