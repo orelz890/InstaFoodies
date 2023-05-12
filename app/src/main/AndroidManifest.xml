@@ -30,6 +30,9 @@
         <activity
             android:name="MLKIT.image.ObjectDetectionActivity"
             android:exported="true"/>
+        <activity
+            android:name="MLKIT.image.FaceDetectionActivity"
+            android:exported="true"/>
 
         <!-- the notficision part -->
         <activity
