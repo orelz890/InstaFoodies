@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import models.User;
 import models.UserAccountSettings;
+import models.UserSettings;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -38,6 +39,9 @@ public interface RetrofitInterface {
 
     @GET("/getUserAccountSettings/{email}") // Working!
     Call<UserAccountSettings> getUserAccountSettings (@Path("email") String email);
+
+    @GET("/getUserSettings/{uid}") // Working!
+    Call<UserSettings> getUserSettings (@Path("uid") String uid);
 
 //    @PUT("/setUser/{email}")
 //    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);

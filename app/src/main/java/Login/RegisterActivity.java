@@ -34,8 +34,8 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
 
     private Context mContext;
-    private String email, username, password;
-    private EditText mEmail, mPassword, mUsername;
+    private String email, username, password,fullname;
+    private EditText mEmail, mPassword, mUsername, mFullName;
     private TextView loadingPleaseWait;
     private Button btnRegister;
     private ProgressBar mProgressBar;
@@ -66,6 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 email = mEmail.getText().toString();
+                fullname = mFullName.getText().toString();
                 username = mUsername.getText().toString();
                 password = mPassword.getText().toString();
 
@@ -94,6 +95,7 @@ public class RegisterActivity extends AppCompatActivity {
         Log.d(TAG, "initWidgets: Initializing Widgets.");
         mEmail = (EditText) findViewById(R.id.input_email_re);
         mUsername = (EditText) findViewById(R.id.input_username);
+        mFullName = (EditText) findViewById(R.id.input_full_name);
         btnRegister = (Button) findViewById(R.id.btn_register);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         loadingPleaseWait = (TextView) findViewById(R.id.loadingPleaseWait);
@@ -140,11 +142,8 @@ public class RegisterActivity extends AppCompatActivity {
                         Log.d(TAG, "executeCheckUserName" + result);
                         if (response.code() == 200) {
                             if (Boolean.TRUE.equals(result)) {
-                                Log.d(TAG, "In the if");
-                                User user1 = new User(password, mAuth.getCurrentUser().getUid(), email, "", username);
+                                User user1 = new User(password, mAuth.getCurrentUser().getUid(), email, "", username,fullname);
                                 HashMap<String, Object> stringObjectHashMap = user1.userMapForServer();
-                                /** zamler check why the user_id not shows correctly on firestore -  now is written undefined.
-                                 * remove the comment to execute the call signup for updating the server -> firestore **/
 
                                 Call<User> call2 = serverMethods.retrofitInterface.executeSignup(stringObjectHashMap);
                                 call2.enqueue(new Callback<User>() {

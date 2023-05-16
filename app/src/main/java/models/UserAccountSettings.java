@@ -6,14 +6,10 @@ import java.util.HashMap;
 
 public class UserAccountSettings {
 
-    @SerializedName("username")
-    private String username;
 
     @SerializedName("description")
     private String description;
 
-    @SerializedName("display_name")
-    private String display_name;
 
     @SerializedName("profile_photo")
     private String profile_photo;
@@ -34,8 +30,7 @@ public class UserAccountSettings {
     private String website;
 
 
-    public HashMap<String, Object> userAccountHashForServer(String username, String description,
-                                                            String display_name,
+    public HashMap<String, Object> userAccountHashForServer(String description,
                                                             String profile_photo,
                                                             boolean isBusiness,
                                                             int followers,
@@ -46,13 +41,11 @@ public class UserAccountSettings {
         HashMap<String, Object> ans = new HashMap<>();
         ans.put("email", email);
         ans.put("description", description);
-        ans.put("display_name", display_name);
         ans.put("followers", followers);
         ans.put("following", following);
         ans.put("isBusiness", isBusiness);
         ans.put("posts", posts);
         ans.put("profile_photo", profile_photo);
-        ans.put("username", username);
         ans.put("website", website);
         return ans;
     }
@@ -61,35 +54,28 @@ public class UserAccountSettings {
         HashMap<String, Object> ans = new HashMap<>();
         ans.put("email", email);
         ans.put("description", this.description);
-        ans.put("display_name", this.display_name);
         ans.put("followers", this.followers);
         ans.put("following", this.following);
         ans.put("isBusiness", this.isBusiness);
         ans.put("posts", this.posts);
         ans.put("profile_photo", this.profile_photo);
-        ans.put("username", this.username);
         ans.put("website", this.website);
         return ans;
     }
 
     public UserAccountSettings(){
         this.description = "none";
-        this.display_name = "none";
         this.followers = 0;
         this.following = 0;
         this.posts = 0;
         this.profile_photo = "none";
-        this.username = "none";
         this.website = "none";
         this.isBusiness = false;
     }
 
-    public UserAccountSettings(String username, String description, String display_name,
-                               String profile_photo, boolean isBusiness, int followers,
+    public UserAccountSettings(String description, String profile_photo, boolean isBusiness, int followers,
                                int following, int posts, String website) {
-        this.username = username;
         this.description = description;
-        this.display_name = display_name;
         this.profile_photo = profile_photo;
         this.isBusiness = isBusiness;
         this.followers = followers;
@@ -98,13 +84,7 @@ public class UserAccountSettings {
         this.website = website;
     }
 
-    public String getUsername() {
-        return username;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     public String getDescription() {
         return description;
@@ -112,14 +92,6 @@ public class UserAccountSettings {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getDisplay_name() {
-        return display_name;
-    }
-
-    public void setDisplay_name(String display_name) {
-        this.display_name = display_name;
     }
 
     public String getProfile_photo() {

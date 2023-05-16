@@ -21,13 +21,17 @@ public class User {
     @SerializedName("username")
     private String username;
 
+    @SerializedName("full_name")
+    private String full_name;
+
     public HashMap<String, Object> userHashForServer(String password, String email,
-                                                     String phone_number, String username){
+                                                     String phone_number, String username,String full_name){
         HashMap<String, Object> ans = new HashMap<>();
         ans.put("password", password);
         ans.put("email", email);
         ans.put("phone_number", phone_number);
         ans.put("username", username);
+        ans.put("full_name", full_name);
         return ans;
     }
 
@@ -37,18 +41,21 @@ public class User {
         ans.put("user_id", this.user_id);
         ans.put("phone_number", this.phone_number);
         ans.put("username", this.username);
+        ans.put("full_name", this.full_name);
+
         return ans;
 
     }
 
     public User(String passwordHash, String user_id, String email, String phone_number,
-                String username) {
+                String username,String full_name) {
 
         this.passwordHash = passwordHash;
         this.user_id = user_id;
         this.email = email;
         this.phone_number = phone_number;
         this.username = username;
+        this.full_name = full_name;
     }
 
 
@@ -74,6 +81,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getFull_name() {
+        return full_name;
+    }
+
+    public void setFull_name(String full_name) {
+        this.full_name = full_name;
     }
 
     public String getPhone_number() {

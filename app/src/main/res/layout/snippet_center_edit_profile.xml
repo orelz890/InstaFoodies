@@ -80,7 +80,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="40dp"
                     android:background="@null"
-                    android:hint="@string/display_name"
+                    android:hint="Full Name"
                     android:inputType="textNoSuggestions"/>
             </RelativeLayout>
 

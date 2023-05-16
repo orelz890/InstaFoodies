@@ -15,22 +15,20 @@ import com.example.instafoodies.R;
 import Search.SearchActivity;
 import Share.ShareActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 public class BottomNavigationViewHelper {
 
     private static final String TAG = "BottomNavigationViewHelper";
 
-//    public static void setupBottomNavigationView(BottomNavigationViewEx bottomNavigationView){
-//        Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
-//        bottomNavigationView.enableAnimation(false);
-//        bottomNavigationView.enableItemShiftingMode(false);
-//        bottomNavigationView.enableShiftingMode(false);
-//        bottomNavigationView.setTextVisibility(false);
-//    }
+    public static void setupBottomNavigationView(BottomNavigationViewEx bottomNavigationViewEx){
+        Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
+        bottomNavigationViewEx.enableAnimation(false);
+        bottomNavigationViewEx.enableItemShiftingMode(false);
+        bottomNavigationViewEx.enableShiftingMode(false);
+        bottomNavigationViewEx.setTextVisibility(false);
+    }
 
-//    public static void setupBottomNavigationView(){
-//        Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
-//    }
 
     public static void enableNavigation(final Context context, BottomNavigationView view){
         Log.d(TAG, "enableNavigation: enabling navigation");

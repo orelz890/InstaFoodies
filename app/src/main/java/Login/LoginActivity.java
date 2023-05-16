@@ -349,42 +349,42 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void handleGetUserDialog() {
-
-        acb_getUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Call<UserAccountSettings> call = retrofitInterface.executeGetUser(email);
-
-                call.enqueue(new Callback<UserAccountSettings>() {
-                    @Override
-                    public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
-
-                        UserAccountSettings result = response.body();
-                        if (response.code() == 200) {
-                            assert result != null;
-                            Toast.makeText(LoginActivity.this,
-                                    "Name: " + result.getUsername(), Toast.LENGTH_LONG).show();
-                        } else if (response.code() == 400) {
-                            Toast.makeText(LoginActivity.this,
-                                    "Don't exist", Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            Toast.makeText(LoginActivity.this, response.message(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
-                        Toast.makeText(LoginActivity.this, t.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        });
-    }
+//    private void handleGetUserDialog() {
+//
+//        acb_getUser.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                Call<UserAccountSettings> call = retrofitInterface.executeGetUser(email);
+//
+//                call.enqueue(new Callback<UserAccountSettings>() {
+//                    @Override
+//                    public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
+//
+//                        UserAccountSettings result = response.body();
+//                        if (response.code() == 200) {
+//                            assert result != null;
+//                            Toast.makeText(LoginActivity.this,
+//                                    "Name: " + result.getUsername(), Toast.LENGTH_LONG).show();
+//                        } else if (response.code() == 400) {
+//                            Toast.makeText(LoginActivity.this,
+//                                    "Don't exist", Toast.LENGTH_LONG).show();
+//                        }
+//                        else {
+//                            Toast.makeText(LoginActivity.this, response.message(),
+//                                    Toast.LENGTH_LONG).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
+//                        Toast.makeText(LoginActivity.this, t.getMessage(),
+//                                Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//            }
+//        });
+//    }
 
     private void handleDelUserDialog(View viewById) {
 
