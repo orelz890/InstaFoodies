@@ -32,6 +32,13 @@ android {
         viewBinding true
     }
 
+//    packagingOptions {
+//        exclude 'META-INF/LICENSE'
+//        exclude 'META-INF/NOTICE'
+//        exclude 'META-INF/DEPENDENCIES'
+//        exclude 'META-INF/androidx.exifinterface_exifinterface.version'
+//    }
+
 }
 
 dependencies {
@@ -66,8 +73,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:21.1.1'
     implementation 'com.google.firebase:firebase-firestore-ktx:24.6.0'
 
-
-
     // Server
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
@@ -76,5 +81,22 @@ dependencies {
     //paypal
     implementation 'com.paypal.sdk:paypal-android-sdk:2.14.2'
 
+    // Image classification
+    implementation 'com.google.mlkit:image-labeling:17.0.7'
 
+    // Custom image classification
+    implementation 'com.google.mlkit:image-labeling-custom:17.0.1'
+
+    // Object detection
+    implementation 'com.google.mlkit:object-detection:17.0.0'
+
+    // Face detection
+    implementation 'com.google.mlkit:face-detection:16.1.5'
+
+
+    //upload photo for profile
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    // Oval imagePiker
+    implementation 'com.github.Drjacky:ImagePicker:2.3.22'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 }
