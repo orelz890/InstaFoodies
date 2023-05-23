@@ -38,10 +38,12 @@ import Server.RetrofitInterface;
 import Utils.ServerMethods;
 import models.User;
 import models.UserAccountSettings;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -112,65 +114,65 @@ public class LoginActivity extends AppCompatActivity {
         setupFirebaseAuth();
         init();
 
-//
-//        OkHttpClient client = null;
-//        try {
-//            client = new OkHttpClient.Builder()
-//                    .sslSocketFactory(getSSLContext().getSocketFactory(),
-//                            (X509TrustManager) trustAllCerts[0])
-//                    .hostnameVerifier((hostname, session) -> true)
-//                    .build();
-//
-//            retrofit = new Retrofit.Builder()
-//                    .baseUrl(BASE_URL)
-//                    .client(client)
-//                    .addConverterFactory(GsonConverterFactory.create())
-//                    .build();
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//            retrofit = new Retrofit.Builder()
-//                    .baseUrl(BASE_URL)
-//                    .addConverterFactory(GsonConverterFactory.create())
-//                    .build();
-//        }
-//
-//
-//        retrofitInterface = retrofit.create(RetrofitInterface.class);
 
-//        findViewById(R.id.btn_login).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                handleLoginDialog();
-//            }
-//        });
-//
-//        findViewById(R.id.link_sign_up).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                handleSignupDialog();
-//            }
-//        });
-//
-//        findViewById(R.id.acb_getUser).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
+        OkHttpClient client = null;
+        try {
+            client = new OkHttpClient.Builder()
+                    .sslSocketFactory(getSSLContext().getSocketFactory(),
+                            (X509TrustManager) trustAllCerts[0])
+                    .hostnameVerifier((hostname, session) -> true)
+                    .build();
+
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+
+
+        retrofitInterface = retrofit.create(RetrofitInterface.class);
+
+        findViewById(R.id.btn_login).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleLoginDialog();
+            }
+        });
+
+        findViewById(R.id.link_sign_up).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleSignupDialog();
+            }
+        });
+
+        findViewById(R.id.acb_getUser).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 //                handleGetUserDialog();
-//            }
-//        });
-//
-//        findViewById(R.id.acb_delUser).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                handleDelUserDialog(view);
-//            }
-//        });
-//        findViewById(R.id.acb_patchUser).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                handlePatchUserDialog();
-//            }
-//        });
+            }
+        });
+
+        findViewById(R.id.acb_delUser).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleDelUserDialog(view);
+            }
+        });
+        findViewById(R.id.acb_patchUser).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handlePatchUserDialog();
+            }
+        });
     }
 
     private SSLContext getSSLContext() throws Exception {
@@ -390,23 +392,47 @@ public class LoginActivity extends AppCompatActivity {
 
         String ref = "users";
 
-        Call<Void> call = retrofitInterface.executeDeleteObjectFromRef(ref, email);
+//        Call<Void> call = retrofitInterface.executeDeleteObjectFromRef(ref, email);
+//
+//        call.enqueue(new Callback<Void>() {
+//            @Override
+//            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+//
+//                if (response.code() == 200) {
+//                    Toast.makeText(LoginActivity.this,
+//                            "successfully deleted!", Toast.LENGTH_LONG).show();
+//                } else {
+//                    Toast.makeText(LoginActivity.this,
+//                            "Failed to delete.. " + response.message(), Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+//                Toast.makeText(LoginActivity.this, t.getMessage(),
+//                        Toast.LENGTH_LONG).show();
+//            }
+//        });
 
-        call.enqueue(new Callback<Void>() {
+        String name = emailEdit.getText().toString();
+
+        Call<Boolean> call = retrofitInterface.executeCheckUserName(name);
+
+        call.enqueue(new Callback<Boolean>() {
             @Override
-            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+            public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
 
                 if (response.code() == 200) {
                     Toast.makeText(LoginActivity.this,
-                            "successfully deleted!", Toast.LENGTH_LONG).show();
+                            response.message(), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(LoginActivity.this,
-                            "Failed to delete.. " + response.message(), Toast.LENGTH_LONG).show();
+                            "Failed: " + response.message(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
                 Toast.makeText(LoginActivity.this, t.getMessage(),
                         Toast.LENGTH_LONG).show();
             }

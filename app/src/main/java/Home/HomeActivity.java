@@ -1,6 +1,5 @@
 package Home;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
@@ -19,6 +18,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import Login.LoginActivity;
+import MLKIT.audio.AudioClassificationActivity;
+import MLKIT.helpers.AudioHelperActivity;
+import MLKIT.helpers.TextHelperActivity;
+import MLKIT.image.FaceDetectionActivity;
+import MLKIT.object.ObjectDetectionActivity;
+import MLKIT.text.SpamTextDetectionActivity;
 import Utils.BottomNavigationViewHelper;
 import Utils.SectionPagerAdapter;
 import Utils.UniversalImageLoader;
@@ -40,12 +45,18 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: starting.");
 
-        setupFirebaseAuth();
+//        setupFirebaseAuth();
+//
+//
+//        InitImageLoader();
+//        setupBottomNavigationView();
+//        setupViewPager();
+        MoveToThisPage();
+    }
 
-
-        InitImageLoader();
-        setupBottomNavigationView();
-        setupViewPager();
+    private void MoveToThisPage(){
+        Intent intent = new Intent(mContext, SpamTextDetectionActivity.class);
+        startActivity(intent);
     }
 
     private void InitImageLoader(){
@@ -126,8 +137,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-        checkCurrentUser(mAuth.getCurrentUser());
+//        mAuth.addAuthStateListener(mAuthListener);
+//        checkCurrentUser(mAuth.getCurrentUser());
     }
     @Override
     public void onStop() {

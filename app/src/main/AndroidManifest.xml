@@ -22,19 +22,25 @@
         tools:targetApi="31">
 
         <activity
-            android:name="MLKIT.helpers.ImageHelperActivity"
-            android:exported="true"/>
+            android:name="MLKIT.text.SpamTextDetectionActivity"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
         <activity
             android:name="MLKIT.image.ImageClassificationActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
-            android:name="MLKIT.image.ObjectDetectionActivity"
-            android:exported="true"/>
+            android:name="MLKIT.object.ObjectDetectionActivity"
+            android:exported="true" />
         <activity
             android:name="MLKIT.image.FaceDetectionActivity"
-            android:exported="true"/>
-
-        <!-- the notficision part -->
+            android:exported="true" />
+        <activity
+            android:name="MLKIT.audio.AudioClassificationActivity"
+            android:exported="true" /> <!-- the notficision part -->
         <activity
             android:name="Notifications.reminder"
             android:exported="false">
@@ -71,10 +77,6 @@
         <activity android:name="Share.ShareActivity" />
         <activity android:name="Profile.AccountSettingsActivity" />
         <activity android:name="Login.LoginActivity" />
-
-<!--        <meta-data-->
-<!--            android:name="com.google.firebase.ml.vision.DEPENDENCIES"-->
-<!--            android:value="label" />-->
     </application>
 
 </manifest>

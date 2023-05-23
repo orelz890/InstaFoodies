@@ -32,6 +32,7 @@ import Utils.FirebaseMethods;
 import Utils.ServerMethods;
 import Utils.UniversalImageLoader;
 import de.hdodenhof.circleimageview.CircleImageView;
+import models.User;
 import models.UserAccountSettings;
 import models.UserSettings;
 import retrofit2.Call;
@@ -121,13 +122,13 @@ public class ProfileFragment extends Fragment {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
 
 
-        //User user = userSettings.getUser();
+        User user = userSettings.getUser();
         UserAccountSettings settings = userSettings.getSettings();
 
         UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
 
-        mDisplayName.setText(settings.getDisplay_name());
-        mUsername.setText(settings.getUsername());
+        mDisplayName.setText(user.getFull_name());
+        mUsername.setText(user.getUsername());
         mWebsite.setText(settings.getWebsite());
         mDescription.setText(settings.getDescription());
         mPosts.setText(String.valueOf(settings.getPosts()));
@@ -150,7 +151,6 @@ public class ProfileFragment extends Fragment {
                 Log.d(TAG, "onClick: navigating to account settings.");
                 Intent intent = new Intent(mContext, AccountSettingsActivity.class);
                 startActivity(intent);
-                getActivity().overridePendingTransition(androidx.transition.R.anim.fragment_fade_enter, androidx.transition.R.anim.fragment_fade_exit);
             }
         });
     }
