@@ -29,4 +29,7 @@
 
     <!-- activity names -->
     <string name="profile_activity">Profile Activity</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="new_group">New group</string>
 </resources>

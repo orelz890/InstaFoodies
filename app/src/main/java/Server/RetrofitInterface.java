@@ -1,6 +1,7 @@
 package Server;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import models.User;
 import models.UserAccountSettings;
@@ -54,6 +55,17 @@ public interface RetrofitInterface {
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);
+
+// ================================ Chat ==============================
+
+    @POST("/createNewChatGroup/{uid}/{name}") // Working!
+    Call<Void> createNewChatGroup (@Path("uid") String uid, @Path("name") String name);
+
+    @GET("/getUserChatGroups/{uid}") // Working!
+    Call<Map<String, String>> getUserChatGroups (@Path("uid") String uid);
+
+
+
 
 
 //    @POST("/login") // Working!

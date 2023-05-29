@@ -20,7 +20,16 @@
         android:theme="@style/Theme.Instafoodies"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
+        <activity
+            android:name="Home.forwardActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name="Chat.ChatActivity">
+        </activity>
         <activity
             android:name="MLKIT.text.SpamTextDetectionActivity"
             android:exported="true">
@@ -28,7 +37,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <activity
             android:name="MLKIT.image.ImageClassificationActivity"
             android:exported="true" />
