@@ -129,7 +129,7 @@ public class EditProfileFragment extends Fragment  {
             updatedUserAccountSettings.put("description", description);
         }
 
-        Call<Void> call = serverMethods.retrofitInterface.executePatchUserAccountSettings(updatedUserAccountSettings);
+        Call<Void> call = serverMethods.retrofitInterface.patchUserAccountSettings(mAuth.getUid(), updatedUserAccountSettings);
 
         call.enqueue(new Callback<Void>() {
             @Override
@@ -155,7 +155,7 @@ public class EditProfileFragment extends Fragment  {
             }
         });
 
-        Call<Void> call1 = serverMethods.retrofitInterface.executePatchUser(updatedUser);
+        Call<Void> call1 = serverMethods.retrofitInterface.executePatchUser(Objects.requireNonNull(mAuth.getCurrentUser()).getUid(),updatedUser);
 
         call1.enqueue(new Callback<Void>() {
             @Override

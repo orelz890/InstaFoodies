@@ -32,4 +32,13 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="new_group">New group</string>
+    <string name="gallery">GALLERY</string>
+    <string name="photo">PHOTO</string>
+    <string name="string_open_camera">OPEN CAMERA</string>
+    <string name="string_next">Next</string>
+    <string name="selected_image">Selected Image</string>
+    <string name="return_to_fragment">Return</string>
+    <string name="string_add">Add</string>
+    <string name="selected_uris">selected uris</string>
+    <string name="selected_images">selected image</string>
 </resources>

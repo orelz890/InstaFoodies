@@ -2,45 +2,51 @@ package Utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
-import java.util.ArrayList;
 
+import java.util.List;
 
-public class GridImageAdapter extends ArrayAdapter<String> {
-
+public class GridImageAdapter extends ArrayAdapter<Uri> {
     private Context mContext;
     private LayoutInflater mInflater;
     private int layoutResource;
     private String mAppend;
-    private ArrayList<String> imgURLs;
+    private List<Uri> imgURLs;
 
-
-    public GridImageAdapter(Context context, int layoutResource,
-                            String append, ArrayList<String> imgURLs) {
+    public GridImageAdapter(Context context, int layoutResource, String append, List<Uri> imgURLs) {
         super(context, layoutResource, imgURLs);
-        this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.mContext = context;
+        mContext = context;
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.layoutResource = layoutResource;
-        this.mAppend = append;
+        mAppend = append;
         this.imgURLs = imgURLs;
+
+        // Initialize Universal Image Loader
+//        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(mContext));
     }
 
-    private static class ViewHolder{
+    private static class ViewHolder {
         SquareImageView image;
         ProgressBar mProgressBar;
     }
@@ -53,7 +59,7 @@ public class GridImageAdapter extends ArrayAdapter<String> {
          */
         final ViewHolder holder;
 
-        if (convertView == null){
+        if (convertView == null) {
             convertView = mInflater.inflate(layoutResource, parent, false);
             holder = new ViewHolder();
             holder.mProgressBar = (ProgressBar) convertView.findViewById(R.id.gridImageProgressBar);
@@ -61,42 +67,46 @@ public class GridImageAdapter extends ArrayAdapter<String> {
 
             // Storing the view im memory, not putting it on the page so the app will not slow down.
             convertView.setTag(holder);
-        }
-        else {
+        } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        String imgURL = getItem(position);
-        ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage(mAppend + imgURL, holder.image, new ImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                if (holder.mProgressBar != null){
-                    holder.mProgressBar.setVisibility(View.VISIBLE);
-                }
-            }
+        String imgURL = getItem(position).toString();
 
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                if (holder.mProgressBar != null){
-                    holder.mProgressBar.setVisibility(View.GONE);
-                }
-            }
+        Glide.with(mContext)
+                .load(imgURL)
+                .placeholder(R.drawable.ic_android)
+                .error(R.drawable.ic_android)
+                .fitCenter()
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        holder.mProgressBar.setVisibility(View.GONE);
+                        return false;
+                    }
 
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                if (holder.mProgressBar != null){
-                    holder.mProgressBar.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onLoadingCancelled(String imageUri, View view) {
-                if (holder.mProgressBar != null){
-                    holder.mProgressBar.setVisibility(View.GONE);
-                }
-            }
-        });
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        holder.mProgressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
+                .into(holder.image);
 
         return convertView;
     }
+
+
+    @Override
+    public int getCount() {
+        return imgURLs.size();
+    }
+
+    @Override
+    public Uri getItem(int position) {
+        return imgURLs.get(position);
+    }
 }
+
+
+
+

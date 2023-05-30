@@ -3,7 +3,6 @@ package Profile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +16,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -24,16 +24,15 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 
 import Utils.BottomNavigationViewHelper;
-import Utils.SectionPagerAdapter;
-import Utils.SectionStatePagerAdapter;
+import Utils.SectionsStatePagerAdapter;
 
 public class AccountSettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "AccountSettingsActivity";
     private static final int ACTIVITY_NUM = 4;
     private Context mContext;
-    private SectionStatePagerAdapter pagerAdapter;
-    private ViewPager mViewPager;
+    private SectionsStatePagerAdapter pagerAdapter;
+    private ViewPager2 mViewPager;
     private RelativeLayout mRelativeLayout;
 
     @Override
@@ -43,7 +42,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
         mContext = AccountSettingsActivity.this;
         Log.d(TAG, "onCreate: started.");
 
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (ViewPager2) findViewById(R.id.viewpager_container);
         mRelativeLayout = (RelativeLayout) findViewById(R.id.relLayout1);
 
         setupSettingsList();
@@ -74,7 +73,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
     }
 
     private void setupFragments(){
-        pagerAdapter = new SectionStatePagerAdapter(getSupportFragmentManager());
+        pagerAdapter = new SectionsStatePagerAdapter(this);
         pagerAdapter.addFragment(new EditProfileFragment(), getString(R.string.edit_profile_fragment)); // fragment 0
         pagerAdapter.addFragment(new SignOutFragment(), getString(R.string.sign_out_fragment)); // fragment 1
     }
@@ -101,12 +100,9 @@ public class AccountSettingsActivity extends AppCompatActivity {
         ArrayAdapter adapter = new ArrayAdapter(mContext, android.R.layout.simple_list_item_1, options);
         listView.setAdapter(adapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "onItemClick: navigating to fragment #: " + position);
-                setViewPager(position);
-            }
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Log.d(TAG, "onItemClick: navigating to fragment #: " + position);
+            setViewPager(position);
         });
     }
 

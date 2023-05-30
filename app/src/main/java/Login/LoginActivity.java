@@ -140,39 +140,39 @@ public class LoginActivity extends AppCompatActivity {
 
         retrofitInterface = retrofit.create(RetrofitInterface.class);
 
-        findViewById(R.id.btn_login).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                handleLoginDialog();
-            }
-        });
-
-        findViewById(R.id.link_sign_up).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                handleSignupDialog();
-            }
-        });
-
-        findViewById(R.id.acb_getUser).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                handleGetUserDialog();
-            }
-        });
-
-        findViewById(R.id.acb_delUser).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                handleDelUserDialog(view);
-            }
-        });
-        findViewById(R.id.acb_patchUser).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                handlePatchUserDialog();
-            }
-        });
+//        findViewById(R.id.btn_login).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                handleLoginDialog();
+//            }
+//        });
+//
+//        findViewById(R.id.link_sign_up).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+////                handleSignupDialog();
+//            }
+//        });
+//
+//        findViewById(R.id.acb_getUser).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+////                handleGetUserDialog();
+//            }
+//        });
+//
+//        findViewById(R.id.acb_delUser).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                handleDelUserDialog(view);
+//            }
+//        });
+//        findViewById(R.id.acb_patchUser).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                //handlePatchUserDialog();
+//            }
+//        });
     }
 
     private SSLContext getSSLContext() throws Exception {
@@ -201,40 +201,40 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    private void handlePatchUserDialog() {
-        String email = emailEdit.getText().toString();
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("email", email);
-//        map.put("username", "orel");
-        map.put("display_name", "baruch");
-
-//        Call<Void> call = retrofitInterface.executePatchUser(map);
-        Call<Void> call = retrofitInterface.executePatchUserAccountSettings(map);
-
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-
-                if (response.code() == 200) {
-                    Toast.makeText(LoginActivity.this, "Updated user: " + email,
-                            Toast.LENGTH_LONG).show();
-                } else if (response.code() == 404) {
-                    Toast.makeText(LoginActivity.this, "Wrong Credentials: " + response.message(),
-                            Toast.LENGTH_LONG).show();
-                }
-                else {
-                    Toast.makeText(LoginActivity.this, response.message(),
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<Void> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "onFailure: " + t.getMessage(),
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-    }
+//    private void handlePatchUserDialog() {
+//        String email = emailEdit.getText().toString();
+//        HashMap<String, Object> map = new HashMap<>();
+//        map.put("email", email);
+////        map.put("username", "orel");
+//        map.put("display_name", "baruch");
+//
+////        Call<Void> call = retrofitInterface.executePatchUser(map);
+//        Call<Void> call = retrofitInterface.executePatchUserAccountSettings(map);
+//
+//        call.enqueue(new Callback<Void>() {
+//            @Override
+//            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+//
+//                if (response.code() == 200) {
+//                    Toast.makeText(LoginActivity.this, "Updated user: " + email,
+//                            Toast.LENGTH_LONG).show();
+//                } else if (response.code() == 404) {
+//                    Toast.makeText(LoginActivity.this, "Wrong Credentials: " + response.message(),
+//                            Toast.LENGTH_LONG).show();
+//                }
+//                else {
+//                    Toast.makeText(LoginActivity.this, response.message(),
+//                            Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+//                Toast.makeText(LoginActivity.this, "onFailure: " + t.getMessage(),
+//                        Toast.LENGTH_LONG).show();
+//            }
+//        });
+//    }
 
     private void handleLoginDialog() {
         Intent main_acticity_intent = new Intent(this, HomeActivity.class);
@@ -455,7 +455,7 @@ public class LoginActivity extends AppCompatActivity {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
 
-                if(email.isEmpty() && password.isEmpty()){
+                if(email.isEmpty() || password.isEmpty()){
                     Toast.makeText(mContext, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
                 }else{
                     mProgressBar.setVisibility(View.VISIBLE);

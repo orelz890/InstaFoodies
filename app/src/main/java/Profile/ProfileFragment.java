@@ -22,6 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.instafoodies.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
@@ -43,7 +44,7 @@ public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
 
-
+    private View view; // Add this line to declare the view variable
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
 
@@ -74,7 +75,7 @@ public class ProfileFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        view = inflater.inflate(R.layout.fragment_profile, container, false);
         mDisplayName = (TextView) view.findViewById(R.id.tv_display_name);
         mUsername = (TextView) view.findViewById(R.id.profileName);
         mWebsite = (TextView) view.findViewById(R.id.tv_website);
@@ -115,25 +116,20 @@ public class ProfileFragment extends Fragment {
     }
 
 
-
-
-    private void setProfileWidgets(UserSettings userSettings) {
+    private void setProfileWidgets(User user, UserAccountSettings userAccountSettings) {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
 
 
-        User user = userSettings.getUser();
-        UserAccountSettings settings = userSettings.getSettings();
-
-        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
+        UniversalImageLoader.setImage(userAccountSettings.getProfile_photo(), mProfilePhoto, null, "");
 
         mDisplayName.setText(user.getFull_name());
         mUsername.setText(user.getUsername());
-        mWebsite.setText(settings.getWebsite());
-        mDescription.setText(settings.getDescription());
-        mPosts.setText(String.valueOf(settings.getPosts()));
-        mFollowing.setText(String.valueOf(settings.getFollowing()));
-        mFollowers.setText(String.valueOf(settings.getFollowers()));
+        mWebsite.setText(userAccountSettings.getWebsite());
+        mDescription.setText(userAccountSettings.getDescription());
+        mPosts.setText(String.valueOf(userAccountSettings.getPosts()));
+        mFollowing.setText(String.valueOf(userAccountSettings.getFollowing()));
+        mFollowers.setText(String.valueOf(userAccountSettings.getFollowers()));
         mProgressBar.setVisibility(View.GONE);
     }
 
@@ -155,13 +151,25 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+//    /**
+//     * BottomNavigationView setup
+//     */
+//    private void setupBottomNavigationView() {
+//        Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
+//        BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
+//        BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
+//        Menu menu = bottomNavigationView.getMenu();
+//        MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
+//        menuItem.setChecked(true);
+//    }
+
     /**
      * BottomNavigationView setup
      */
-    private void setupBottomNavigationView() {
+    private void setupBottomNavigationView(){
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
-        BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-        BottomNavigationViewHelper.enableNavigation(mContext,bottomNavigationView);
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) view.findViewById(R.id.bottomNavViewBar);
+        BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
@@ -196,28 +204,49 @@ public class ProfileFragment extends Fragment {
             }
         };
 
-        Call<UserSettings> call = serverMethods.retrofitInterface.getUserSettings(mAuth.getUid());
+        Call<User> call = serverMethods.retrofitInterface.getUser(mAuth.getCurrentUser().getUid());
+        Call<UserAccountSettings> call2 = serverMethods.retrofitInterface.getUserAccountSettings(mAuth.getCurrentUser().getUid());
 
-        call.enqueue(new Callback<UserSettings>() {
+        call.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
 
-                UserSettings result = response.body();
+                User result1 = response.body();
                 if (response.code() == 200) {
-                    assert result != null;
-                    setProfileWidgets(result);
+                    assert result1 != null;
+                    call2.enqueue(new Callback<UserAccountSettings>() {
+                        @Override
+                        public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
+                            UserAccountSettings result2 = response.body();
+                            if (response.code() == 200) {
+                                assert result2 != null;
+                                setProfileWidgets(result1, result2);
+                            } else if (response.code() == 400) {
+                                Toast.makeText(mContext,
+                                        "Don't exist", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(mContext, response.message(),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
+                            Toast.makeText(mContext, t.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
                 } else if (response.code() == 400) {
                     Toast.makeText(mContext,
                             "Don't exist", Toast.LENGTH_LONG).show();
-                }
-                else {
+                } else {
                     Toast.makeText(mContext, response.message(),
                             Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<UserSettings> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
                 Toast.makeText(mContext, t.getMessage(),
                         Toast.LENGTH_LONG).show();
             }

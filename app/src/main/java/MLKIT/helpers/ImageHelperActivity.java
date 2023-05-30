@@ -56,7 +56,7 @@ public class ImageHelperActivity extends AppCompatActivity {
             @Override
             public boolean onLongClick(View view) {
                 if (inputImageView.getDrawable() != null) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(ImageHelperActivity.this, androidx.appcompat.R.style.Base_V7_Theme_AppCompat_Dialog);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ImageHelperActivity.this,  R.style.Theme_Instafoodies_PopupOverlay);
                     final View customLayout = getLayoutInflater().inflate(R.layout.yes_no_dialog_layout, null);
                     builder.setView(customLayout);
                     builder.setCancelable(false);
@@ -84,7 +84,7 @@ public class ImageHelperActivity extends AppCompatActivity {
         ActivityResultLauncher<Intent> launcher=
                 registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),(ActivityResult result)->{
                     if(result.getResultCode()==RESULT_OK){
-//                        List<Uri> uris = ImagePicker.Companion.getAllFile(result.getData());
+//                        List<Uri> uris = Utils.ImagePicker.Companion.getAllFile(result.getData());
 //                        for (Uri uri : uris) {
 //                            if (uri != null){
 //                                inputImageView.setImageURI(uri);
@@ -107,7 +107,7 @@ public class ImageHelperActivity extends AppCompatActivity {
                         }
                         // Use the uri to load the image
                     }else if(result.getResultCode()==ImagePicker.RESULT_ERROR){
-                        // Use ImagePicker.Companion.getError(result.getData()) to show an error
+                        // Use Utils.ImagePicker.Companion.getError(result.getData()) to show an error
                     }
                 });
         fab = findViewById(R.id.floatingActionButtonImageHelper);
