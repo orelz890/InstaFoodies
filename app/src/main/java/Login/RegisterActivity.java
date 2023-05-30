@@ -142,8 +142,11 @@ public class RegisterActivity extends AppCompatActivity {
                         Log.d(TAG, "executeCheckUserName" + result);
                         if (response.code() == 200) {
                             if (Boolean.TRUE.equals(result)) {
+                                System.out.println("full_name = " + fullname + "\n");
                                 User user1 = new User(password, mAuth.getCurrentUser().getUid(), email, "", username,fullname);
                                 HashMap<String, Object> stringObjectHashMap = user1.userMapForServer();
+                                System.out.println("stringObjectHashMap = " + stringObjectHashMap.toString() + "\n");
+
 
                                 Call<User> call2 = serverMethods.retrofitInterface.executeSignup(stringObjectHashMap);
                                 call2.enqueue(new Callback<User>() {

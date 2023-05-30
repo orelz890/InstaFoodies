@@ -31,15 +31,15 @@ public interface RetrofitInterface {
     @POST("/signup") // Working!
     Call<User> executeSignup (@Body HashMap<String, Object> map);
 
-    @GET("/getUser/{email}") // Working!
-    Call<User> executeGetUser (@Path("email") String email);
+    @GET("/getUser/{uid}") // Working!
+    Call<User> getUser (@Path("uid") String uid);
 
 
     @GET("/checkUserName/{username}") // Working!
     Call<Boolean> executeCheckUserName (@Path("username") String name);
 
-    @GET("/getUserAccountSettings/{email}") // Working!
-    Call<UserAccountSettings> getUserAccountSettings (@Path("email") String email);
+    @GET("/getUserAccountSettings/{uid}") // Working!
+    Call<UserAccountSettings> getUserAccountSettings (@Path("uid") String uid);
 
 
     @GET("/getUserSettings/{uid}") // Working!
@@ -48,11 +48,11 @@ public interface RetrofitInterface {
 //    @PUT("/setUser/{email}")
 //    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);
 
-    @PATCH("/patchUser") // Working!
-    Call<Void> executePatchUser (@Body HashMap<String, Object> map);
+    @PATCH("/patchUser/{uid}") // Working!
+    Call<Void> executePatchUser (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
-    @PATCH("/patchUserAccountSettings") // Working!
-    Call<Void> executePatchUserAccountSettings (@Body HashMap<String, Object> map);
+    @PATCH("/patchUserAccountSettings/{uid}") // Working!
+    Call<Void> patchUserAccountSettings (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);

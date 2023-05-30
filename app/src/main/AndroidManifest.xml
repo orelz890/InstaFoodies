@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -88,6 +89,7 @@
         <activity android:name="Profile.ProfileActivity" />
         <activity android:name="Search.SearchActivity" />
         <activity android:name="Share.ShareActivity" />
+        <activity android:name="Share.NextActivity" />
         <activity android:name="Profile.AccountSettingsActivity" />
         <activity android:name="Login.LoginActivity" />
     </application>

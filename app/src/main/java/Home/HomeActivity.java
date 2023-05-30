@@ -2,6 +2,7 @@ package Home;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,23 +10,21 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import Login.LoginActivity;
-import MLKIT.audio.AudioClassificationActivity;
-import MLKIT.helpers.AudioHelperActivity;
-import MLKIT.helpers.TextHelperActivity;
-import MLKIT.image.FaceDetectionActivity;
-import MLKIT.object.ObjectDetectionActivity;
-import MLKIT.text.SpamTextDetectionActivity;
+import MLKIT.image.ImageClassificationActivity;
 import Utils.BottomNavigationViewHelper;
-import Utils.SectionPagerAdapter;
+import Utils.SectionsPagerAdapter;
 import Utils.UniversalImageLoader;
 
 
@@ -39,23 +38,26 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: starting.");
 
-//        setupFirebaseAuth();
-//
-//
-//        InitImageLoader();
-//        setupBottomNavigationView();
-//        setupViewPager();
-        MoveToThisPage();
+
+        setupFirebaseAuth();
+
+
+        InitImageLoader();
+        setupBottomNavigationView();
+        setupViewPager();
+//        go();
     }
 
-    private void MoveToThisPage(){
-        Intent intent = new Intent(mContext, SpamTextDetectionActivity.class);
+    private void go(){
+        Intent intent = new Intent(mContext, ImageClassificationActivity.class);
         startActivity(intent);
     }
 
@@ -69,16 +71,31 @@ public class HomeActivity extends AppCompatActivity {
      */
 
     private void setupViewPager(){
-        SectionPagerAdapter adapter = new SectionPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter adapter = new SectionsPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new CameraFragment()); // index 0
         adapter.addFragment(new HomeFragment()); // index 1
         adapter.addFragment(new MessagesFragment()); // index 2
-        ViewPager viewPager = (ViewPager) findViewById(R.id.container);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager_container);
         viewPager.setAdapter(adapter);
 
-        // Container for all fragments
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+//        // Container for all fragments
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+//        new TabLayoutMediator(tabLayout, viewPager,
+//                (tab, position) -> {
+//                    switch (position) {
+//                        case 0:
+//                            tab.setIcon(R.drawable.ic_camera);
+//                            break;
+//                        case 1:
+//                            tab.setIcon(R.drawable.ic_instafoodies_icon);
+//                            break;
+//                        case 2:
+//                            tab.setIcon(R.drawable.ic_send);
+//                            break;
+//                    }
+//                }
+//        ).attach();
 
         // setting the icons
         tabLayout.getTabAt(0).setIcon(R.drawable.ic_camera);
@@ -137,8 +154,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-//        mAuth.addAuthStateListener(mAuthListener);
-//        checkCurrentUser(mAuth.getCurrentUser());
+        mAuth.addAuthStateListener(mAuthListener);
+        checkCurrentUser(mAuth.getCurrentUser());
     }
     @Override
     public void onStop() {
