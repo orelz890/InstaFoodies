@@ -32,7 +32,7 @@ public interface RetrofitInterface {
     Call<User> executeSignup (@Body HashMap<String, Object> map);
 
     @GET("/getUser/{email}") // Working!
-    Call<UserAccountSettings> executeGetUser (@Path("email") String email);
+    Call<User> executeGetUser (@Path("email") String email);
 
 
     @GET("/checkUserName/{username}") // Working!
@@ -40,6 +40,7 @@ public interface RetrofitInterface {
 
     @GET("/getUserAccountSettings/{email}") // Working!
     Call<UserAccountSettings> getUserAccountSettings (@Path("email") String email);
+
 
     @GET("/getUserSettings/{uid}") // Working!
     Call<UserSettings> getUserSettings (@Path("uid") String uid);
@@ -62,9 +63,7 @@ public interface RetrofitInterface {
     Call<Void> createNewChatGroup (@Path("uid") String uid, @Path("name") String name);
 
     @GET("/getUserChatGroups/{uid}") // Working!
-    Call<Map<String, String>> getUserChatGroups (@Path("uid") String uid);
-
-
+    Call<String[]> getUserChatGroups (@Path("uid") String uid);
 
 
 

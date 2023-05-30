@@ -1,46 +1,40 @@
 package Chat;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import com.example.instafoodies.R;
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.tabs.TabLayout;
 
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import Login.LoginActivity;
 import Server.RetrofitInterface;
-import okhttp3.Handshake;
+import models.User;
+import models.UserSettings;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,92 +42,101 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-
-
-public class ChatActivity extends AppCompatActivity {
-
-    private Context mContext;
+public class GroupChatActivity extends AppCompatActivity {
 
     private MaterialToolbar mToolbar;
-    private ViewPager myViewPager;
-    private TabLayout myTabLayout;
-    SwipeRefreshLayout swipeRefreshLayout;
-    private TabsAccessorAdapter myTabsAccessorAdapter;
+    private ImageButton SendMessageButton;
+    private EditText userMessageInput;
+    private ScrollView mScrollView;
+    private TextView displayTextMessages;
+    private String currentGroupName,currentUserID,currentUserName,currentDate,currentTime;
 
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
     private String BASE_URL = "http://10.0.2.2:8080";
 
-    private TextView textViewGroupName;
-
-    private int tabPos = 0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.activity_group_chat);
 
-        mContext = ChatActivity.this;
+        setupRetrofit();
 
+        currentGroupName = getIntent().getExtras().get("groupName").toString();
+
+        InitializeFields();
+
+        GetUserInfo();
+
+        SendMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SaveMessageInfoToDatabase();
+                userMessageInput.setText("");
+                mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
+    }
+
+
+    private void SaveMessageInfoToDatabase()
+    {
+        String message = userMessageInput.getText().toString();
+        if (TextUtils.isEmpty(message))
+        {
+            Toast.makeText(this, "Please write message first...", Toast.LENGTH_SHORT).show();
+        }
+        Calendar calForDate = Calendar.getInstance();
+        SimpleDateFormat currentDateFormat = new SimpleDateFormat("MMM dd, yyyy");
+        currentDate = currentDateFormat.format(calForDate.getTime());
+
+        Calendar calForTime = Calendar.getInstance();
+        SimpleDateFormat currentTimeFormat = new SimpleDateFormat("hh:mm a");
+        currentTime = currentTimeFormat.format(calForTime.getTime());
+
+        HashMap<String, Object> messageInfoMap = new HashMap<>();
+        messageInfoMap.put("name", currentUserName);
+        messageInfoMap.put("message", message);
+        messageInfoMap.put("date", currentDate);
+        messageInfoMap.put("time", currentTime);
+
+//        >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> need to complete <<<<<<<<<
+    }
+
+    private void GetUserInfo()
+    {
+        String uid = "eVkAc1hVnAOCdX8QCFFGxZqFU3c2";
+        Call<User> call = retrofitInterface.executeGetUser(uid);
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.code() == 200) {
+                    User user = response.body();
+
+                    System.out.println(user.getUsername());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void InitializeFields()
+    {
         mToolbar = (MaterialToolbar) findViewById(R.id.chat_page_toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("ChatUp");
+        getSupportActionBar().setTitle(currentGroupName);
 
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-
-        myViewPager = (ViewPager) findViewById(R.id.chat_tabs_pager);
-        myTabsAccessorAdapter = new TabsAccessorAdapter(getSupportFragmentManager());
-        myViewPager.setAdapter(myTabsAccessorAdapter);
-
-        myViewPager.addOnAdapterChangeListener(new ViewPager.OnAdapterChangeListener() {
-            @Override
-            public void onAdapterChanged(@NonNull ViewPager viewPager, @Nullable PagerAdapter oldAdapter, @Nullable PagerAdapter newAdapter) {
-                viewPager.setAdapter(newAdapter);
-            }
-        });
-
-        myTabLayout = (TabLayout) findViewById(R.id.chat_tabs);
-        myTabLayout.setupWithViewPager(myViewPager);
-        myTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                tabPos = tab.getPosition();
-                System.out.println("tab pos = " + tabPos);
-                myTabsAccessorAdapter.resetFragment(tabPos);
-
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                tabPos = tab.getPosition();
-                System.out.println("reselected tab pos = " + tabPos);
-                myTabsAccessorAdapter.resetFragment(tabPos);
-
-
-            }
-        });
-
-        textViewGroupName = (TextView) findViewById(R.id.textViewGroupName);
-
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                // Perform the refresh action here
-
-                myTabsAccessorAdapter.resetFragment(tabPos);
-
-
-                // Stop the refreshing animation after the refresh action is complete
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-        setupRetrofit();
+        SendMessageButton = (ImageButton) findViewById(R.id.send_message_button);
+        userMessageInput = (EditText) findViewById(R.id.input_group_message);
+        mScrollView = (ScrollView) findViewById(R.id.my_scroll_view);
+        displayTextMessages = (TextView) findViewById(R.id.group_chat_text_display);
     }
+
 
 
 
@@ -168,23 +171,22 @@ public class ChatActivity extends AppCompatActivity {
         Call<String[]> call = retrofitInterface.getUserChatGroups(uid);
         call.enqueue(new Callback<String[]>() {
             @Override
-            public void onResponse(Call<String[]> call, Response<String[]> response) {
+            public void onResponse(@NonNull Call<String[]> call, @NonNull Response<String[]> response) {
                 if (response.code() == 200) {
                     String[] groups = response.body();
 
 
 
-
                 }
                 else {
-                    Toast.makeText(ChatActivity.this, "Document does not exist, " + response.message(),
+                    Toast.makeText(GroupChatActivity.this, "Document does not exist, " + response.message(),
                             Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<String[]> call, Throwable t) {
-                Toast.makeText(ChatActivity.this, "onFailure: " + t.getMessage(),
+            public void onFailure(@NonNull Call<String[]> call, Throwable t) {
+                Toast.makeText(GroupChatActivity.this, "onFailure: " + t.getMessage(),
                         Toast.LENGTH_LONG).show();
                 System.out.println(t.getMessage());
             }
@@ -194,11 +196,11 @@ public class ChatActivity extends AppCompatActivity {
     private void createNewGroup() {
         String uid = "eVkAc1hVnAOCdX8QCFFGxZqFU3c2";
 // Create an AlertDialog.Builder object
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builder = new AlertDialog.Builder(GroupChatActivity.this);
         builder.setTitle("Enter a String");
 
         // Create an EditText view to allow user input
-        final EditText input = new EditText(mContext);
+        final EditText input = new EditText(GroupChatActivity.this);
         builder.setView(input);
 
         // Set the positive button and its click listener
@@ -236,8 +238,9 @@ public class ChatActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-// =========================================== Retrofit =============================
 
+
+    // =========================================== Retrofit =============================
     private void setupRetrofit() {
         OkHttpClient client = null;
         try {
@@ -290,6 +293,5 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
     };
-
 
 }

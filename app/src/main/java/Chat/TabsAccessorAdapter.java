@@ -6,38 +6,43 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TabsAccessorAdapter extends FragmentPagerAdapter {
-    public TabsAccessorAdapter(@NonNull FragmentManager fm) {
+
+    private List<Fragment> fragments = new ArrayList<>();
+
+    public TabsAccessorAdapter(FragmentManager fm) {
         super(fm);
+        fragments.add(new ChatsFragment());
+        fragments.add(new GroupsFragment());
+        fragments.add(new ContactsFragment());
     }
 
-    @NonNull
+    public void addFragment(Fragment fragment) {
+        fragments.add(fragment);
+    }
+
+    public void resetFragment(int position) {
+        Fragment fragment = fragments.get(position);
+        // Reset the fragment here
+        if (fragment instanceof GroupsFragment){
+            GroupsFragment groupsFragment = (GroupsFragment) fragment;
+            groupsFragment.refreshFragment();
+            fragments.set(position, groupsFragment);
+        }
+
+    }
+
     @Override
     public Fragment getItem(int position) {
-
-        switch (position)
-        {
-            case 0:
-                ChatsFragment chatsFragment = new ChatsFragment();
-                return chatsFragment;
-
-            case 1:
-                GroupsFragment groupsFragment = new GroupsFragment();
-                return groupsFragment;
-
-            case 2:
-                ContactsFragment contactsFragment = new ContactsFragment();
-                return contactsFragment;
-
-            default:
-                return null;
-
-        }
+        return fragments.get(position);
     }
 
     @Override
     public int getCount() {
-        return 3;
+        return fragments.size();
     }
 
     @Nullable
@@ -59,4 +64,5 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter {
 
         }
     }
+
 }
