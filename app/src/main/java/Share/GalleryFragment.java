@@ -57,7 +57,7 @@ public class GalleryFragment extends Fragment {
 
     private GridView gridView;
     private ImageView galleryImage;
-    private TextView addImage;
+    private ImageView addImage;
     private ProgressBar mProgressBar;
     private Spinner directorySpinner;
 
@@ -90,7 +90,7 @@ public class GalleryFragment extends Fragment {
             }
         });
 
-        TextView nextScreen = view.findViewById(R.id.tvNext);
+        ImageView nextScreen = view.findViewById(R.id.tvNext);
         addImage = view.findViewById(R.id.tvAdd);
         nextScreen.setOnClickListener(new View.OnClickListener() {
             @Override
