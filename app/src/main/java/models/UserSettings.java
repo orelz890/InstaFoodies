@@ -12,8 +12,8 @@ public class UserSettings {
     private UserAccountSettings settings;
 
     public UserSettings(User user, UserAccountSettings settings) {
-        this.user = user;
-        this.settings = settings;
+        this.user = new User(user);
+        this.settings = new UserAccountSettings(settings);
     }
 
     public UserSettings() {
@@ -26,7 +26,7 @@ public class UserSettings {
     }
 
     public void setUser(User user) {
-        this.user = user;
+        this.user = new User(user);
     }
 
     public UserAccountSettings getSettings() {
@@ -34,7 +34,7 @@ public class UserSettings {
     }
 
     public void setSettings(UserAccountSettings settings) {
-        this.settings = settings;
+        this.settings = new UserAccountSettings(settings);
     }
 
     @Override

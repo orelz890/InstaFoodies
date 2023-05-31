@@ -2,7 +2,9 @@ package models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class UserAccountSettings {
 
@@ -29,6 +31,16 @@ public class UserAccountSettings {
     @SerializedName("website")
     private String website;
 
+    @SerializedName("following_ids")
+    private List<String> following_ids;
+
+
+
+    public UserAccountSettings(UserAccountSettings settings) {
+        this(settings.description, settings.profile_photo, settings.isBusiness, settings.followers,
+                settings.following, settings.posts, settings.website, settings.following_ids);
+    }
+
 
     public HashMap<String, Object> userAccountHashForServer(String description,
                                                             String profile_photo,
@@ -37,7 +49,8 @@ public class UserAccountSettings {
                                                             int following,
                                                             int posts,
                                                             String website,
-                                                            String email){
+                                                            String email,
+                                                            List<String> following_ids) {
         HashMap<String, Object> ans = new HashMap<>();
         ans.put("email", email);
         ans.put("description", description);
@@ -47,12 +60,12 @@ public class UserAccountSettings {
         ans.put("posts", posts);
         ans.put("profile_photo", profile_photo);
         ans.put("website", website);
+        ans.put("following_ids", following_ids);
         return ans;
     }
 
-    public HashMap<String, Object> userAccountHashForServer(String email){
+    public HashMap<String, Object> userAccountHashForServer() {
         HashMap<String, Object> ans = new HashMap<>();
-        ans.put("email", email);
         ans.put("description", this.description);
         ans.put("followers", this.followers);
         ans.put("following", this.following);
@@ -60,10 +73,11 @@ public class UserAccountSettings {
         ans.put("posts", this.posts);
         ans.put("profile_photo", this.profile_photo);
         ans.put("website", this.website);
+        ans.put("following_ids", this.following_ids);
         return ans;
     }
 
-    public UserAccountSettings(){
+    public UserAccountSettings() {
         this.description = "none";
         this.followers = 0;
         this.following = 0;
@@ -71,10 +85,12 @@ public class UserAccountSettings {
         this.profile_photo = "none";
         this.website = "none";
         this.isBusiness = false;
+        this.following_ids = new ArrayList<>();
+        this.following_ids.add("eVkAc1hVnAOCdX8QCFFGxZqFU3c2");
     }
 
     public UserAccountSettings(String description, String profile_photo, boolean isBusiness, int followers,
-                               int following, int posts, String website) {
+                               int following, int posts, String website, List<String> following_ids) {
         this.description = description;
         this.profile_photo = profile_photo;
         this.isBusiness = isBusiness;
@@ -82,8 +98,8 @@ public class UserAccountSettings {
         this.following = following;
         this.posts = posts;
         this.website = website;
+        setFollowing_ids(following_ids);
     }
-
 
 
     public String getDescription() {
@@ -140,5 +156,14 @@ public class UserAccountSettings {
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    public List<String> getFollowing_ids() {
+        return following_ids;
+    }
+
+    public void setFollowing_ids(List<String> following_ids) {
+        this.following_ids = new ArrayList<>();
+        this.following_ids.addAll(following_ids);
     }
 }

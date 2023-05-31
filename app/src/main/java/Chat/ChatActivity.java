@@ -137,9 +137,10 @@ public class ChatActivity extends AppCompatActivity
                 SendUserToLoginActivity();
                 break;
             case R.id.main_settings_option:
-//                SendUserToSettingsActivity();
+                SendUserToSettingsActivity();
                 break;
             case R.id.main_find_friends_option:
+                SendUserToFindFriendsActivity();
                 break;
             case R.id.main_create_group_option:
                 RequestNewGroup();
@@ -204,17 +205,21 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void SendUserToLoginActivity() {
-        Intent loginIntent = new Intent(ChatActivity.this, LoginActivity.class);
+        Intent Intent = new Intent(ChatActivity.this, LoginActivity.class);
 //        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
+        startActivity(Intent);
 //        finish();
     }
 
-//    private void SendUserToSettingsActivity() {
-//        Intent loginIntent = new Intent(ChatActivity.this, SettingsActivity.class);
-//        startActivity(loginIntent);
-//    }
+    private void SendUserToSettingsActivity() {
+        Intent Intent = new Intent(ChatActivity.this, SettingsActivity.class);
+        startActivity(Intent);
+    }
 
+    private void SendUserToFindFriendsActivity() {
+        Intent Intent = new Intent(ChatActivity.this, FindFriendsActivity.class);
+        startActivity(Intent);
+    }
 
     //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

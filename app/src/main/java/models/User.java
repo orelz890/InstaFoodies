@@ -24,6 +24,10 @@ public class User {
     @SerializedName("full_name")
     private String full_name;
 
+    public User(User user) {
+        this(user.passwordHash,user.user_id,user.email,user.phone_number,user.username,user.full_name);
+    }
+
     public HashMap<String, Object> userHashForServer(String password, String email,
                                                      String phone_number, String username,String full_name){
         HashMap<String, Object> ans = new HashMap<>();

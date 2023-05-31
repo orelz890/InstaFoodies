@@ -1,6 +1,7 @@
 package Server;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import models.User;
@@ -51,7 +52,7 @@ public interface RetrofitInterface {
     @PATCH("/patchUser/{uid}") // Working!
     Call<Void> executePatchUser (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
-    @PATCH("/patchUserAccountSettings/{uid}") // Working!
+    @PATCH("/patchUserAccountSettings/{uid}")
     Call<Void> patchUserAccountSettings (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
@@ -59,13 +60,17 @@ public interface RetrofitInterface {
 
 // ================================ Chat ==============================
 
-    @POST("/createNewChatGroup/{uid}/{name}") // Working!
+    @POST("/createNewChatGroup/{uid}/{name}")
     Call<Void> createNewChatGroup (@Path("uid") String uid, @Path("name") String name);
 
-    @GET("/getUserChatGroups/{uid}") // Working!
+    @GET("/getUserChatGroups/{uid}")
     Call<String[]> getUserChatGroups (@Path("uid") String uid);
 
+    @GET("/getFollowingUsers/{ids}")
+    Call<User[]> getFollowingUsers (@Path("ids") List<String> ids);
 
+    @GET("/getFollowingUsersAccountSettings/{ids}")
+    Call<UserAccountSettings[]> getFollowingUsersAccountSettings (@Path("ids") List<String> ids);
 
 //    @POST("/login") // Working!
 //    Call<User_old_version> executeLogin(@Body Map<String, String> map);
