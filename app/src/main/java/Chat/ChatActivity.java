@@ -2,140 +2,122 @@ package Chat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
-import android.content.ActivityNotFoundException;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
 import com.example.instafoodies.R;
+import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-
+import Home.HomeActivity;
 import Login.LoginActivity;
-import Server.RetrofitInterface;
-import okhttp3.Handshake;
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import de.hdodenhof.circleimageview.CircleImageView;
 
+public class ChatActivity extends AppCompatActivity
+{
+    private String messageReceiverID, messageReceiverName, messageReceiverImage, messageSenderID;
 
-
-public class ChatActivity extends AppCompatActivity {
-
-    private Context mContext;
+    private TextView userName, userLastSeen;
+    private CircleImageView userImage;
 
     private MaterialToolbar mToolbar;
     private ViewPager myViewPager;
     private TabLayout myTabLayout;
-    SwipeRefreshLayout swipeRefreshLayout;
     private TabsAccessorAdapter myTabsAccessorAdapter;
 
-    private Retrofit retrofit;
-    private RetrofitInterface retrofitInterface;
-    private String BASE_URL = "http://10.0.2.2:8080";
+    private FirebaseAuth mAuth;
+    private DatabaseReference RootRef;
+    private FirebaseUser currentUser;
 
-    private TextView textViewGroupName;
+    private ImageButton SendMessageButton, SendFilesButton;
+    private EditText MessageInputText;
 
-    private int tabPos = 0;
+    private final List<Messages> messagesList = new ArrayList<>();
+    private LinearLayoutManager linearLayoutManager;
+    private MessageAdapter messageAdapter;
+    private RecyclerView userMessagesList;
+
+    private ProgressDialog loadingBar;
+
+
+    private String saveCurrentTime, saveCurrentDate;
+    private String checker = "",myUrl="";
+    private Uri fileUri;
+    private StorageTask uploadTask;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        mContext = ChatActivity.this;
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        RootRef = FirebaseDatabase.getInstance().getReference();
 
         mToolbar = (MaterialToolbar) findViewById(R.id.chat_page_toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("ChatUp");
 
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-
         myViewPager = (ViewPager) findViewById(R.id.chat_tabs_pager);
         myTabsAccessorAdapter = new TabsAccessorAdapter(getSupportFragmentManager());
         myViewPager.setAdapter(myTabsAccessorAdapter);
 
-        myViewPager.addOnAdapterChangeListener(new ViewPager.OnAdapterChangeListener() {
-            @Override
-            public void onAdapterChanged(@NonNull ViewPager viewPager, @Nullable PagerAdapter oldAdapter, @Nullable PagerAdapter newAdapter) {
-                viewPager.setAdapter(newAdapter);
-            }
-        });
-
         myTabLayout = (TabLayout) findViewById(R.id.chat_tabs);
         myTabLayout.setupWithViewPager(myViewPager);
-        myTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                tabPos = tab.getPosition();
-                System.out.println("tab pos = " + tabPos);
-                myTabsAccessorAdapter.resetFragment(tabPos);
-
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                tabPos = tab.getPosition();
-                System.out.println("reselected tab pos = " + tabPos);
-                myTabsAccessorAdapter.resetFragment(tabPos);
 
 
-            }
-        });
-
-        textViewGroupName = (TextView) findViewById(R.id.textViewGroupName);
-
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                // Perform the refresh action here
-
-                myTabsAccessorAdapter.resetFragment(tabPos);
-
-
-                // Stop the refreshing animation after the refresh action is complete
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-        setupRetrofit();
     }
-
-
 
 
     @Override
@@ -150,146 +132,229 @@ public class ChatActivity extends AppCompatActivity {
 
 
         switch (item.getItemId()){
-            case R.id.item_new_group:
-
-                createNewGroup();
+            case R.id.main_logout_option:
+                mAuth.signOut();
+                SendUserToLoginActivity();
+                break;
+            case R.id.main_settings_option:
+//                SendUserToSettingsActivity();
+                break;
+            case R.id.main_find_friends_option:
+                break;
+            case R.id.main_create_group_option:
+                RequestNewGroup();
                 break;
 
+
+
             default:
-                getUserGroups();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
 
-    private void getUserGroups() {
-        String uid = "eVkAc1hVnAOCdX8QCFFGxZqFU3c2";
-        Call<String[]> call = retrofitInterface.getUserChatGroups(uid);
-        call.enqueue(new Callback<String[]>() {
-            @Override
-            public void onResponse(Call<String[]> call, Response<String[]> response) {
-                if (response.code() == 200) {
-                    String[] groups = response.body();
+    private void RequestNewGroup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this, R.style.AlertDialog);
+        builder.setTitle("Enter Group Name: ");
 
+        final EditText groupNameField = new EditText(ChatActivity.this);
+        groupNameField.setHint("e.g Tommy birthday party");
+        builder.setView(groupNameField);
 
-
-
-                }
-                else {
-                    Toast.makeText(ChatActivity.this, "Document does not exist, " + response.message(),
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String[]> call, Throwable t) {
-                Toast.makeText(ChatActivity.this, "onFailure: " + t.getMessage(),
-                        Toast.LENGTH_LONG).show();
-                System.out.println(t.getMessage());
-            }
-        });
-    }
-
-    private void createNewGroup() {
-        String uid = "eVkAc1hVnAOCdX8QCFFGxZqFU3c2";
-// Create an AlertDialog.Builder object
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle("Enter a String");
-
-        // Create an EditText view to allow user input
-        final EditText input = new EditText(mContext);
-        builder.setView(input);
-
-        // Set the positive button and its click listener
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String userInput = input.getText().toString();
-                // Do something with the user input
-                // For example, display the input in a TextView
-                Call<Void> call = retrofitInterface.createNewChatGroup(uid, userInput);
-                call.enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-
-                    }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-
-                    }
-                });
+                String groupName = groupNameField.getText().toString();
+                if (TextUtils.isEmpty(groupName)){
+                    Toast.makeText(ChatActivity.this, "Please enter a group name...", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    CreateNewGroup(groupName);
+                }
             }
-        });
-
-        // Set the negative button and its click listener
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
-        });
-
-        // Create and show the AlertDialog
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        }).show();
     }
 
-// =========================================== Retrofit =============================
+    private void CreateNewGroup(String groupName) {
 
-    private void setupRetrofit() {
-        OkHttpClient client = null;
-        try {
-            client = new OkHttpClient.Builder()
-                    .sslSocketFactory(getSSLContext().getSocketFactory(),
-                            (X509TrustManager) trustAllCerts[0])
-                    .hostnameVerifier((hostname, session) -> true)
-                    .build();
+        RootRef.child("Groups").child(groupName).setValue("")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            Toast.makeText(ChatActivity.this, groupName + " group is Created Successfully!",Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+    }
 
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (currentUser == null){
+            SendUserToLoginActivity();
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-
-
-        retrofitInterface = retrofit.create(RetrofitInterface.class);
     }
 
-    private SSLContext getSSLContext() throws Exception {
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
-                TrustManagerFactory.getDefaultAlgorithm());
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(null, null);
-        trustManagerFactory.init(keyStore);
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-        return sslContext;
+    private void SendUserToLoginActivity() {
+        Intent loginIntent = new Intent(ChatActivity.this, LoginActivity.class);
+//        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(loginIntent);
+//        finish();
     }
 
-    private TrustManager[] trustAllCerts = new TrustManager[] {
-            new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(X509Certificate[] chain, String authType) {}
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] chain, String authType) {}
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[]{};
-                }
-            }
-    };
+//    private void SendUserToSettingsActivity() {
+//        Intent loginIntent = new Intent(ChatActivity.this, SettingsActivity.class);
+//        startActivity(loginIntent);
+//    }
 
 
+    //    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if(requestCode == 443 && resultCode == RESULT_OK && data != null && data.getData() != null)
+//        {
+//            loadingBar.setTitle("Sending File");
+//            loadingBar.setMessage("Please wait, we are sending....");
+//            loadingBar.setCanceledOnTouchOutside(false);
+//            loadingBar.show();
+//
+//            fileUri = data.getData();
+//            if(!checker.equals("image"))
+//            {
+//                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
+//                final String messageSenderRef = "Messages/" + messageSenderID + "/" + messageReceiverID;
+//                final String messageReceiverRef = "Messages/" + messageReceiverID + "/" + messageSenderID;
+//
+//                DatabaseReference userMessageKeyRef = RootRef.child("Messages")
+//                        .child(messageSenderID).child(messageReceiverID).push();
+//
+//                final String messagePushID = userMessageKeyRef.getKey();
+//
+//                final StorageReference filePath = storageReference.child(messagePushID + "." + checker);
+//
+//                filePath.putFile(fileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+//                        if(task.isSuccessful())
+//                        {
+//                            Map messageTextBody = new HashMap();
+//                            messageTextBody.put("message", myUrl);
+//                            messageTextBody.put("name",fileUri.getLastPathSegment());
+//                            if(checker.equals("pdf"))
+//                            {
+//                                messageTextBody.put("type", checker);
+//                            }
+//                            else
+//                            {
+//                                messageTextBody.put("type", checker);
+//                            }
+//
+//                            messageTextBody.put("from", messageSenderID);
+//                            messageTextBody.put("to", messageReceiverID);
+//                            messageTextBody.put("messageID", messagePushID);
+//                            messageTextBody.put("time", saveCurrentTime);
+//                            messageTextBody.put("date", saveCurrentDate);
+//
+//                            Map messageBodyDetails = new HashMap();
+//                            messageBodyDetails.put(messageSenderRef + "/" + messagePushID, messageTextBody);
+//                            messageBodyDetails.put( messageReceiverRef + "/" + messagePushID, messageTextBody);
+//
+//                            RootRef.updateChildren(messageBodyDetails);
+//                            loadingBar.dismiss();
+//                        }
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        loadingBar.dismiss();
+//                        Toast.makeText(ChatActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+//                    }
+//                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+//                    @Override
+//                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+//                        double p = (100.0 * taskSnapshot.getBytesTransferred())/taskSnapshot.getTotalByteCount();
+//                        loadingBar.setMessage((int)p + "% Uploading...");
+//
+//                    }
+//                });
+//            }
+//            else if(checker.equals("image"))
+//            {
+//                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
+//                final String messageSenderRef = "Messages/" + messageSenderID + "/" + messageReceiverID;
+//                final String messageReceiverRef = "Messages/" + messageReceiverID + "/" + messageSenderID;
+//
+//                DatabaseReference userMessageKeyRef = RootRef.child("Messages")
+//                        .child(messageSenderID).child(messageReceiverID).push();
+//
+//                final String messagePushID = userMessageKeyRef.getKey();
+//
+//                final StorageReference filePath = storageReference.child(messagePushID + "." + "jpg");
+//
+//                uploadTask = filePath.putFile(fileUri);
+//                uploadTask.continueWithTask(new Continuation() {
+//                    @Override
+//                    public Object then(@NonNull Task task) throws Exception {
+//                        if(!task.isSuccessful())
+//                        {
+//                            throw task.getException();
+//                        }
+//                        return filePath.getDownloadUrl();
+//                    }
+//                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Uri> task) {
+//                        Uri downloadUrl = task.getResult();
+//                        myUrl = downloadUrl.toString();
+//
+//                        Map messageTextBody = new HashMap();
+//                        messageTextBody.put("message", myUrl);
+//                        messageTextBody.put("name",fileUri.getLastPathSegment());
+//                        messageTextBody.put("type", checker);
+//                        messageTextBody.put("from", messageSenderID);
+//                        messageTextBody.put("to", messageReceiverID);
+//                        messageTextBody.put("messageID", messagePushID);
+//                        messageTextBody.put("time", saveCurrentTime);
+//                        messageTextBody.put("date", saveCurrentDate);
+//
+//                        Map messageBodyDetails = new HashMap();
+//                        messageBodyDetails.put(messageSenderRef + "/" + messagePushID, messageTextBody);
+//                        messageBodyDetails.put( messageReceiverRef + "/" + messagePushID, messageTextBody);
+//
+//                        RootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
+//                            @Override
+//                            public void onComplete(@NonNull Task task)
+//                            {
+//                                if (task.isSuccessful())
+//                                {
+//                                    Toast.makeText(ChatActivity.this, "Message Sent Successfully...", Toast.LENGTH_SHORT).show();
+//                                }
+//                                else
+//                                {
+//                                    Toast.makeText(ChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+//                                }
+//                                loadingBar.dismiss();
+//                                MessageInputText.setText("");
+//                            }
+//                        });
+//                    }
+//                });
+//
+//            }
+//            else
+//            {
+//                loadingBar.dismiss();
+//                Toast.makeText(this,"nothing selected,error",Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
+//
 }

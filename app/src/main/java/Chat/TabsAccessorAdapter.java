@@ -1,53 +1,51 @@
 package Chat;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class TabsAccessorAdapter extends FragmentPagerAdapter {
-
-    private List<Fragment> fragments = new ArrayList<>();
 
     public TabsAccessorAdapter(FragmentManager fm) {
         super(fm);
-        fragments.add(new ChatsFragment());
-        fragments.add(new GroupsFragment());
-        fragments.add(new ContactsFragment());
-    }
-
-    public void addFragment(Fragment fragment) {
-        fragments.add(fragment);
-    }
-
-    public void resetFragment(int position) {
-        Fragment fragment = fragments.get(position);
-        // Reset the fragment here
-        if (fragment instanceof GroupsFragment){
-            GroupsFragment groupsFragment = (GroupsFragment) fragment;
-            groupsFragment.refreshFragment();
-            fragments.set(position, groupsFragment);
-        }
-
     }
 
     @Override
-    public Fragment getItem(int position) {
-        return fragments.get(position);
+    public Fragment getItem(int i) {
+
+        switch (i)
+        {
+            case 0:
+                ChatsFragment chatsFragment = new ChatsFragment();
+                return chatsFragment;
+
+            case 1:
+                GroupsFragment groupsFragment = new GroupsFragment();
+                return groupsFragment;
+
+            case 2:
+                ContactsFragment contactsFragment = new ContactsFragment();
+                return contactsFragment;
+
+            case 3:
+                RequestsFragment requestsFragment = new RequestsFragment();
+                return requestsFragment;
+
+            default:
+                return null;
+        }
     }
 
     @Override
     public int getCount() {
-        return fragments.size();
+        return 4;
     }
 
     @Nullable
     @Override
-    public CharSequence getPageTitle(int position) {
+    public CharSequence getPageTitle(int position)
+    {
         switch (position)
         {
             case 0:
@@ -59,10 +57,12 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter {
             case 2:
                 return "Contacts";
 
+            case 3:
+                return "Requests";
+
             default:
                 return null;
 
         }
     }
-
 }

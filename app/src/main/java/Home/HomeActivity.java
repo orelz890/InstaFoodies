@@ -22,6 +22,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import Login.LoginActivity;
+import MLKIT.audio.AudioClassificationActivity;
+import MLKIT.helpers.AudioHelperActivity;
+import MLKIT.helpers.TextHelperActivity;
+import MLKIT.image.FaceDetectionActivity;
+import MLKIT.image.ImageClassificationActivity;
+import MLKIT.object.ObjectDetectionActivity;
+import MLKIT.text.SpamTextDetectionActivity;
 import MLKIT.image.ImageClassificationActivity;
 import Utils.BottomNavigationViewHelper;
 import Utils.SectionsPagerAdapter;
@@ -53,11 +60,12 @@ public class HomeActivity extends AppCompatActivity {
         InitImageLoader();
         setupBottomNavigationView();
         setupViewPager();
-//        go();
+
+        MoveToThisPage();
     }
 
-    private void go(){
-        Intent intent = new Intent(mContext, ImageClassificationActivity.class);
+    private void MoveToThisPage(){
+        Intent intent = new Intent(mContext, forwardActivity.class);
         startActivity(intent);
     }
 

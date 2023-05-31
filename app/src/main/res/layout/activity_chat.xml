@@ -30,35 +30,16 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         </com.google.android.material.tabs.TabLayout>
 
-        <TextView
-            android:id="@+id/textViewGroupName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-        </TextView>
-
     </com.google.android.material.appbar.AppBarLayout>
 
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipe_refresh_layout"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/chat_tabs_pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/chatBarLayout"
         >
 
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/chat_tabs_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
-
-        </androidx.viewpager.widget.ViewPager>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-
-
+    </androidx.viewpager.widget.ViewPager>
 
 </RelativeLayout>

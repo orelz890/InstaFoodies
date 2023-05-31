@@ -12,28 +12,20 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.instafoodies.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collections;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-
-import Server.RetrofitInterface;
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,19 +45,13 @@ public class GroupsFragment extends Fragment {
     private ArrayAdapter<String> arrayAdapter;
     private ArrayList<String> listOfGroups = new ArrayList<>();
 
-    private Retrofit retrofit;
-    private RetrofitInterface retrofitInterface;
-    private String BASE_URL = "http://10.0.2.2:8080";
 
+    private DatabaseReference GroupRef;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
 
     public GroupsFragment() {
         // Required empty public constructor
-    }
-
-    public void refreshFragment() {
-//        setupRetrofit();
-//        InitializeFields();
-        RetrieveAndDisplayGroups();
     }
 
     public static GroupsFragment newInstance(String param1, String param2) {
@@ -84,7 +70,6 @@ public class GroupsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        setupRetrofit();
     }
 
 
@@ -94,6 +79,10 @@ public class GroupsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         groupFragmentView = inflater.inflate(R.layout.fragment_groups, container, false);
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        GroupRef = FirebaseDatabase.getInstance().getReference().child("Groups");
 
         InitializeFields();
 
@@ -113,34 +102,6 @@ public class GroupsFragment extends Fragment {
         return groupFragmentView;
     }
 
-    private void RetrieveAndDisplayGroups() {
-        String uid = "eVkAc1hVnAOCdX8QCFFGxZqFU3c2";
-        Call<String[]> call = retrofitInterface.getUserChatGroups(uid);
-        call.enqueue(new Callback<String[]>() {
-            @Override
-            public void onResponse(@NonNull Call<String[]> call, @NonNull Response<String[]> response) {
-                if (response.code() == 200) {
-                    String[] groups = response.body();
-                    if (groups != null && groups.length > 0) {
-                        listOfGroups.clear();
-                        Collections.addAll(listOfGroups, groups);
-                        arrayAdapter.notifyDataSetChanged();
-                        System.out.println(groups[0]);
-                    }
-                }
-                else {
-                    System.out.println("Doc not found");
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<String[]> call, @NonNull Throwable t) {
-
-                System.out.println(t.getMessage());
-            }
-        });
-
-    }
 
 
 
@@ -150,64 +111,29 @@ public class GroupsFragment extends Fragment {
         listView.setAdapter(arrayAdapter);
     }
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        RetrieveAndDisplayGroups();
-//    }
+    private void RetrieveAndDisplayGroups() {
+        GroupRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Set<String> set = new HashSet<>();
+                Iterator<DataSnapshot> iterator = snapshot.getChildren().iterator();
 
-
-    // =========================================== Retrofit =============================
-
-    private void setupRetrofit() {
-        OkHttpClient client = null;
-        try {
-            client = new OkHttpClient.Builder()
-                    .sslSocketFactory(getSSLContext().getSocketFactory(),
-                            (X509TrustManager) trustAllCerts[0])
-                    .hostnameVerifier((hostname, session) -> true)
-                    .build();
-
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-
-        retrofitInterface = retrofit.create(RetrofitInterface.class);
-    }
-
-    private SSLContext getSSLContext() throws Exception {
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
-                TrustManagerFactory.getDefaultAlgorithm());
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(null, null);
-        trustManagerFactory.init(keyStore);
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-        return sslContext;
-    }
-
-    private TrustManager[] trustAllCerts = new TrustManager[] {
-            new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(X509Certificate[] chain, String authType) {}
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] chain, String authType) {}
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[]{};
+                while (iterator.hasNext()){
+                    set.add((iterator.next()).getKey());
                 }
+
+                listOfGroups.clear();
+                listOfGroups.addAll(set);
+                arrayAdapter.notifyDataSetChanged();
             }
-    };
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+    }
+
 }
