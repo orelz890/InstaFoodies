@@ -2,11 +2,12 @@ package models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class UserAccountSettings {
+public class UserAccountSettings implements Serializable {
 
 
     @SerializedName("description")

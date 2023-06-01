@@ -38,25 +38,43 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import Home.HomeActivity;
+import Server.RetrofitInterface;
+import Utils.ServerMethods;
 import de.hdodenhof.circleimageview.CircleImageView;
+import models.UserSettings;
+import retrofit2.Retrofit;
 
 public class SettingsActivity extends AppCompatActivity {
 
+//    // Server
+//    private Retrofit retrofit;
+//    private RetrofitInterface retrofitInterface;
+//    private String BASE_URL = "http://10.0.2.2:8080";
+//    private static ServerMethods serverMethods;
+
+    // Firebase
     private DatabaseReference RootRef;
     private FirebaseAuth mAuth;
+    private StorageReference UserProfileImagesRef;
+
+    // Android
     private String currentUserID;
     private EditText userName, userStatus;
     private CircleImageView userProfileImage;
     private static final int GalleryPick = 1;
-    private StorageReference UserProfileImagesRef;
     private ProgressDialog loadingBar;
     private MaterialToolbar SettingsToolBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+//        // Server
+//        serverMethods = new ServerMethods(this);
+
+        // Firebase
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
         RootRef = FirebaseDatabase.getInstance().getReference();
@@ -65,13 +83,27 @@ public class SettingsActivity extends AppCompatActivity {
         InitializeFields();
         userName.setVisibility(View.INVISIBLE);
 
-        RetrieveUserInfo();
+//        RetrieveUserInfo();
 
     }
 
-    private void RetrieveUserInfo()
+    private void RetrieveUserInfo(UserSettings userSettings)
     {
+        userName.setText(userSettings.getUser().getFull_name());
+        userName.setVisibility(View.VISIBLE);
+        userStatus.setText(userSettings.getSettings().getWebsite());
+        userStatus.setVisibility(View.VISIBLE);
 
+
+        // Load the profile image using a library like Picasso or Glide
+        String profile_photo = userSettings.getSettings().getProfile_photo();
+        if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+//                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
+            Picasso.get().load(profile_photo).into(userProfileImage);
+        }
+        else {
+            userProfileImage.setImageResource(R.drawable.profile_image);
+        }
     }
 
     private void SendUserToHomeActivity()
@@ -95,4 +127,12 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Account Settings");
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println("im on profile start");
+        UserSettings userSettings = (UserSettings)getIntent().getSerializableExtra("userSettings");
+        RetrieveUserInfo(userSettings);
+
+    }
 }

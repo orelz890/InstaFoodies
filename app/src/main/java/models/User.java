@@ -2,9 +2,10 @@ package models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class User {
+public class User implements Serializable {
 
     @SerializedName("passwordHash")
     private String passwordHash;

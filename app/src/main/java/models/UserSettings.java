@@ -3,7 +3,9 @@ package models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class UserSettings {
+import java.io.Serializable;
+
+public class UserSettings implements Serializable {
 
     @SerializedName("user")
     private User user;

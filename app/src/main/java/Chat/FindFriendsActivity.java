@@ -58,9 +58,9 @@ public class FindFriendsActivity extends AppCompatActivity {
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
     private String BASE_URL = "http://10.0.2.2:8080";
+    private static ServerMethods serverMethods;
 
     private UserSettings userSettings;
-    private static ServerMethods serverMethods;
     private String uid;
     private static List<String> friendsUserIds; // List of user IDs you want to display
 
@@ -183,7 +183,7 @@ public class FindFriendsActivity extends AppCompatActivity {
         });
     }
 
-    public static class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
+    public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
         private List<User> userList;
         private List<UserAccountSettings> settings;
@@ -224,14 +224,22 @@ public class FindFriendsActivity extends AppCompatActivity {
                 Picasso.get().load(profile_photo).into(holder.profileImage);
             }
             else {
-                // Convert Drawable to Bitmap
-                Bitmap bitmap = drawableToBitmap(drawable_profile_image);
-
-                // Convert Bitmap to Base64 string
-                String base64String = bitmapToBase64(bitmap);
-                System.out.println("profile_photo.isEmpty()");
                 holder.profileImage.setImageResource(R.drawable.profile_image);
             }
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+//                    System.out.println("position = " + position);
+//                    String visit_user_id = friendsUserIds.get(position);
+                    UserSettings userSettings = new UserSettings(user,userAccountSettings);
+
+                    Intent intent = new Intent(FindFriendsActivity.this, SettingsActivity.class);
+                    intent.putExtra("userSettings", userSettings);
+                    startActivity(intent);
+                }
+            });
+
         }
 
         // Get the total number of user items
@@ -241,7 +249,7 @@ public class FindFriendsActivity extends AppCompatActivity {
         }
 
         // ViewHolder class to hold the views in each item
-        public static class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder {
             TextView userName,userStatus;
             CircleImageView profileImage;
 
