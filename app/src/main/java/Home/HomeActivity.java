@@ -61,7 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         setupBottomNavigationView();
         setupViewPager();
 
-        //MoveToThisPage();
+        //MoveToThisPage();s
     }
 
     private void MoveToThisPage(){

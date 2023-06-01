@@ -10,10 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 
 
+
 public class Photo implements Parcelable {
 
     @SerializedName("caption")
     private String caption;
+
+    @SerializedName("recipe")
+    private Recipe recipe;
 
     @SerializedName("date_created")
     private String date_created;
@@ -35,8 +39,9 @@ public class Photo implements Parcelable {
 
     }
 
-    public HashMap<String, Object> PhotoMapForServer(String caption, String date_created, List<Uri> image_path, String photo_id, String user_id, String tags){
+    public HashMap<String, Object> PhotoMapForServer(Recipe recipe, String caption, String date_created, List<Uri> image_path, String photo_id, String user_id, String tags){
         HashMap<String, Object> ans = new HashMap<>();
+        ans.put("recipe", recipe);
         ans.put("caption", caption);
         ans.put("date_created", date_created);
         ans.put("image_path", image_path);
@@ -47,7 +52,8 @@ public class Photo implements Parcelable {
         return ans;
     }
 
-    public Photo(String caption, String date_created, List<Uri> image_path, String photo_id, String user_id, String tags) {
+    public Photo(Recipe recipe,String caption, String date_created, List<Uri> image_path, String photo_id, String user_id, String tags) {
+        this.recipe = recipe;
         this.caption = caption;
         this.date_created = date_created;
         this.image_path = image_path;

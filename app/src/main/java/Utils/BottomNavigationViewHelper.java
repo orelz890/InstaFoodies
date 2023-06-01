@@ -5,15 +5,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 
 import Likes.LikesActivity;
 import Home.HomeActivity;
 import Profile.ProfileActivity;
+
 import com.example.instafoodies.R;
+
 import Search.SearchActivity;
 import Share.ShareActivity;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
@@ -21,7 +25,7 @@ public class BottomNavigationViewHelper {
 
     private static final String TAG = "BottomNavigationViewHelper";
 
-    public static void setupBottomNavigationView(BottomNavigationViewEx bottomNavigationViewEx){
+    public static void setupBottomNavigationView(BottomNavigationViewEx bottomNavigationViewEx) {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         bottomNavigationViewEx.enableAnimation(false);
         bottomNavigationViewEx.enableItemShiftingMode(false);
@@ -30,12 +34,12 @@ public class BottomNavigationViewHelper {
     }
 
 
-    public static void enableNavigation(final Context context, BottomNavigationView view){
+    public static void enableNavigation(final Context context, BottomNavigationView view) {
         Log.d(TAG, "enableNavigation: enabling navigation");
         view.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.ic_house:
                         Intent intent1 = new Intent(context, HomeActivity.class);// ACTIVITY_NUM 0
                         context.startActivity(intent1);
@@ -47,9 +51,37 @@ public class BottomNavigationViewHelper {
                         break;
 
                     case R.id.ic_circle:
-                        Intent intent3 = new Intent(context, ShareActivity.class);// ACTIVITY_NUM 2
-                        context.startActivity(intent3);
-                        break;
+                        // Show the popup menu for ic_circle selection
+                        PopupMenu popupMenu = new PopupMenu(context, view.findViewById(R.id.ic_circle));
+                        popupMenu.getMenuInflater().inflate(R.menu.menu_share, popupMenu.getMenu());
+
+                        // Set item click listener for the popup menu
+                        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                // Handle menu item clicks here
+                                switch (item.getItemId()) {
+                                    case R.id.post_item:
+                                        // Handle menu item 1 click
+                                        Intent intent3 = new Intent(context, ShareActivity.class);// ACTIVITY_NUM 2
+                                        intent3.putExtra("key", 0);
+                                        context.startActivity(intent3);
+                                        return true;
+                                    case R.id.recipe_item:
+                                        // Handle menu item 2 click
+                                        Intent intent6 = new Intent(context, ShareActivity.class);
+                                        intent6.putExtra("key", 1);
+                                        context.startActivity(intent6);
+                                        return true;
+                                    default:
+                                        return false;
+                                }
+                            }
+                        });
+
+                        // Show the popup menu
+                        popupMenu.show();
+                        return true;
 
                     case R.id.ic_alert:
                         Intent intent4 = new Intent(context, LikesActivity.class);// ACTIVITY_NUM 3

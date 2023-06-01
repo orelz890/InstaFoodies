@@ -1,6 +1,7 @@
 package Share;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,8 +24,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.instafoodies.R;
 import com.github.drjacky.imagepicker.ImagePicker;
 import com.github.drjacky.imagepicker.constant.ImageProvider;
@@ -110,18 +113,47 @@ public class GalleryFragment extends Fragment {
                     intent.putParcelableArrayListExtra(getString(R.string.selected_images), new ArrayList<>(selectedImages));
                     startActivity(intent);
                 } else {
-                    Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
+                    Intent intent = new Intent(getActivity(), NextRecipeActivity.class);
                     // Pass the selected images to the account settings activity
                     intent.putParcelableArrayListExtra(getString(R.string.selected_images), new ArrayList<>(selectedImages));
-                    intent.putExtra(getString(R.string.return_to_fragment), getString(R.string.edit_profile_fragment));
                     startActivity(intent);
-                    getActivity().finish();
                 }
             }
         });
 
         setupGridView();
         ImagePicker();
+
+
+        // Register the long click listener on the GridView
+        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                // Get the image URI at the clicked position
+                Uri imageUri = selectedImages.get(position);
+
+                // Show a confirmation dialog before deleting the image
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Delete Image");
+                builder.setMessage("Are you sure you want to delete this image?");
+                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Remove the image from the selectedImages list
+                        selectedImages.remove(imageUri);
+
+                        // Update the GridView with the updated list
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+                builder.setNegativeButton("Cancel", null);
+                builder.show();
+
+                // Return true to consume the long click event
+                return true;
+            }
+        });
+
 
         return view;
     }
@@ -201,28 +233,8 @@ public class GalleryFragment extends Fragment {
 
     private void setImage(Uri imageURL, ImageView image, String append) {
         mProgressBar.setVisibility(View.VISIBLE);
+        Glide.with(getActivity()).load(imageURL).into(image);
+        mProgressBar.setVisibility(View.GONE);
 
-        ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage(imageURL.toString(), image, new ImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                mProgressBar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                mProgressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                mProgressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onLoadingCancelled(String imageUri, View view) {
-                mProgressBar.setVisibility(View.GONE);
-            }
-        });
     }
 }
