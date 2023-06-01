@@ -26,13 +26,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     // ViewHolder class
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        ImageButton deleteButton;
 
 
         public ImageViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.item_imageView);
-            deleteButton = itemView.findViewById(R.id.deleteButton);
 
         }
     }
@@ -53,18 +51,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         Uri imageUri = imageUris.get(position);
         Glide.with(holder.imageView).load(imageUri).into(holder.imageView);
 
-        // Set a click listener on the delete button
-        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Delete the photo at the given position
-                int adapterPosition = holder.getAdapterPosition();
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    imageUris.remove(adapterPosition);
-                    notifyItemRemoved(adapterPosition);
-                }
-            }
-        });
+
     }
 
 }

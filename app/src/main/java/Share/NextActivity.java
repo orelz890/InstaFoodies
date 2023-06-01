@@ -21,6 +21,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.instafoodies.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,6 +60,9 @@ public class NextActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_next);
+
+
+        mAuth = FirebaseAuth.getInstance();
 
         //Log.d(TAG, "onCreate: got the chosen image: " + getIntent().getStringExtra(getString(R.string.selected_images)));
         serverMethods = new ServerMethods(NextActivity.this);
@@ -118,21 +122,11 @@ public class NextActivity extends AppCompatActivity {
             }
         });
 
-        // Set a click listener on the delete button overlay
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                // Update the current item when page changes
-                viewPager.setCurrentItem(position);
-            }
-        });
-
-
     }
 
     private HashMap<String, Object> createPost() {
         Photo photo = new Photo();
-        return photo.PhotoMapForServer(caption.toString(), timeStamp(), imageUris, createHash(), mAuth.getCurrentUser().getUid(), getTags(caption.toString()));
+        return photo.PhotoMapForServer(null,caption.toString(), timeStamp(), imageUris, createHash(), mAuth.getCurrentUser().getUid(), getTags(caption.toString()));
     }
 
     private String getTags(String caption) {
@@ -169,19 +163,7 @@ public class NextActivity extends AppCompatActivity {
         return sdf.format(new Date());
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
 
 
 }

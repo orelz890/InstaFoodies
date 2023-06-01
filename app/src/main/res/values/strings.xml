@@ -41,4 +41,6 @@
     <string name="selected_uris">selected uris</string>
     <string name="selected_images">selected images</string>
     <string name="string_share">Share</string>
+    <string name="calories">calories</string>
+    <string name="recipe_details">Recipe</string>
 </resources>

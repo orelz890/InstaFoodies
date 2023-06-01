@@ -34,13 +34,14 @@ public class ShareActivity extends AppCompatActivity {
     private ViewPager mViewPager;
 
     private Context mContext = ShareActivity.this;
+    private int indicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
         Log.d(TAG, "onCreate: started.");
-
+        indicator = getIntent().getIntExtra("key", -1);
         setupViewPager();
     }
 
@@ -69,7 +70,7 @@ private void setupViewPager(){
 
     public int getTask(){
         Log.d(TAG, "getTask: TASK: " + getIntent().getFlags());
-        return getIntent().getFlags();
+        return indicator;
     }
     /**
      * BottomNavigationView setup
