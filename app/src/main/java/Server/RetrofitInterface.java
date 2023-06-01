@@ -1,5 +1,7 @@
 package Server;
 
+import android.net.Uri;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,17 @@ public interface RetrofitInterface {
 
     @PATCH("/patchUserAccountSettings/{uid}")
     Call<Void> patchUserAccountSettings (@Path("uid") String uid, @Body HashMap<String, Object> map);
+
+    // ================================ share ==============================
+    @PATCH("/uploadNewPhoto/{uid}")
+    Call<Void> uploadNewPhoto (@Path("uid") String uid, @Body HashMap<String, Object> map);
+
+    @PATCH("/uploadNewPhoto/{uid}/{image_uri")
+    Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_uri") Uri image_uri);
+
+
+
+
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);

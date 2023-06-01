@@ -42,8 +42,7 @@ public class GridImageAdapter extends ArrayAdapter<Uri> {
         mAppend = append;
         this.imgURLs = imgURLs;
 
-        // Initialize Universal Image Loader
-//        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(mContext));
+
     }
 
     private static class ViewHolder {

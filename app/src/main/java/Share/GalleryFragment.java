@@ -203,7 +203,7 @@ public class GalleryFragment extends Fragment {
         mProgressBar.setVisibility(View.VISIBLE);
 
         ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage(append + imageURL.getPath(), image, new ImageLoadingListener() {
+        imageLoader.displayImage(imageURL.toString(), image, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
                 mProgressBar.setVisibility(View.VISIBLE);
