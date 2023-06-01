@@ -101,84 +101,48 @@ public class FindFriendsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        serverMethods.retrofitInterface.getUser(uid).enqueue(new Callback<User>() {
+        System.out.println("uid = " + uid);
+        serverMethods.retrofitInterface.getFollowingUsers(uid).enqueue(new Callback<User[]>() {
             @Override
-            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+            public void onResponse(@NonNull Call<User[]> call, @NonNull Response<User[]> response) {
                 if (response.code() == 200) {
-                    User user = response.body();
-                    if (user != null) {
-                        serverMethods.retrofitInterface.getUserAccountSettings(uid).enqueue(new Callback<UserAccountSettings>() {
+                    System.out.println("Success!!!");
+
+                    User[] users = response.body();
+                    if (users != null){
+                        System.out.println("users.get(0).getFull_name() = " + users[0].getFull_name());
+
+                        serverMethods.retrofitInterface.getFollowingUsersAccountSettings(uid).enqueue(new Callback<UserAccountSettings[]>() {
                             @Override
-                            public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
+                            public void onResponse(@NonNull Call<UserAccountSettings[]> call, @NonNull Response<UserAccountSettings[]> response) {
                                 if (response.code() == 200) {
-                                    UserAccountSettings userAccount = response.body();
-                                    if (userAccount != null) {
-                                        userSettings = new UserSettings(user,userAccount);
-                                        System.out.println("getFollowing = " + userAccount.getFollowing());
-                                        friendsUserIds = userAccount.getFollowing_ids();
-                                        friendsUserIds.add("eVkAc1hVnAOCdX8QCFFGxZqFU3c2");
-//                                        friendsUserIds.add("111");
-
-                                        serverMethods.retrofitInterface.getFollowingUsers(friendsUserIds).enqueue(new Callback<User[]>() {
-                                            @Override
-                                            public void onResponse(@NonNull Call<User[]> call, @NonNull Response<User[]> response) {
-                                                if (response.code() == 200) {
-                                                    System.out.println("Success!!!");
-
-                                                    User[] users = response.body();
-                                                    if (users != null){
-                                                        System.out.println("users.get(0).getFull_name() = " + users[0].getFull_name());
-
-                                                        serverMethods.retrofitInterface.getFollowingUsersAccountSettings(friendsUserIds).enqueue(new Callback<UserAccountSettings[]>() {
-                                                            @Override
-                                                            public void onResponse(@NonNull Call<UserAccountSettings[]> call, @NonNull Response<UserAccountSettings[]> response) {
-                                                                if (response.code() == 200) {
-                                                                    UserAccountSettings[] usersAccount = response.body();
-                                                                    if (usersAccount != null){
-                                                                        // Create the adapter and set it to the RecyclerView
-                                                                        userAdapter = new UserAdapter(users,usersAccount);
-                                                                        FindFriendsRecyclerList.setAdapter(userAdapter);
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            @Override
-                                                            public void onFailure(@NonNull Call<UserAccountSettings[]> call, @NonNull Throwable t) {
-
-                                                            }
-                                                        });
-                                                    }
-                                                    else{
-                                                        System.out.println("users == null");
-                                                    }
-                                                }
-                                                else{
-                                                    System.out.println("There was an error");
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onFailure(@NonNull Call<User[]> call, @NonNull Throwable t) {
-                                                System.out.println(t.getMessage());
-                                            }
-                                        });
+                                    UserAccountSettings[] usersAccount = response.body();
+                                    if (usersAccount != null){
+                                        // Create the adapter and set it to the RecyclerView
+                                        userAdapter = new UserAdapter(users,usersAccount);
+                                        FindFriendsRecyclerList.setAdapter(userAdapter);
                                     }
                                 }
                             }
 
                             @Override
-                            public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
-                                System.out.println(t.getMessage());
+                            public void onFailure(@NonNull Call<UserAccountSettings[]> call, @NonNull Throwable t) {
+
                             }
                         });
                     }
+                    else{
+                        System.out.println("users == null");
+                    }
+                }
+                else{
+                    System.out.println("There was an error");
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<User> call, Throwable t) {
-
+            public void onFailure(@NonNull Call<User[]> call, @NonNull Throwable t) {
+                System.out.println(t.getMessage());
             }
         });
     }
@@ -197,7 +161,6 @@ public class FindFriendsActivity extends AppCompatActivity {
             // Fetch user data based on the user IDs and populate the userList
             // You can make a database query or fetch data from your data source (e.g., Firebase Firestore)
             // Populate the userList with the retrieved user data
-            System.out.println("friendsUserIds = " + friendsUserIds.get(0).toString());
 
         }
 
@@ -231,7 +194,7 @@ public class FindFriendsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     System.out.println("position = " + position);
-                    String visit_user_id = friendsUserIds.get(position);
+                    String visit_user_id = userList.get(position).getUser_id();
                     UserSettings userSettings = new UserSettings(user,userAccountSettings);
 
                     Intent intent = new Intent(FindFriendsActivity.this, ChatProfileActivity.class);
@@ -260,28 +223,6 @@ public class FindFriendsActivity extends AppCompatActivity {
                 profileImage = itemView.findViewById(R.id.users_profile_image);
             }
         }
-    }
-
-    public static String bitmapToBase64(Bitmap bitmap) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
-    }
-
-    public static Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        }
-
-        int width = drawable.getIntrinsicWidth();
-        int height = drawable.getIntrinsicHeight();
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
     }
 
 

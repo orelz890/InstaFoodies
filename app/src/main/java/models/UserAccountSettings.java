@@ -87,7 +87,6 @@ public class UserAccountSettings implements Serializable {
         this.website = "none";
         this.isBusiness = false;
         this.following_ids = new ArrayList<>();
-        this.following_ids.add("eVkAc1hVnAOCdX8QCFFGxZqFU3c2");
     }
 
     public UserAccountSettings(String description, String profile_photo, boolean isBusiness, int followers,

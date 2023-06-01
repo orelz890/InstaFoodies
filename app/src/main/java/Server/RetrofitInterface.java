@@ -79,11 +79,22 @@ public interface RetrofitInterface {
     @GET("/getUserChatGroups/{uid}")
     Call<String[]> getUserChatGroups (@Path("uid") String uid);
 
-    @GET("/getFollowingUsers/{ids}")
-    Call<User[]> getFollowingUsers (@Path("ids") List<String> ids);
 
-    @GET("/getFollowingUsersAccountSettings/{ids}")
-    Call<UserAccountSettings[]> getFollowingUsersAccountSettings (@Path("ids") List<String> ids);
+    @GET("/getFollowingUsers/{uid}")
+    Call<User[]> getFollowingUsers (@Path("uid") String uid);
+
+    @GET("/getFollowingUsersAccountSettings/{uid}")
+    Call<UserAccountSettings[]> getFollowingUsersAccountSettings (@Path("uid") String uid);
+
+
+
+    @GET("/getContactsUsers/{uid}")
+    Call<User[]> getContactsUsers (@Path("uid") String uid);
+
+    @GET("/getContactsSettings/{uid}")
+    Call<UserAccountSettings[]> getContactsSettings (@Path("uid") String uid);
+
+
 
 //    @POST("/login") // Working!
 //    Call<User_old_version> executeLogin(@Body Map<String, String> map);
