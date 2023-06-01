@@ -83,27 +83,31 @@ public class SettingsActivity extends AppCompatActivity {
         InitializeFields();
         userName.setVisibility(View.INVISIBLE);
 
-//        RetrieveUserInfo();
+        RetrieveUserInfo();
 
     }
 
-    private void RetrieveUserInfo(UserSettings userSettings)
+    private void RetrieveUserInfo(){
+
+    }
+
+    private void RetrieveUserInfoFromUserSettings(UserSettings userSettings)
     {
-        userName.setText(userSettings.getUser().getFull_name());
-        userName.setVisibility(View.VISIBLE);
-        userStatus.setText(userSettings.getSettings().getWebsite());
-        userStatus.setVisibility(View.VISIBLE);
-
-
-        // Load the profile image using a library like Picasso or Glide
-        String profile_photo = userSettings.getSettings().getProfile_photo();
-        if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
-//                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
-            Picasso.get().load(profile_photo).into(userProfileImage);
-        }
-        else {
-            userProfileImage.setImageResource(R.drawable.profile_image);
-        }
+//        userName.setText(userSettings.getUser().getFull_name());
+//        userName.setVisibility(View.VISIBLE);
+//        userStatus.setText(userSettings.getSettings().getWebsite());
+//        userStatus.setVisibility(View.VISIBLE);
+//
+//
+//        // Load the profile image using a library like Picasso or Glide
+//        String profile_photo = userSettings.getSettings().getProfile_photo();
+//        if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+////                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
+//            Picasso.get().load(profile_photo).into(userProfileImage);
+//        }
+//        else {
+//            userProfileImage.setImageResource(R.drawable.profile_image);
+//        }
     }
 
     private void SendUserToHomeActivity()
@@ -131,8 +135,8 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         System.out.println("im on profile start");
-        UserSettings userSettings = (UserSettings)getIntent().getSerializableExtra("userSettings");
-        RetrieveUserInfo(userSettings);
+//        UserSettings userSettings = (UserSettings)getIntent().getSerializableExtra("userSettings");
+//        RetrieveUserInfoFromUserSettings(userSettings);
 
     }
 }

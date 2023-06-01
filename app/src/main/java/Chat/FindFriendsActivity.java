@@ -230,16 +230,16 @@ public class FindFriendsActivity extends AppCompatActivity {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    System.out.println("position = " + position);
-//                    String visit_user_id = friendsUserIds.get(position);
+                    System.out.println("position = " + position);
+                    String visit_user_id = friendsUserIds.get(position);
                     UserSettings userSettings = new UserSettings(user,userAccountSettings);
 
-                    Intent intent = new Intent(FindFriendsActivity.this, SettingsActivity.class);
+                    Intent intent = new Intent(FindFriendsActivity.this, ChatProfileActivity.class);
                     intent.putExtra("userSettings", userSettings);
+                    intent.putExtra("visit_user_id", visit_user_id);
                     startActivity(intent);
                 }
             });
-
         }
 
         // Get the total number of user items
