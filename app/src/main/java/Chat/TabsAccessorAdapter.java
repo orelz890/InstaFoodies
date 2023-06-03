@@ -1,5 +1,6 @@
 package Chat;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -11,26 +12,27 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
+    @NonNull
     @Override
     public Fragment getItem(int i) {
 
         switch (i)
         {
             case 0:
-                ChatsFragment chatsFragment = new ChatsFragment();
-                return chatsFragment;
+                System.out.println("\n\n" + getPageTitle(0) + "\n\n");
+                return new ChatsFragment();
 
             case 1:
-                GroupsFragment groupsFragment = new GroupsFragment();
-                return groupsFragment;
+                System.out.println("\n\n" + getPageTitle(1) + "\n\n");
+                return new GroupsFragment();
 
             case 2:
-                ContactsFragment contactsFragment = new ContactsFragment();
-                return contactsFragment;
+                System.out.println("\n\n" + getPageTitle(2) + "\n\n");
+                return new ContactsFragment();
 
             case 3:
-                RequestsFragment requestsFragment = new RequestsFragment();
-                return requestsFragment;
+                System.out.println("\n\n" + getPageTitle(3) + "\n\n");
+                return new RequestsFragment();
 
             default:
                 return null;

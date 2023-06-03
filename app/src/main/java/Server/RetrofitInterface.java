@@ -86,6 +86,8 @@ public interface RetrofitInterface {
     @GET("/getFollowingUsersAccountSettings/{uid}")
     Call<UserAccountSettings[]> getFollowingUsersAccountSettings (@Path("uid") String uid);
 
+    @GET("/getFollowingUsersAndAccounts/{uid}")
+    Call<RequestUsersAndAccounts> getFollowingUsersAndAccounts (@Path("uid") String uid);
 
 
     @GET("/getContactsUsers/{uid}")
@@ -94,6 +96,12 @@ public interface RetrofitInterface {
     @GET("/getContactsSettings/{uid}")
     Call<UserAccountSettings[]> getContactsSettings (@Path("uid") String uid);
 
+    @GET("/getContactsUsersAndSettings/{uid}")
+    Call<RequestUsersAndAccounts> getContactsUsersAndSettings (@Path("uid") String uid);
+
+
+    @GET("/getRequests/{uid}")
+    Call<RequestsResponse> getRequests (@Path("uid") String uid);
 
 
 //    @POST("/login") // Working!
