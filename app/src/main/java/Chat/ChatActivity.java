@@ -49,11 +49,25 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import Utils.ServerMethods;
 import de.hdodenhof.circleimageview.CircleImageView;
+import models.User;
+import models.UserAccountSettings;
+import models.UserSettings;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatActivity extends AppCompatActivity
-{  private String messageReceiverID, messageReceiverName, messageReceiverImage, messageSenderID;
+{
+    private static Context context;
+    private static ServerMethods serverMethods;
+
+    private String messageReceiverID, messageReceiverName, messageReceiverImage, messageSenderID;
+    private UserSettings receiverUserSettings;
+    private UserSettings senderUserSettings;
 
     private TextView userName, userLastSeen;
     private CircleImageView userImage;
@@ -77,27 +91,39 @@ public class ChatActivity extends AppCompatActivity
     private String checker = "",myUrl="";
     private Uri fileUri;
     private StorageTask uploadTask;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        serverMethods = new ServerMethods(this);
+
         mAuth = FirebaseAuth.getInstance();
         messageSenderID = mAuth.getCurrentUser().getUid();
         RootRef = FirebaseDatabase.getInstance().getReference();
 
+        receiverUserSettings = (UserSettings)getIntent().getSerializableExtra("receiverUserSettings");
+        User user = receiverUserSettings.getUser();
+        UserAccountSettings userAccountSettings = receiverUserSettings.getSettings();
 
-        messageReceiverID = getIntent().getExtras().get("visit_user_id").toString();
-        messageReceiverName = getIntent().getExtras().get("visit_user_name").toString();
-        messageReceiverImage = getIntent().getExtras().get("visit_image").toString();
+        messageReceiverID = user.getUser_id();
+        messageReceiverName = user.getFull_name();
+        messageReceiverImage = userAccountSettings.getProfile_photo();
 
 
         InitializeControllers();
 
-
+        System.out.println("messageReceiverName = " + messageReceiverName);
         userName.setText(messageReceiverName);
-        Picasso.get().load(messageReceiverImage).placeholder(R.drawable.profile_image).into(userImage);
+        if (!messageReceiverImage.isEmpty() && !Objects.equals(messageReceiverImage, "none")) {
+            Picasso.get().load(messageReceiverImage).placeholder(R.drawable.profile_image).into(userImage);
+        }
+        else{
+            userImage.setImageResource(R.drawable.profile_image);
+        }
 
         SendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,7 +131,9 @@ public class ChatActivity extends AppCompatActivity
                 SendMessage();
             }
         });
+
         DisplayLastSeen();
+
         SendFilesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -152,27 +180,27 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void InitializeControllers() {
-        mToolbar = (MaterialToolbar) findViewById(R.id.chat_toolbar);
+        mToolbar = (MaterialToolbar) findViewById(R.id.chat_page_toolbar);
         setSupportActionBar(mToolbar);
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("ChatActivity");
 
-//        ActionBar actionBar = getSupportActionBar();
-//        actionBar.setDefaultDisplayHomeAsUpEnabled(true);
-//        actionBar.setDisplayShowCustomEnabled(true);
-//
-//        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        View actionBarView = layoutInflater.inflate(R.layout.custom_chat_bar,null);
-//        actionBar.setCustomView(actionBarView);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDefaultDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);
+
+        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View actionBarView = layoutInflater.inflate(R.layout.custom_chat_bar,null);
+        actionBar.setCustomView(actionBarView);
 
         loadingBar = new ProgressDialog(this);
 
-        userName = (TextView) findViewById(R.id.custom_profile_image);
+        userName = (TextView) findViewById(R.id.custom_profile_name);
         userImage = (CircleImageView) findViewById(R.id.custom_profile_image);
         userLastSeen = (TextView) findViewById(R.id.custom_user_last_seen);
 
-        SendMessageButton = (ImageButton) findViewById(R.id.send_message_button);
+        SendMessageButton = (ImageButton) findViewById(R.id.send_message_btn);
         SendFilesButton = (ImageButton) findViewById(R.id.send_files_btn);
         MessageInputText = (EditText) findViewById(R.id.input_message);
 
@@ -221,7 +249,7 @@ public class ChatActivity extends AppCompatActivity
                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                            if(task.isSuccessful())
                            {
-                               Map messageTextBody = new HashMap();
+                               Map<String,String> messageTextBody = new HashMap<>();
                                messageTextBody.put("message", myUrl);
                                messageTextBody.put("name",fileUri.getLastPathSegment());
                                if(checker.equals("pdf"))
@@ -239,7 +267,7 @@ public class ChatActivity extends AppCompatActivity
                                messageTextBody.put("time", saveCurrentTime);
                                messageTextBody.put("date", saveCurrentDate);
 
-                               Map messageBodyDetails = new HashMap();
+                               Map<String,Object> messageBodyDetails = new HashMap<>();
                                messageBodyDetails.put(messageSenderRef + "/" + messagePushID, messageTextBody);
                                messageBodyDetails.put( messageReceiverRef + "/" + messagePushID, messageTextBody);
 
@@ -255,7 +283,7 @@ public class ChatActivity extends AppCompatActivity
                    }
                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                    @Override
-                   public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                   public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
                        double p = (100.0 * taskSnapshot.getBytesTransferred())/taskSnapshot.getTotalByteCount();
                        loadingBar.setMessage((int)p + "% Uploading...");
 
@@ -291,7 +319,7 @@ public class ChatActivity extends AppCompatActivity
                        Uri downloadUrl = task.getResult();
                        myUrl = downloadUrl.toString();
 
-                       Map messageTextBody = new HashMap();
+                       Map<String,String> messageTextBody = new HashMap<>();
                        messageTextBody.put("message", myUrl);
                        messageTextBody.put("name",fileUri.getLastPathSegment());
                        messageTextBody.put("type", checker);
@@ -301,7 +329,7 @@ public class ChatActivity extends AppCompatActivity
                        messageTextBody.put("time", saveCurrentTime);
                        messageTextBody.put("date", saveCurrentDate);
 
-                       Map messageBodyDetails = new HashMap();
+                       Map<String,Object> messageBodyDetails = new HashMap<>();
                        messageBodyDetails.put(messageSenderRef + "/" + messagePushID, messageTextBody);
                        messageBodyDetails.put( messageReceiverRef + "/" + messagePushID, messageTextBody);
 
@@ -333,39 +361,36 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
+
     private void DisplayLastSeen()
     {
-        RootRef.child("Users").child(messageReceiverID)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        if (dataSnapshot.child("userState").hasChild("state"))
-                        {
-                            String state = dataSnapshot.child("userState").child("state").getValue().toString();
-                            String date = dataSnapshot.child("userState").child("date").getValue().toString();
-                            String time = dataSnapshot.child("userState").child("time").getValue().toString();
 
-                            if (state.equals("online"))
-                            {
-                                userLastSeen.setText("online");
-                            }
-                            else if (state.equals("offline"))
-                            {
-                                userLastSeen.setText("Last Seen: " + date + " " + time);
-                            }
+        serverMethods.retrofitInterface.getUser(messageReceiverID).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+                if (response.isSuccessful()) {
+                    User user = response.body();
+                    if (user != null) {
+                        String state = user.getState();
+                        String date = user.getDate();
+                        String time = user.getTime();
+
+                        if (state.equals("online")) {
+                            userLastSeen.setText(state);
+                        } else if (state.equals("offline")) {
+                            userLastSeen.setText("Last Seen: " + date + " " + time);
                         }
-                        else
-                        {
-                            userLastSeen.setText("offline");
-                        }
+                    } else {
+                        userLastSeen.setText("offline");
                     }
+                }
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+            @Override
+            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+                System.out.println("DisplayLastSeen - onFailure: " + t.getMessage());
+            }
+        });
     }
 
 
@@ -381,7 +406,7 @@ public class ChatActivity extends AppCompatActivity
                      Messages messages = dataSnapshot.getValue(Messages.class);
                      messagesList.add(messages);
                      messageAdapter.notifyDataSetChanged();
-                     userMessagesList.smoothScrollToPosition(userMessagesList.getAdapter().getItemCount());
+                     userMessagesList.smoothScrollToPosition(Objects.requireNonNull(userMessagesList.getAdapter()).getItemCount());
                     }
 
                     @Override
@@ -428,7 +453,8 @@ public class ChatActivity extends AppCompatActivity
 
             String messagePushID = userMessageKeyRef.getKey();
 
-            Map messageTextBody = new HashMap();
+
+            Map<String, String> messageTextBody = new HashMap<>();
             messageTextBody.put("message", messageText);
             messageTextBody.put("type", "text");
             messageTextBody.put("from", messageSenderID);
@@ -437,7 +463,7 @@ public class ChatActivity extends AppCompatActivity
             messageTextBody.put("time", saveCurrentTime);
             messageTextBody.put("date", saveCurrentDate);
 
-            Map messageBodyDetails = new HashMap();
+            Map<String, Object> messageBodyDetails = new HashMap<>();
             messageBodyDetails.put(messageSenderRef + "/" + messagePushID, messageTextBody);
             messageBodyDetails.put( messageReceiverRef + "/" + messagePushID, messageTextBody);
 

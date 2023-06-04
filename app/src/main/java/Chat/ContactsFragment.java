@@ -78,7 +78,7 @@ public class ContactsFragment extends Fragment {
         context = getContext();
 
         System.out.println("getContext() = " + getContext());
-        serverMethods = new ServerMethods(getContext());
+        serverMethods = new ServerMethods(context);
 
 
         myContactsList = (RecyclerView) ContactsView.findViewById(R.id.contact_list);
@@ -99,30 +99,41 @@ public class ContactsFragment extends Fragment {
 
     public void createFeed() {
         System.out.println("im in onStart createFeed()");
-
-        serverMethods.retrofitInterface.getContactsUsersAndSettings(currentUserID).enqueue(new Callback<RequestUsersAndAccounts>() {
+        ContactsRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onResponse(@NonNull Call<RequestUsersAndAccounts> call, @NonNull Response<RequestUsersAndAccounts> response) {
-                if (response.code() == 200) {
-                    System.out.println("Contacts Success!!!");
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && snapshot.getValue() != null) {
+                    serverMethods.retrofitInterface.getContactsUsersAndSettings(currentUserID).enqueue(new Callback<RequestUsersAndAccounts>() {
+                        @Override
+                        public void onResponse(@NonNull Call<RequestUsersAndAccounts> call, @NonNull Response<RequestUsersAndAccounts> response) {
+                            if (response.code() == 200) {
+                                System.out.println("Contacts Success!!!");
 
-                    RequestUsersAndAccounts usersAndAccounts = response.body();
-                    if (usersAndAccounts != null) {
-                        System.out.println("usersAndAccounts.size = " + usersAndAccounts.size());
-                        contactsAdapter = new ContactsAdapter(usersAndAccounts);
-                        myContactsList.setAdapter(contactsAdapter);
+                                RequestUsersAndAccounts usersAndAccounts = response.body();
+                                if (usersAndAccounts != null) {
+                                    System.out.println("usersAndAccounts.size = " + usersAndAccounts.size());
+                                    contactsAdapter = new ContactsAdapter(usersAndAccounts);
+                                    myContactsList.setAdapter(contactsAdapter);
 
-                    } else {
-                        System.out.println("users == null");
-                    }
-                } else {
-                    System.out.println("There was an error");
+                                } else {
+                                    System.out.println("users == null");
+                                }
+                            } else {
+                                System.out.println("There was an error");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<RequestUsersAndAccounts> call, @NonNull Throwable t) {
+                            System.out.println(t.getMessage());
+                        }
+                    });
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<RequestUsersAndAccounts> call, @NonNull Throwable t) {
-                System.out.println(t.getMessage());
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("ContactsFragment - createFeed - onCancelled: " + error.getMessage());
             }
         });
 
@@ -162,47 +173,53 @@ public class ContactsFragment extends Fragment {
         // Bind data to the views in each item
         @Override
         public void onBindViewHolder(@NonNull ContactsViewHolder holder, int position) {
-            ContactsRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists() && snapshot.getValue() != null) {
 
-                        User user = data.getUser(position);
-                        UserAccountSettings userAccountSettings = data.getAccount(position);
+            User user = data.getUser(position);
+            UserAccountSettings userAccountSettings = data.getAccount(position);
 
-                        holder.userName.setText(user.getUsername());
-                        holder.userStatus.setText(user.getEmail());
-                        // Load the profile image using a library like Picasso or Glide
-                        String profile_photo = userAccountSettings.getProfile_photo();
-                        if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+            if (user != null && userAccountSettings != null) {
+                holder.userName.setText(user.getUsername());
+                holder.userStatus.setText(user.getEmail());
+                // Load the profile image using a library like Picasso or Glide
+                String profile_photo = userAccountSettings.getProfile_photo();
+                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
 //                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
-                            Picasso.get().load(profile_photo).into(holder.profileImage);
-                        } else {
-                            holder.profileImage.setImageResource(R.drawable.profile_image);
-                        }
+                    Picasso.get().load(profile_photo).into(holder.profileImage);
+                } else {
+                    holder.profileImage.setImageResource(R.drawable.profile_image);
+                }
 
-                        holder.itemView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                System.out.println("position = " + position);
-                                String visit_user_id = data.getUser(position).getUser_id();
-                                UserSettings userSettings = new UserSettings(user, userAccountSettings);
+                holder.userName.setText(user.getFull_name());
+                String state = user.getState();
+                String date = user.getDate();
+                String time = user.getTime();
 
-                                Intent intent = new Intent(context, ChatProfileActivity.class);
-                                intent.putExtra("userSettings", userSettings);
-                                intent.putExtra("visit_user_id", visit_user_id);
-                                startActivity(intent);
-                            }
-                        });
+                if (state.equals("online")) {
+                    holder.userStatus.setText(state);
+                    holder.onlineIcon.setVisibility(View.VISIBLE);
+                } else if (state.equals("offline")) {
+                    holder.userStatus.setText("Last Seen: " + date + " " + time);
+                    holder.onlineIcon.setVisibility(View.GONE);
+                }
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        System.out.println("position = " + position);
+                        String visit_user_id = data.getUser(position).getUser_id();
+                        UserSettings userSettings = new UserSettings(user, userAccountSettings);
+
+                        Intent intent = new Intent(context, ChatProfileActivity.class);
+                        intent.putExtra("userSettings", userSettings);
+                        intent.putExtra("visit_user_id", visit_user_id);
+                        startActivity(intent);
                     }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-
+                });
+            }
+            else {
+                holder.userStatus.setText("offline");
+                holder.onlineIcon.setVisibility(View.GONE);
+            }
 
         }
 

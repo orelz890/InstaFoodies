@@ -29,7 +29,8 @@
             android:parentActivityName="Chat.MainChatActivity"> </activity>
 
         <activity android:name="Chat.ChatProfileActivity"> </activity>
-        <activity android:name="Chat.ChatActivity"> </activity>
+        <activity android:name="Chat.ChatActivity"
+            android:parentActivityName="Chat.MainChatActivity"> </activity>
 
         <activity
             android:name="Share.NextRecipeActivity"

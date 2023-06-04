@@ -68,6 +68,9 @@ public interface RetrofitInterface {
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);
 
+    @GET("/getBothUserAndHisSettings/{uid}")
+    Call<UserSettings> getBothUserAndHisSettings (@Path("uid") String uid);
+
 // ================================ Chat ==============================
 
     @POST("/createNewChatGroup/{uid}/{name}")
@@ -99,7 +102,5 @@ public interface RetrofitInterface {
 
     @GET("/getRequests/{uid}")
     Call<RequestsResponse> getRequests (@Path("uid") String uid);
-
-
 
 }

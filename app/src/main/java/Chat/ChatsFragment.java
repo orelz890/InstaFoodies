@@ -1,5 +1,6 @@
 package Chat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.instafoodies.R;
@@ -22,22 +24,39 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import Server.RequestUsersAndAccounts;
 import Utils.ServerMethods;
 import de.hdodenhof.circleimageview.CircleImageView;
+import models.User;
+import models.UserAccountSettings;
+import models.UserSettings;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class ChatsFragment extends Fragment
 {
 
+    private static Context mContext;
     private String BASE_URL = "http://10.0.2.2:8080";
     private static ServerMethods serverMethods;
 
     private View PrivateChatsView;
     private RecyclerView chatsList;
 
-    private DatabaseReference ChatsRef, UsersRef;
+    private ChatsAdapter chatsAdapter;
+
+    private DatabaseReference ContactsRef;
+    private DocumentReference usersDoc;
+    private DocumentReference usersAccountDoc;
     private FirebaseAuth mAuth;
     private String currentUserID="";
 
@@ -52,126 +71,166 @@ public class ChatsFragment extends Fragment
                              Bundle savedInstanceState) {
         PrivateChatsView = inflater.inflate(R.layout.fragment_chats, container, false);
 
-        serverMethods = new ServerMethods(getContext());
+        mContext = getContext();
+        serverMethods = new ServerMethods(mContext);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
-        ChatsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID);
-        UsersRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        ContactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID);
+        usersDoc = FirebaseFirestore.getInstance().collection("users").document(currentUserID);
+        usersAccountDoc = FirebaseFirestore.getInstance().collection("users_account_settings").document(currentUserID);
 
         chatsList = (RecyclerView) PrivateChatsView.findViewById(R.id.chats_list);
-        chatsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        chatsList.setLayoutManager(new LinearLayoutManager(mContext));
 
         return PrivateChatsView;
     }
     @Override
-    public void onStart()
-    {
+    public void onStart() {
         super.onStart();
 
+        System.out.println("im in onStart ChatsFragment");
 
-        FirebaseRecyclerOptions<Contacts> options =
-                new FirebaseRecyclerOptions.Builder<Contacts>()
-                        .setQuery(ChatsRef, Contacts.class)
-                        .build();
+        createFeed();
 
+    }
 
-        FirebaseRecyclerAdapter<Contacts, ChatsViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Contacts, ChatsViewHolder>(options) {
-                    @Override
-                    protected void onBindViewHolder(@NonNull final ChatsViewHolder holder, int position, @NonNull Contacts model)
-                    {
-                        final String usersIDs = getRef(position).getKey();
-                        final String[] retImage = {"default_image"};
+    private void createFeed() {
 
+        ContactsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && snapshot.getValue() != null){
+                    serverMethods.retrofitInterface.getContactsUsersAndSettings(currentUserID).enqueue(new Callback<RequestUsersAndAccounts>() {
+                        @Override
+                        public void onResponse(@NonNull Call<RequestUsersAndAccounts> call, @NonNull Response<RequestUsersAndAccounts> response) {
+                            if (response.code() == 200) {
+                                System.out.println("Chats Success!!!");
 
-                        UsersRef.child(usersIDs).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot)
-                            {
-                                if (dataSnapshot.exists())
-                                {
-                                    if (dataSnapshot.hasChild("image"))
-                                    {
-                                        retImage[0] = dataSnapshot.child("image").getValue().toString();
-                                        Picasso.get().load(retImage[0]).into(holder.profileImage);
-                                    }
-
-                                    final String retName = dataSnapshot.child("name").getValue().toString();
-                                    final String retStatus = dataSnapshot.child("status").getValue().toString();
-
-                                    holder.userName.setText(retName);
-
-
-                                    if (dataSnapshot.child("userState").hasChild("state"))
-                                    {
-                                        String state = dataSnapshot.child("userState").child("state").getValue().toString();
-                                        String date = dataSnapshot.child("userState").child("date").getValue().toString();
-                                        String time = dataSnapshot.child("userState").child("time").getValue().toString();
-
-                                        if (state.equals("online"))
-                                        {
-                                            holder.userStatus.setText("online");
-                                        }
-                                        else if (state.equals("offline"))
-                                        {
-                                            holder.userStatus.setText("Last Seen: " + date + " " + time);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        holder.userStatus.setText("offline");
-                                    }
-
-                                    holder.itemView.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view)
-                                        {
-                                            Intent chatIntent = new Intent(getContext(), ChatActivity.class);
-                                            chatIntent.putExtra("visit_user_id", usersIDs);
-                                            chatIntent.putExtra("visit_user_name", retName);
-                                            chatIntent.putExtra("visit_image", retImage[0]);
-                                            startActivity(chatIntent);
-                                        }
-                                    });
+                                RequestUsersAndAccounts usersAndAccounts = response.body();
+                                if (usersAndAccounts != null) {
+                                    System.out.println("usersAndAccounts.size = " + usersAndAccounts.size());
+                                    chatsAdapter = new ChatsAdapter(usersAndAccounts);
+                                    chatsList.setAdapter(chatsAdapter);
+                                }
+                                else {
+                                    System.out.println("users == null");
                                 }
                             }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
+                            else {
+                                System.out.println("There was an error");
                             }
-                        });
-                    }
+                        }
 
-                    @NonNull
-                    @Override
-                    public ChatsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i)
-                    {
-                        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.users_display_layout, viewGroup, false);
-                        return new ChatsViewHolder(view);
-                    }
-                };
+                        @Override
+                        public void onFailure(@NonNull Call<RequestUsersAndAccounts> call, @NonNull Throwable t) {
+                            System.out.println(t.getMessage());
+                        }
+                    });
 
-        chatsList.setAdapter(adapter);
-        adapter.startListening();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("ChatFragment - createFeed - onCancelled - error:\n" + error.getMessage());
+            }
+        });
     }
 
 
+    public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatsViewHolder> {
 
+        private RequestUsersAndAccounts data;
 
-    public static class  ChatsViewHolder extends RecyclerView.ViewHolder
-    {
-        CircleImageView profileImage;
-        TextView userStatus, userName;
+        public ChatsAdapter(RequestUsersAndAccounts usersAndAccounts) {
+            data = usersAndAccounts;
 
-        public ChatsViewHolder(@NonNull View itemView)
+            // Fetch user data based on the user IDs and populate the userList
+            // You can make a database query or fetch data from your data source (e.g., Firebase Firestore)
+            // Populate the userList with the retrieved user data
+
+        }
+
+        // Create ViewHolder for each user item
+        @NonNull
+        @Override
+        public ChatsAdapter.ChatsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.users_display_layout, viewGroup, false);
+            return new ChatsViewHolder(view);
+        }
+
+        // Bind data to the views in each item
+        @Override
+        public void onBindViewHolder(@NonNull ChatsAdapter.ChatsViewHolder holder, int position) {
+
+            User user = data.getUser(position);
+            UserAccountSettings userAccountSettings = data.getAccount(position);
+
+            if (user != null && userAccountSettings != null) {
+                holder.userName.setText(user.getUsername());
+                holder.userStatus.setText(user.getEmail());
+                // Load the profile image using a library like Picasso or Glide
+                String profile_photo = userAccountSettings.getProfile_photo();
+                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+//                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
+                    Picasso.get().load(profile_photo).into(holder.profileImage);
+                } else {
+                    holder.profileImage.setImageResource(R.drawable.profile_image);
+                }
+
+                holder.userName.setText(user.getFull_name());
+                String state = user.getState();
+                String date = user.getDate();
+                String time = user.getTime();
+
+                if (state.equals("online")) {
+                    holder.userStatus.setText(state);
+                    holder.onlineIcon.setVisibility(View.VISIBLE);
+                } else if (state.equals("offline")) {
+                    holder.userStatus.setText("Last Seen: " + date + " " + time);
+                    holder.onlineIcon.setVisibility(View.GONE);
+                }
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        System.out.println("position = " + position);
+                        UserSettings receiverUserSettings = new UserSettings(user, userAccountSettings);
+
+                        Intent intent = new Intent(mContext, ChatActivity.class);
+                        intent.putExtra("receiverUserSettings", receiverUserSettings);
+                        startActivity(intent);
+                    }
+                });
+            }
+            else {
+                holder.userStatus.setText("offline");
+                holder.onlineIcon.setVisibility(View.GONE);
+            }
+        }
+
+        // Get the total number of user items
+        @Override
+        public int getItemCount() {
+            return data.size();
+        }
+
+        public class  ChatsViewHolder extends RecyclerView.ViewHolder
         {
-            super(itemView);
+            CircleImageView profileImage;
+            TextView userStatus, userName;
+            ImageView onlineIcon;
 
-            profileImage = itemView.findViewById(R.id.users_profile_image);
-            userStatus = itemView.findViewById(R.id.user_status);
-            userName = itemView.findViewById(R.id.user_profile_name);
+            public ChatsViewHolder(@NonNull View itemView)
+            {
+                super(itemView);
+
+                profileImage = itemView.findViewById(R.id.users_profile_image);
+                userStatus = itemView.findViewById(R.id.user_status);
+                userName = itemView.findViewById(R.id.user_profile_name);
+                onlineIcon = itemView.findViewById(R.id.user_online_status);
+            }
         }
     }
 }

@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.example.instafoodies.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
@@ -29,11 +31,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.StorageTask;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import Login.LoginActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -53,6 +61,9 @@ public class MainChatActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private DatabaseReference RootRef;
     private FirebaseUser currentUser;
+    private FirebaseFirestore db;
+    private DocumentReference userRef;
+    private String currentUserId;
 
     private ImageButton SendMessageButton, SendFilesButton;
     private EditText MessageInputText;
@@ -65,10 +76,12 @@ public class MainChatActivity extends AppCompatActivity
     private ProgressDialog loadingBar;
 
 
-    private String saveCurrentTime, saveCurrentDate;
+    private String saveState, saveCurrentTime, saveCurrentDate;
     private String checker = "",myUrl="";
     private Uri fileUri;
     private StorageTask uploadTask;
+
+    private Calendar calendar;
 
 
     @Override
@@ -78,6 +91,11 @@ public class MainChatActivity extends AppCompatActivity
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        currentUserId = currentUser.getUid();
+
+        calendar = Calendar.getInstance();
+        db = FirebaseFirestore.getInstance();
+        userRef = db.collection("users").document(currentUserId);
         RootRef = FirebaseDatabase.getInstance().getReference();
 
         mToolbar = (MaterialToolbar) findViewById(R.id.chat_page_toolbar);
@@ -337,4 +355,68 @@ public class MainChatActivity extends AppCompatActivity
 //        }
 //    }
 //
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Save data or state here
+        updateLastSeen(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Restore state or update UI here
+        updateLastSeen(true);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Clean up or release resources here
+        updateLastSeen(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Perform cleanup tasks here
+        updateLastSeen(false);
+    }
+
+    private void updateLastSeen(boolean isOnline){
+
+        Map<String, Object> updates = new HashMap<>();
+
+        if (isOnline){
+            updates.put("state", "online");
+        }
+        else{
+            updates.put("state", "offline");
+        }
+
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
+        saveCurrentDate = currentDate.format(calendar.getTime());
+        updates.put("date", saveCurrentDate);
+
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calendar.getTime());
+        updates.put("time", saveCurrentDate);
+
+        userRef.update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    // Field update successful
+                    System.out.println("Fields updated successfully");
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Field update failed
+                    System.out.println("Fields update failed: " + e.getMessage());
+                }
+            });
+    }
 }
