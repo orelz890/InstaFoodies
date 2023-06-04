@@ -26,8 +26,10 @@
 <!--        <activity android:name="Chat.PhoneLoginActivity"> </activity>-->
         <activity android:name="Chat.SettingsActivity"> </activity>
         <activity android:name="Chat.FindFriendsActivity"
-            android:parentActivityName="Chat.ChatActivity"> </activity>
+            android:parentActivityName="Chat.MainChatActivity"> </activity>
+
         <activity android:name="Chat.ChatProfileActivity"> </activity>
+        <activity android:name="Chat.ChatActivity"> </activity>
 
         <activity
             android:name="Share.NextRecipeActivity"
@@ -50,7 +52,7 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity android:name="Chat.ChatActivity" />
+        <activity android:name="Chat.MainChatActivity" />
         <activity
             android:name="MLKIT.text.SpamTextDetectionActivity"
             android:exported="true">

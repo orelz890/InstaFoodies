@@ -105,50 +105,6 @@ public class FindFriendsActivity extends AppCompatActivity {
 
         createFeed();
 
-//        System.out.println("uid = " + uid);
-//        serverMethods.retrofitInterface.getFollowingUsers(uid).enqueue(new Callback<User[]>() {
-//            @Override
-//            public void onResponse(@NonNull Call<User[]> call, @NonNull Response<User[]> response) {
-//                if (response.code() == 200) {
-//                    System.out.println("Find Success!!!");
-//
-//                    User[] users = response.body();
-//                    if (users != null){
-//                        System.out.println("users.get(0).getFull_name() = " + users[0].getFull_name());
-//
-//                        serverMethods.retrofitInterface.getFollowingUsersAccountSettings(uid).enqueue(new Callback<UserAccountSettings[]>() {
-//                            @Override
-//                            public void onResponse(@NonNull Call<UserAccountSettings[]> call, @NonNull Response<UserAccountSettings[]> response) {
-//                                if (response.code() == 200) {
-//                                    UserAccountSettings[] usersAccount = response.body();
-//                                    if (usersAccount != null){
-//                                        // Create the adapter and set it to the RecyclerView
-//                                        userAdapter = new UserAdapter(users,usersAccount);
-//                                        FindFriendsRecyclerList.setAdapter(userAdapter);
-//                                    }
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onFailure(@NonNull Call<UserAccountSettings[]> call, @NonNull Throwable t) {
-//
-//                            }
-//                        });
-//                    }
-//                    else{
-//                        System.out.println("users == null");
-//                    }
-//                }
-//                else{
-//                    System.out.println("There was an error");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(@NonNull Call<User[]> call, @NonNull Throwable t) {
-//                System.out.println(t.getMessage());
-//            }
-//        });
     }
 
     private void createFeed() {

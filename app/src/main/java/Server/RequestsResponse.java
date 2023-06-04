@@ -37,6 +37,13 @@ public class RequestsResponse implements Serializable {
         return users;
     }
 
+    public User getUser(int pos) {
+        if (pos < this.users.size()) {
+            return users.get(pos);
+        }
+        return null;
+    }
+
     public void setUsers(List<User> users) {
         this.users.clear();
         this.users.addAll(users);
@@ -49,6 +56,13 @@ public class RequestsResponse implements Serializable {
 
     public List<UserAccountSettings> getAccountSettings() {
         return accountSettings;
+    }
+
+    public UserAccountSettings getAccount(int pos) {
+        if (pos < this.accountSettings.size()) {
+            return accountSettings.get(pos);
+        }
+        return null;
     }
 
     public void setAccountSettings(List<UserAccountSettings> accountSettings) {
@@ -65,6 +79,13 @@ public class RequestsResponse implements Serializable {
         return responseTypes;
     }
 
+    public String getType(int pos) {
+        if (pos < this.responseTypes.size()) {
+            return responseTypes.get(pos);
+        }
+        return null;
+    }
+
     public void setResponseTypes(List<String> responseTypes) {
         this.responseTypes.clear();
         this.responseTypes.addAll(responseTypes);
@@ -73,6 +94,17 @@ public class RequestsResponse implements Serializable {
     public void setResponseTypes(String[] responseTypes) {
         this.responseTypes.clear();
         this.responseTypes.addAll(Arrays.asList(responseTypes));
+    }
+
+    public void removeItem(int pos){
+        int userSize = this.users.size();
+        int typesSize = this.responseTypes.size();
+        int accountsSize = this.accountSettings.size();
+        if (userSize == accountsSize && accountsSize == typesSize && pos < userSize){
+            this.users.remove(pos);
+            this.accountSettings.remove(pos);
+            this.responseTypes.remove(pos);
+        }
     }
 
     public int size(){

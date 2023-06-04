@@ -51,6 +51,8 @@ public class ContactsFragment extends Fragment {
     private FirebaseAuth mAuth;
     private String currentUserID;
 
+    private DatabaseReference ContactsRef;
+
     private ContactsAdapter contactsAdapter;
 
     private Retrofit retrofit;
@@ -78,11 +80,14 @@ public class ContactsFragment extends Fragment {
         System.out.println("getContext() = " + getContext());
         serverMethods = new ServerMethods(getContext());
 
+
         myContactsList = (RecyclerView) ContactsView.findViewById(R.id.contact_list);
         myContactsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
+
+        ContactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID).getRef();
 
 
         ContacsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID);
@@ -92,8 +97,7 @@ public class ContactsFragment extends Fragment {
     }
 
 
-
-    public void createFeed(){
+    public void createFeed() {
         System.out.println("im in onStart createFeed()");
 
         serverMethods.retrofitInterface.getContactsUsersAndSettings(currentUserID).enqueue(new Callback<RequestUsersAndAccounts>() {
@@ -158,33 +162,48 @@ public class ContactsFragment extends Fragment {
         // Bind data to the views in each item
         @Override
         public void onBindViewHolder(@NonNull ContactsViewHolder holder, int position) {
-            User user = data.getUser(position);
-            UserAccountSettings userAccountSettings = data.getAccount(position);
-
-            holder.userName.setText(user.getUsername());
-            holder.userStatus.setText(user.getEmail());
-            // Load the profile image using a library like Picasso or Glide
-            String profile_photo = userAccountSettings.getProfile_photo();
-            if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
-//                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
-                Picasso.get().load(profile_photo).into(holder.profileImage);
-            } else {
-                holder.profileImage.setImageResource(R.drawable.profile_image);
-            }
-
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
+            ContactsRef.addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onClick(View view) {
-                    System.out.println("position = " + position);
-                    String visit_user_id = data.getUser(position).getUser_id();
-                    UserSettings userSettings = new UserSettings(user, userAccountSettings);
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists() && snapshot.getValue() != null) {
 
-                    Intent intent = new Intent(context, ChatProfileActivity.class);
-                    intent.putExtra("userSettings", userSettings);
-                    intent.putExtra("visit_user_id", visit_user_id);
-                    startActivity(intent);
+                        User user = data.getUser(position);
+                        UserAccountSettings userAccountSettings = data.getAccount(position);
+
+                        holder.userName.setText(user.getUsername());
+                        holder.userStatus.setText(user.getEmail());
+                        // Load the profile image using a library like Picasso or Glide
+                        String profile_photo = userAccountSettings.getProfile_photo();
+                        if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+//                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
+                            Picasso.get().load(profile_photo).into(holder.profileImage);
+                        } else {
+                            holder.profileImage.setImageResource(R.drawable.profile_image);
+                        }
+
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                System.out.println("position = " + position);
+                                String visit_user_id = data.getUser(position).getUser_id();
+                                UserSettings userSettings = new UserSettings(user, userAccountSettings);
+
+                                Intent intent = new Intent(context, ChatProfileActivity.class);
+                                intent.putExtra("userSettings", userSettings);
+                                intent.putExtra("visit_user_id", visit_user_id);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
                 }
             });
+
+
         }
 
         // Get the total number of user items

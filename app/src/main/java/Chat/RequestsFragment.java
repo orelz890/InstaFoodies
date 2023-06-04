@@ -1,5 +1,6 @@
 package Chat;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -13,8 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.instafoodies.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,9 +29,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import Server.RequestsResponse;
 import Server.RetrofitInterface;
@@ -49,6 +51,7 @@ public class RequestsFragment extends Fragment {
     private RecyclerView myRequestsList;
 
     private DatabaseReference ChatRequestsRef;
+    private DatabaseReference ContactsRef;
     FirebaseFirestore db;
     CollectionReference usersCollection;
     CollectionReference usersSettingsCollection;
@@ -62,10 +65,6 @@ public class RequestsFragment extends Fragment {
     private static ServerMethods serverMethods;
 
     private RequestsAdapter requestsAdapter;
-
-    List<String> requestsType = new ArrayList<>();
-    List<User> requestsUsers = new ArrayList<>();
-    List<UserAccountSettings> requestsAccountSettings = new ArrayList<>();
 
 
     public RequestsFragment() {
@@ -86,6 +85,7 @@ public class RequestsFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
         ChatRequestsRef = FirebaseDatabase.getInstance().getReference().child("Chat Requests");
+        ContactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
 
         mContext = requireActivity().getApplicationContext();
 
@@ -112,7 +112,7 @@ public class RequestsFragment extends Fragment {
     }
 
     private void createFeed() {
-        System.out.println("\n\nim in createFeed\n\n");
+        System.out.println("\n\nRequests - im in createFeed\n\n");
         DatabaseReference getUserRequestRef = ChatRequestsRef.child(currentUserID).getRef();
         getUserRequestRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -124,7 +124,6 @@ public class RequestsFragment extends Fragment {
                             System.out.println("\n\n\n\nresponse.code = " + response.code() + "\n\n\n\n");
                             if (response.code() == 200) {
                                 System.out.println("Requests Success!!!");
-
                                 RequestsResponse requestsResponse = response.body();
                                 if (requestsResponse != null) {
                                     System.out.println("Full name = " + requestsResponse.getUsers().get(0).getFull_name());
@@ -133,8 +132,7 @@ public class RequestsFragment extends Fragment {
 
 
                                 }
-                            }
-                            else{
+                            } else {
                                 System.out.println("Failed!\nmessage: " + response.message() + "\n\n" + response.errorBody());
                             }
                         }
@@ -144,8 +142,7 @@ public class RequestsFragment extends Fragment {
                             System.out.println("RequestsFragment - Failure\nMessage: " + t.getMessage() + "\nError: " + Arrays.toString(t.getStackTrace()));
                         }
                     });
-                }
-                else {
+                } else {
                     System.out.println("RequestsFragment - snapshot don't exist");
                 }
 
@@ -181,6 +178,7 @@ public class RequestsFragment extends Fragment {
         @Override
         public RequestsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.users_display_layout, viewGroup, false);
+            System.out.println("getItemCount = " + getItemCount());
             return new RequestsViewHolder(view);
         }
 
@@ -192,56 +190,152 @@ public class RequestsFragment extends Fragment {
 
             System.out.println("Im in RequestFragment onBindViewHolder!");
             System.out.println("My friend full name is: " + data.getUsers().get(position).getFull_name());
-//            String CurrentRequestUid = userList.get(position).getUser_id();
-//
-//            DatabaseReference getTypeRef = ChatRequestsRef.child(CurrentRequestUid).child("request_type").getRef();
-//
-//            getTypeRef.addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    if (snapshot.exists() && snapshot.getValue() != null) {
-//                        String type = snapshot.getValue().toString();
-//                        if (type.equals("received")) {
-//                            usersCollection.document(CurrentRequestUid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-//                                @Override
-//                                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-//                                    if (error != null){
-//                                        System.out.println("RequestFragment - usersCollection.document(CurrentRequestUid) Error:\n Message: " + error.getMessage() + "\n" + Arrays.toString(error.getStackTrace()));
-//                                    }
-//                                    else if (value != null && value.exists()) {
-//                                        User user = value.toObject(User.class);
-//                                        usersSettingsCollection.document(CurrentRequestUid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-//                                            @Override
-//                                            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-//                                                if (error != null){
-//                                                    System.out.println("RequestFragment - usersCollection.document(CurrentRequestUid) Error:\n Message: " + error.getMessage() + "\n" + Arrays.toString(error.getStackTrace()));
-//                                                }
-//                                                else if (value != null && value.exists()) {
-//                                                    UserAccountSettings accountSettings = value.toObject(UserAccountSettings.class);
-//                                                    displayUserSettings(holder, user, accountSettings);
-//
-//                                                }
-//                                                else{
-//                                                    System.out.println("RequestFragment - usersSettingsCollection.document(CurrentRequestUid) Document not found");
-//                                                }
-//                                            }
-//                                        });
-//                                    }else {
-//                                        System.out.println("RequestFragment - usersCollection.document(CurrentRequestUid) Document not found");
-//                                    }
-//                                }
-//                            });
-//
-//                        }
-//
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//
-//                }
-//            });
+
+            User currentUser = data.getUser(position);
+            UserAccountSettings currentAccount = data.getAccount(position);
+            String CurrentRequestUid = currentUser.getUser_id();
+            final String requestUserName = currentUser.getFull_name();
+
+
+            System.out.println("getTypeRef.child(" + CurrentRequestUid + ")\n");
+            DatabaseReference getTypeRef = ChatRequestsRef.child(currentUserID).child(CurrentRequestUid).child("request_type").getRef();
+
+            getTypeRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists() && snapshot.getValue() != null) {
+                        String type = snapshot.getValue().toString();
+                        System.out.println("type = " + type);
+                        if (type.equals("received")) {
+
+                            System.out.println("RequestFragment - onDataChange - received");
+
+                            displayUserSettings(holder, data.getUser(position), data.getAccount(position));
+
+
+                            holder.AcceptButton.setOnClickListener(new View.OnClickListener() {
+                                @SuppressLint("NotifyDataSetChanged")
+                                @Override
+                                public void onClick(View v) {
+
+                                    System.out.println("Pressed Accept");
+                                    ContactsRef.child(currentUserID).child(CurrentRequestUid).child("Contact")
+                                            .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        ContactsRef.child(CurrentRequestUid).child(currentUserID).child("Contact")
+                                                                .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            System.out.println("saved the two contacts");
+                                                                            ChatRequestsRef.child(currentUserID).child(CurrentRequestUid)
+                                                                                    .removeValue()
+                                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                        @Override
+                                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                                            if (task.isSuccessful()) {
+                                                                                                ChatRequestsRef.child(CurrentRequestUid).child(currentUserID)
+                                                                                                        .removeValue()
+                                                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                            @Override
+                                                                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                                                                if (task.isSuccessful()) {
+                                                                                                                    System.out.println("Removed the requests");
+                                                                                                                    Toast.makeText(getContext(), "New Contact Saved", Toast.LENGTH_SHORT).show();
+                                                                                                                    removeItem(position);
+                                                                                                                }
+                                                                                                            }
+                                                                                                        });
+                                                                                            }
+                                                                                        }
+                                                                                    });
+                                                                        }
+                                                                    }
+                                                                });
+                                                    }
+                                                }
+                                            });
+
+                                }
+                            });
+
+                            holder.CancelButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    ChatRequestsRef.child(currentUserID).child(CurrentRequestUid)
+                                            .removeValue()
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        ChatRequestsRef.child(CurrentRequestUid).child(currentUserID)
+                                                                .removeValue()
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            removeItem(position);
+                                                                            Toast.makeText(getContext(), "Contact Deleted", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    }
+                                                                });
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
+                        }
+                        else if (type.equals("sent")) {
+
+                            Button request_sent_btn = holder.itemView.findViewById(R.id.request_accept_btn);
+                            request_sent_btn.setText("Req Sent");
+
+                            holder.itemView.findViewById(R.id.request_cancel_btn).setVisibility(View.INVISIBLE);
+
+                            displayUserSettings(holder, currentUser, currentAccount);
+
+                            holder.userName.setText(requestUserName);
+                            holder.userStatus.setText("you have sent a request to " + requestUserName);
+
+
+                            holder.CancelButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    ChatRequestsRef.child(currentUserID).child(CurrentRequestUid)
+                                            .removeValue()
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        ChatRequestsRef.child(CurrentRequestUid).child(currentUserID)
+                                                                .removeValue()
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            Toast.makeText(getContext(), "you have cancelled the chat request.", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    }
+                                                                });
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
+                        }
+
+                    } else {
+                        System.out.println("snapshot exist?: " + snapshot.exists() + "\nSnapshot: " + snapshot.toString());
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    System.out.println("Error Message: " + error.getMessage() + "\nError: " + error.toString());
+                }
+            });
 
         }
 
@@ -250,6 +344,12 @@ public class RequestsFragment extends Fragment {
         @Override
         public int getItemCount() {
             return data.size();
+        }
+
+        public void removeItem(int position) {
+            data.removeItem(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, getItemCount());
         }
 
         public class RequestsViewHolder extends RecyclerView.ViewHolder {
@@ -272,17 +372,24 @@ public class RequestsFragment extends Fragment {
 
     }
 
+    private void setHolderButtons(RequestsAdapter.RequestsViewHolder holder) {
+
+
+    }
+
     private void displayUserSettings(RequestsAdapter.RequestsViewHolder holder, User user, UserAccountSettings settings) {
 
-        holder.userName.setText(user.getFull_name());
-        holder.userStatus.setText("wants to connect with you.");
-        // Load the profile image using a library like Picasso or Glide
-        String profile_photo = settings.getProfile_photo();
-        if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+        if (user != null && settings != null) {
+            holder.userName.setText(user.getFull_name());
+            holder.userStatus.setText("wants to connect with you.");
+            // Load the profile image using a library like Picasso or Glide
+            String profile_photo = settings.getProfile_photo();
+            if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
 //                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
-            Picasso.get().load(profile_photo).into(holder.profileImage);
-        } else {
-            holder.profileImage.setImageResource(R.drawable.profile_image);
+                Picasso.get().load(profile_photo).into(holder.profileImage);
+            } else {
+                holder.profileImage.setImageResource(R.drawable.profile_image);
+            }
         }
     }
 

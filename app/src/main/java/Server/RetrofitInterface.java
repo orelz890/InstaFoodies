@@ -65,9 +65,6 @@ public interface RetrofitInterface {
     Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_uri") Uri image_uri);
 
 
-
-
-
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);
 
@@ -104,27 +101,5 @@ public interface RetrofitInterface {
     Call<RequestsResponse> getRequests (@Path("uid") String uid);
 
 
-//    @POST("/login") // Working!
-//    Call<User_old_version> executeLogin(@Body Map<String, String> map);
-////    @POST("/login") // Working!
-////    Call<User> executeLogin(@Header("X-Forwarded-For") String ipAddress, @Header("If-Modified-Since") String ifModifiedSince, @Body HashMap<String, String> map);
-//
-////    @POST("/signup") // Working!
-////    Call<User> executeSignup (@Body HashMap<String, String> map);
-//
-//    @POST("/signup") // Working!
-//    Call<User_old_version> executeSignup (@Header("X-Forwarded-For") String ipAddress, @Body HashMap<String, Object> map);
-//
-//    @GET("/getUser/{email}") // Working!
-//    Call<User_old_version> executeGetUser (@Header("X-Forwarded-For") String ipAddress, @Path("email") String email);
-//
-////    @PUT("/setUser/{email}")
-////    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);
-//
-//    @PATCH("/patchUser") // Working!
-//    Call<Void> executePatchUser (@Header("X-Forwarded-For") String ipAddress, @Body HashMap<String, Object> map);
-//
-//    @DELETE("/deleteObjectFromRef/{ref}/{email}")
-//    Call<Void> executeDeleteObjectFromRef(@Header("X-Forwarded-For") String ipAddress, @Path("ref") String ref, @Path("email") String email);
 
 }
