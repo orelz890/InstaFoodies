@@ -39,7 +39,8 @@ public class ServerMethods {
     FirebaseAuth mAuth;
     private Retrofit retrofit;
     public RetrofitInterface retrofitInterface;
-    private String BASE_URL = "http://10.0.2.2:8080";
+    private String BASE_URL = "http://[2a06:c701:4827:6d00:1cc4:fd63:391b:257a]:8080";
+//    private String BASE_URL = "http://10.0.2.2:8080";
 
 
     public ServerMethods(Context context) {
