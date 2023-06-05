@@ -16,16 +16,23 @@ import android.widget.Toast;
 
 import com.example.instafoodies.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceIdReceiver;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -55,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
     //firebase
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private Context mContext;
     private ProgressBar mProgressBar;
@@ -62,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextView mPleaseWait;
 
     private ServerMethods serverMethods;
-
 
 
     String ipAddress = (new ClientInfo()).getIpAddress();
@@ -74,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
 //    on the development machine when you are running an Android emulator
 
     private String BASE_URL = "http://10.0.2.2:8080";
-//    private String BASE_URL = "https://10.0.2.2:443";
+    //    private String BASE_URL = "https://10.0.2.2:443";
 //    private String BASE_URL = "http://" + ipAddress + ":8080";
     //    private String BASE_URL = "http://localhost:8080";
     private User user;
@@ -91,7 +98,6 @@ public class LoginActivity extends AppCompatActivity {
         serverMethods = new ServerMethods(mContext);
 
 //        FirebaseApp.initializeApp(this);
-
 
 
         loginBtn = findViewById(R.id.btn_login);
@@ -128,8 +134,7 @@ public class LoginActivity extends AppCompatActivity {
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
@@ -186,19 +191,21 @@ public class LoginActivity extends AppCompatActivity {
         return sslContext;
     }
 
-    private TrustManager[] trustAllCerts = new TrustManager[] {
-        new X509TrustManager() {
-            @Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+    private TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                }
 
-            @Override
-            public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                }
 
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[]{};
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[]{};
+                }
             }
-        }
     };
 
 //    private void handlePatchUserDialog() {
@@ -263,7 +270,7 @@ public class LoginActivity extends AppCompatActivity {
                             assert user != null;
 
                             Toast.makeText(LoginActivity.this, "Name: " + user.getUsername(),
-                            Toast.LENGTH_LONG).show();
+                                    Toast.LENGTH_LONG).show();
                             startActivity(main_acticity_intent);
                             finish();
 
@@ -276,8 +283,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else if (response.code() == 404 || response.code() == 400) {
                             Toast.makeText(LoginActivity.this, "Wrong Credentials",
                                     Toast.LENGTH_LONG).show();
-                        }
-                        else {
+                        } else {
                             Toast.makeText(LoginActivity.this, response.message(),
                                     Toast.LENGTH_LONG).show();
                         }
@@ -332,8 +338,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else if (response.code() == 400) {
                             Toast.makeText(LoginActivity.this,
                                     "Already registered", Toast.LENGTH_LONG).show();
-                        }
-                        else {
+                        } else {
                             Toast.makeText(LoginActivity.this, response.message(),
                                     Toast.LENGTH_LONG).show();
                         }
@@ -443,7 +448,7 @@ public class LoginActivity extends AppCompatActivity {
     /*
 ------------------------------------ Firebase ---------------------------------------------
 */
-    private void init(){
+    private void init() {
 
         //initialize the button for logging in
         Button btnLogin = (Button) findViewById(R.id.btn_login);
@@ -455,9 +460,9 @@ public class LoginActivity extends AppCompatActivity {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
 
-                if(email.isEmpty() || password.isEmpty()){
+                if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(mContext, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     mProgressBar.setVisibility(View.VISIBLE);
                     mPleaseWait.setVisibility(View.VISIBLE);
 
@@ -478,22 +483,19 @@ public class LoginActivity extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show();
                                         mProgressBar.setVisibility(View.GONE);
                                         mPleaseWait.setVisibility(View.GONE);
-                                    }
-                                    else{
-                                        try{
-                                            if(user.isEmailVerified()){
+                                    } else {
+                                        try {
+                                            if (user.isEmailVerified()) {
                                                 Log.d(TAG, "onComplete: success. email is verified.");
-
-                                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                                                startActivity(intent);
-                                            }else{
+                                                updateToken();
+                                            } else {
                                                 Toast.makeText(mContext, "Email is not verified \n check your email inbox.", Toast.LENGTH_SHORT).show();
                                                 mProgressBar.setVisibility(View.GONE);
                                                 mPleaseWait.setVisibility(View.GONE);
                                                 mAuth.signOut();
                                             }
-                                        }catch (NullPointerException e){
-                                            Log.e(TAG, "onComplete: NullPointerException: " + e.getMessage() );
+                                        } catch (NullPointerException e) {
+                                            Log.e(TAG, "onComplete: NullPointerException: " + e.getMessage());
                                         }
                                     }
 
@@ -518,16 +520,54 @@ public class LoginActivity extends AppCompatActivity {
          /*
          If the user is logged in then navigate to HomeActivity and call 'finish()'
           */
-        if(mAuth.getCurrentUser() != null){
-            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish();
+        if (mAuth.getCurrentUser() != null) {
+            updateToken();
         }
     }
+
+    private void updateToken() {
+        Log.d(TAG, " updateToken.");
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String token = task.getResult();
+                        // Use the device token as needed
+                        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                        Map<String, Object> tokenMap = new HashMap<>();
+                        tokenMap.put("token", token);
+
+                        FirebaseFirestore.getInstance().collection("users")
+                                .document(uid)
+                                .update(tokenMap)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "Token updated successfully");
+                                        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error updating token", e);
+                                    }
+                                });
+
+                        Log.d("FCM Token", token);
+                    } else {
+                        Log.e("FCM Token", "Error getting token: " + task.getException());
+                    }
+                });
+    }
+
+
     /**
      * Setup the firebase auth object
      */
-    private void setupFirebaseAuth(){
+    private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = firebaseAuth -> {
@@ -542,11 +582,13 @@ public class LoginActivity extends AppCompatActivity {
             // ...
         };
     }
+
     @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
     }
+
     @Override
     public void onStop() {
         super.onStop();

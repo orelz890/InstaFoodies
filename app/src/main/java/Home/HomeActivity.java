@@ -1,5 +1,6 @@
 package Home;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
@@ -14,12 +15,36 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import com.example.instafoodies.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import Login.LoginActivity;
 import MLKIT.audio.AudioClassificationActivity;
@@ -60,9 +85,10 @@ public class HomeActivity extends AppCompatActivity {
         InitImageLoader();
         setupBottomNavigationView();
         setupViewPager();
-
-        //MoveToThisPage();s
+//        MoveToThisPage();
     }
+
+
 
     private void MoveToThisPage(){
         Intent intent = new Intent(mContext, forwardActivity.class);
@@ -139,6 +165,43 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+
+    private void updateToken() {
+        Log.d(TAG, " updateToken.");
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String token = task.getResult();
+                        // Use the device token as needed
+                        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                        Map<String, Object> tokenMap = new HashMap<>();
+                        tokenMap.put("token", token);
+
+                        FirebaseFirestore.getInstance().collection("users")
+                                .document(uid)
+                                .update(tokenMap)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "Token updated successfully");
+
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error updating token", e);
+                                    }
+                                });
+
+                        Log.d("FCM Token", token);
+                    } else {
+                        Log.e("FCM Token", "Error getting token: " + task.getException());
+                    }
+                });
+    }
+
     /**
      * Setup the firebase auth object
      */
@@ -150,6 +213,7 @@ public class HomeActivity extends AppCompatActivity {
             //check if the user is logged in
             checkCurrentUser(user);
             if (user != null) {
+                updateToken();
                 // User is signed in
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
             } else {

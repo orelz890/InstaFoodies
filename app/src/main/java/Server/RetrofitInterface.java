@@ -57,13 +57,16 @@ public interface RetrofitInterface {
     @PATCH("/patchUserAccountSettings/{uid}")
     Call<Void> patchUserAccountSettings (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
-    // ================================ share ==============================
-    @PATCH("/uploadNewPhoto/{uid}")
-    Call<Void> uploadNewPhoto (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
-    @PATCH("/uploadNewPhoto/{uid}/{image_uri")
+    // ================================ share ==============================
+    @PATCH("/uploadNewPost/{uid}") //need to Implement
+    Call<Void> uploadNewPost (@Path("uid") String uid, @Body HashMap<String, Object> map);
+
+    @PATCH("/uploadProfilePhoto/{uid}/{image_uri") //need to Implement
     Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_uri") Uri image_uri);
 
+    @GET("/getIngredients/") //need to Implement
+    Call<String[]> getIngredients();
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")
     Call<Void> executeDeleteObjectFromRef(@Path("ref") String ref, @Path("email") String email);

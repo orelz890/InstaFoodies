@@ -29,12 +29,13 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-                    <androidx.viewpager2.widget.ViewPager2
-                        android:id="@+id/viewPager_next_recipe"
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:layout_centerVertical="true"
-                        android:scaleType="centerCrop" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager_next_recipe"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_centerVertical="true"
+                android:scaleType="centerCrop" />
 
         </RelativeLayout>
 
@@ -65,35 +66,51 @@
                 android:textStyle="bold" />
         </com.google.android.material.textfield.TextInputLayout>
 
+
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="select category">
+            android:layout_marginTop="10dp"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <AutoCompleteTextView
-                android:id="@+id/auto_complete_category"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPostDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+
+                android:hint="Write a description..."
+                android:maxLength="20"
+                android:textStyle="bold" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/category"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="category"
                 android:inputType="none"
                 android:textStyle="bold" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="15dp"
-                android:hint="select sub category">
-
-                <AutoCompleteTextView
-                    android:id="@+id/auto_complete_sub_category"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:textStyle="bold" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/sub_category"
+            android:hint="sub category"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:inputType="none"
+            android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -167,9 +184,10 @@
                 android:id="@+id/etDirections"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter the Directions(separated by enter)"
+                android:hint="Enter the Directions (separated by enter)"
                 android:textStyle="bold" />
         </com.google.android.material.textfield.TextInputLayout>
+
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -336,8 +354,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
-            android:text="Share"
-            android:background="@drawable/white_rounded_button"/>
+            android:background="@drawable/white_rounded_button"
+            android:text="Share" />
 
     </LinearLayout>
 

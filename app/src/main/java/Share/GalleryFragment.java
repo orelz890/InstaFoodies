@@ -234,7 +234,6 @@ public class GalleryFragment extends Fragment {
     private void setImage(Uri imageURL, ImageView image, String append) {
         mProgressBar.setVisibility(View.VISIBLE);
         Glide.with(getActivity()).load(imageURL).into(image);
-        mProgressBar.setVisibility(View.GONE);
 
     }
 }

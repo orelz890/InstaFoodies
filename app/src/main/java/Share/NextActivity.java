@@ -1,12 +1,8 @@
 package Share;
 
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,13 +11,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.instafoodies.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,11 +26,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import Profile.AccountSettingsActivity;
 import Utils.ServerMethods;
-import models.Photo;
-import models.User;
-import models.UserAccountSettings;
+import models.Post;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -94,7 +85,7 @@ public class NextActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d(TAG, "onClick: share Post");
                 HashMap<String, Object> uploadPost = createPost();
-                Call<Void> call = serverMethods.retrofitInterface.uploadNewPhoto(mAuth.getCurrentUser().getUid(), uploadPost);
+                Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
 
                 call.enqueue(new Callback<Void>() {
                     @Override
@@ -125,8 +116,8 @@ public class NextActivity extends AppCompatActivity {
     }
 
     private HashMap<String, Object> createPost() {
-        Photo photo = new Photo();
-        return photo.PhotoMapForServer(null,caption.toString(), timeStamp(), imageUris, createHash(), mAuth.getCurrentUser().getUid(), getTags(caption.toString()));
+        Post post = new Post();
+        return post.PostMapForServer(null,caption.toString(), timeStamp(), imageUris, createHash(), mAuth.getCurrentUser().getUid(), getTags(caption.toString()));
     }
 
     private String getTags(String caption) {

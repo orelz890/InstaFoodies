@@ -100,6 +100,7 @@ public class EditProfileFragment extends Fragment {
 
         //setProfileImage();
         setupFirebaseAuth();
+        changeProfile();
 
 
         mChangeProfilePhoto.setOnClickListener(new View.OnClickListener() {
