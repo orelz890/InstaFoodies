@@ -6,6 +6,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -103,8 +104,13 @@ public class Post implements Parcelable {
         return image_paths;
     }
 
-    public void setImage_paths(List<Uri> image_paths) {
-        this.image_paths = image_paths;
+    public void setImage_path(List<Uri> image_path) {
+        this.image_paths.clear();
+        this.image_paths.addAll(image_path);
+    }
+    public void setImage_path(Uri[] image_path) {
+        this.image_paths.clear();
+        this.image_paths.addAll(Arrays.asList(image_path));
     }
 
     public String getPost_id() {
