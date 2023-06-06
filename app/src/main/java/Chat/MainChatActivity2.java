@@ -7,18 +7,23 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 import Login.LoginActivity;
+import Server.RequestUserFeed;
 import Server.RequestUsersAndAccounts;
 import Utils.ServerMethods;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -70,6 +76,11 @@ public class MainChatActivity2 extends AppCompatActivity
     private CircleImageView userImage;
 
     private MaterialToolbar mToolbar;
+
+    private AutoCompleteTextView acSearchView;
+    private CustomAutocompleteAdapter autocompleteAdapter;
+
+
     private ViewPager myViewPager;
     private TabLayout myTabLayout;
     private TabsAccessorAdapter myTabsAccessorAdapter;
@@ -94,7 +105,7 @@ public class MainChatActivity2 extends AppCompatActivity
     private FriendsAdapter findFriendsAdapter;
     private RecyclerView findFriendsList;
 
-    RequestUsersAndAccounts usersAndAccounts;
+    private RequestUsersAndAccounts usersAndAccounts;
 
     private ChatsAdapter chatsAdapter;
     private RecyclerView chatsList;
@@ -133,8 +144,10 @@ public class MainChatActivity2 extends AppCompatActivity
         ContactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserId).getRef();
         context = this;
 
+
         serverMethods = new ServerMethods(context);
 
+        acSearchView = findViewById(R.id.ac_searchView);
 
         findFriendsList = (RecyclerView) findViewById(R.id.friendsRecyclerView);
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -292,6 +305,12 @@ public class MainChatActivity2 extends AppCompatActivity
 
                     usersAndAccounts = response.body();
                     if (usersAndAccounts != null){
+                        List<UserSettings> listUserSettings = new ArrayList<>();
+                        for (int i = 0; i < usersAndAccounts.size(); i++){
+                            listUserSettings.add(new UserSettings(usersAndAccounts.getUser(i), usersAndAccounts.getAccount(i)));
+
+                        }
+                        autocompleteAdapter = new CustomAutocompleteAdapter(context, listUserSettings);
 
                         findFriendsAdapter = new FriendsAdapter(usersAndAccounts);
                         findFriendsList.setAdapter(findFriendsAdapter);
@@ -320,10 +339,39 @@ public class MainChatActivity2 extends AppCompatActivity
         if (currentUser == null){
             SendUserToLoginActivity();
         }
-        createContactsFeed();
-        createChatsFeed();
+//        createContactsFeed();
+//        createChatsFeed();
+        checkShit();
+
     }
 
+    private void checkShit() {
+        serverMethods.retrofitInterface.getProfileFeedPosts(currentUserId).enqueue(new Callback<RequestUserFeed>() {
+            @Override
+            public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
+                if (response.code() == 200) {
+                    System.out.println("Find Success!!!");
+
+                    RequestUserFeed feed = response.body();
+                    if(feed != null){
+                        Log.d("MainChatActivity: ", feed.getPost(0).toString() + "\n" + feed.getAccount().getWebsite() + "\n" + feed.getUser().getFull_name());
+
+                    }
+                    else {
+                        Log.d("MainChatActivity: ", "feed == null");
+                    }
+
+                }else {
+                    Log.d("MainChatActivity: ", "Error");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<RequestUserFeed> call, @NonNull Throwable t) {
+                Log.d("MainChatActivity: ", "Error: " + t.getMessage());
+            }
+        });
+    }
 
 
     private void SendUserToLoginActivity() {
@@ -341,6 +389,73 @@ public class MainChatActivity2 extends AppCompatActivity
     private void SendUserToFindFriendsActivity() {
         Intent Intent = new Intent(MainChatActivity2.this, FindFriendsActivity.class);
         startActivity(Intent);
+    }
+
+
+
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Save data or state here
+        updateLastSeen(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Restore state or update UI here
+        updateLastSeen(true);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Clean up or release resources here
+        updateLastSeen(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Perform cleanup tasks here
+        updateLastSeen(false);
+    }
+
+    private void updateLastSeen(boolean isOnline){
+
+        Map<String, Object> updates = new HashMap<>();
+
+        if (isOnline){
+            updates.put("state", "online");
+        }
+        else{
+            updates.put("state", "offline");
+        }
+
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
+        saveCurrentDate = currentDate.format(calendar.getTime());
+        updates.put("date", saveCurrentDate);
+
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calendar.getTime());
+        updates.put("time", saveCurrentDate);
+
+        userRef.update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    // Field update successful
+                    System.out.println("Fields updated successfully");
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Field update failed
+                    System.out.println("Fields update failed: " + e.getMessage());
+                }
+            });
     }
 
 
@@ -517,66 +632,101 @@ public class MainChatActivity2 extends AppCompatActivity
     }
 
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Save data or state here
-        updateLastSeen(false);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Restore state or update UI here
-        updateLastSeen(true);
-    }
+    public class CustomAutocompleteAdapter extends ArrayAdapter<UserSettings> {
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // Clean up or release resources here
-        updateLastSeen(false);
-    }
+        private List<UserSettings> data;
+        private List<UserSettings> originalData; // To store the original unfiltered data
+        private LayoutInflater inflater;
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Perform cleanup tasks here
-        updateLastSeen(false);
-    }
+        public CustomAutocompleteAdapter(Context context, List<UserSettings> usersAndAccounts) {
+            super(context, 0, usersAndAccounts);
+            inflater = LayoutInflater.from(context);
+            data = new ArrayList<>(usersAndAccounts);
+            originalData = new ArrayList<>(usersAndAccounts);
 
-    private void updateLastSeen(boolean isOnline){
-
-        Map<String, Object> updates = new HashMap<>();
-
-        if (isOnline){
-            updates.put("state", "online");
-        }
-        else{
-            updates.put("state", "offline");
+            System.out.println("CustomAutocompleteAdapter - " + data.get(0).getSettings().getProfile_photo());
         }
 
-        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
-        saveCurrentDate = currentDate.format(calendar.getTime());
-        updates.put("date", saveCurrentDate);
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            ViewHolder viewHolder;
 
-        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
-        saveCurrentTime = currentTime.format(calendar.getTime());
-        updates.put("time", saveCurrentDate);
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.item_autocomplete, parent, false);
+                viewHolder = new ViewHolder();
+                viewHolder.profileImage = convertView.findViewById(R.id.autocomplete_image);
+                viewHolder.textView = convertView.findViewById(R.id.autocomplete_text);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
 
-        userRef.update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    // Field update successful
-                    System.out.println("Fields updated successfully");
+            UserSettings item = getItem(position);
+            if (item != null) {
+                String profile_photo = item.getSettings().getProfile_photo();
+                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+                    Picasso.get().load(profile_photo).into(viewHolder.profileImage);
+                } else {
+                    viewHolder.profileImage.setImageResource(R.drawable.profile_image);
                 }
-            })
-            .addOnFailureListener(new OnFailureListener() {
+
+                viewHolder.textView.setText(item.getUser().getFull_name());
+            }
+
+            return convertView;
+        }
+
+        @NonNull
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
                 @Override
-                public void onFailure(@NonNull Exception e) {
-                    // Field update failed
-                    System.out.println("Fields update failed: " + e.getMessage());
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();
+
+                    if (constraint == null || constraint.length() == 0) {
+                        // No constraint, return the original unfiltered data
+                        results.values = originalData;
+                        results.count = originalData.size();
+                    } else {
+                        // Filter the data based on the constraint
+                        List<UserSettings> filteredItems = new ArrayList<>();
+
+                        for (UserSettings item : originalData) {
+                            if (item.getUser().getFull_name().toLowerCase().contains(constraint.toString().toLowerCase())) {
+                                filteredItems.add(item);
+                            }
+                        }
+
+                        results.values = filteredItems;
+                        results.count = filteredItems.size();
+                    }
+
+                    return results;
                 }
-            });
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    data.clear();
+
+                    if (results.values != null) {
+                        data.addAll((List<UserSettings>) results.values);
+                    }
+
+                    notifyDataSetChanged();
+                }
+            };
+        }
+
+        private class ViewHolder {
+            ImageView profileImage;
+            TextView textView;
+        }
     }
+
+
+
+
 }

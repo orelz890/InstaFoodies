@@ -1,18 +1,18 @@
 package models;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 
 
-public class Post implements Parcelable {
+public class Post implements Parcelable, Serializable {
 
     @SerializedName("caption")
     private String caption;
@@ -35,6 +35,17 @@ public class Post implements Parcelable {
     @SerializedName("tags")
     private String tags;
 
+    public Recipe getRecipe() {
+        return recipe;
+    }
+
+    public void setRecipe(Recipe recipe) {
+        this.recipe = recipe;
+    }
+
+    public void setImage_paths(List<String> image_paths) {
+        this.image_paths = image_paths;
+    }
 
     public Post() {
 
@@ -148,15 +159,27 @@ public class Post implements Parcelable {
 
     @Override
     public String toString() {
-        return "Post{" +
-                ",recipe=" + recipe.toString() + '\'' +
-                "caption='" + caption + '\'' +
-                ", date_created='" + date_created + '\'' +
-                ", image_paths='" + image_paths + '\'' +
-                ", post_id='" + post_id + '\'' +
-                ", user_id='" + user_id + '\'' +
-                ", tags='" + tags + '\'' +
-                '}';
+        if (recipe != null) {
+            return "Post{" +
+                    ",recipe=" + recipe.toString() + '\'' +
+                    "caption='" + caption + '\'' +
+                    ", date_created='" + date_created + '\'' +
+                    ", image_paths='" + image_paths + '\'' +
+                    ", post_id='" + post_id + '\'' +
+                    ", user_id='" + user_id + '\'' +
+                    ", tags='" + tags + '\'' +
+                    '}';
+        }
+        else{
+            return "Post{" +
+                    "caption='" + caption + '\'' +
+                    ", date_created='" + date_created + '\'' +
+                    ", image_paths='" + image_paths + '\'' +
+                    ", post_id='" + post_id + '\'' +
+                    ", user_id='" + user_id + '\'' +
+                    ", tags='" + tags + '\'' +
+                    '}';
+        }
     }
 
     @Override

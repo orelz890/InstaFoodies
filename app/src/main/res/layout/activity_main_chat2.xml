@@ -25,9 +25,39 @@
             />
 
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/ac_searchView_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_toEndOf="@+id/friendsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:boxStrokeColor="@color/teal_700"
+            app:boxStrokeWidth="2dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/ac_searchView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:drawableRight="@drawable/ic_search"
+                android:hint="Type here to search chats"
+                android:padding="8dp"
+                android:textColor="@color/teal_700"
+                android:textStyle="bold" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/ac_searchView_layout"
+            android:layout_marginTop="6dp"
             android:padding="10dp"
             >
 
