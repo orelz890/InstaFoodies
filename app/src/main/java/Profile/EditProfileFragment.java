@@ -1,6 +1,8 @@
 package Profile;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -10,10 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -32,17 +33,25 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
 import com.github.drjacky.imagepicker.constant.ImageProvider;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
 import java.util.Objects;
 
-import Login.LoginActivity;
+import Search.SearchActivity;
+import Share.NextRecipeActivity;
 import Utils.FirebaseMethods;
 import Utils.ServerMethods;
-import Utils.UniversalImageLoader;
 import de.hdodenhof.circleimageview.CircleImageView;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -78,6 +87,9 @@ public class EditProfileFragment extends Fragment {
 
     private Context mContext;
 
+    private ProgressDialog loadingBar;
+    private StorageTask uploadTask;
+
 
     @Nullable
     @Override
@@ -97,7 +109,7 @@ public class EditProfileFragment extends Fragment {
         serverMethods = new ServerMethods(getActivity());
         mContext = getActivity();
 
-
+        loadingBar = new ProgressDialog(getActivity());
         //setProfileImage();
         setupFirebaseAuth();
         changeProfile();
@@ -118,6 +130,7 @@ public class EditProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back to ProfileActivity");
+                retrieveData();
                 getActivity().finish();
             }
         });
@@ -186,6 +199,7 @@ public class EditProfileFragment extends Fragment {
         AppCompatButton btnChange = dialogView.findViewById(R.id.btnChange);
         AppCompatButton btnCancel = dialogView.findViewById(R.id.btnCancel);
 
+
         // Load and display the selected image
         Glide.with(mContext)
                 .load(imageUri)
@@ -194,40 +208,14 @@ public class EditProfileFragment extends Fragment {
                 .centerInside()
                 .into(imageView);
 
-
         builder.setView(dialogView);
-
         AlertDialog dialog = builder.create();
         dialog.show();
 
         btnChange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Call<Void> call = serverMethods.retrofitInterface.uploadProfilePhoto(mAuth.getCurrentUser().getUid(), imageUri);
-                call.enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-
-                        if (response.code() == 200) {
-                            Toast.makeText(getContext(), "Change Profile Image: " + mAuth.getCurrentUser().getEmail(),
-                                    Toast.LENGTH_LONG).show();
-                            getActivity().finish();
-                        } else if (response.code() == 404) {
-                            Toast.makeText(getContext(), "Wrong Change Profile Image  " + response.message(),
-                                    Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(getContext(), response.message(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<Void> call, Throwable t) {
-                        Toast.makeText(getContext(), "onFailure: " + t.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-
+                uploadImageToStorage(imageUri,dialog);
             }
         });
 
@@ -237,20 +225,83 @@ public class EditProfileFragment extends Fragment {
                 dialog.dismiss();
             }
         });
+
+
+    }
+
+    private void uploadImageToStorage(Uri imageUri, Dialog dialog) {
+
+        loadingBar.setTitle("Sending File");
+        loadingBar.setMessage("Please wait, we are sending....");
+        loadingBar.setCanceledOnTouchOutside(false);
+        loadingBar.show();
+
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("ProfilePhoto");
+        final StorageReference filePath = storageReference.child(mAuth.getCurrentUser().getUid()).child("photo_profile" + "." + "jpg");
+
+        uploadTask = filePath.putFile(imageUri);
+        uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+                return filePath.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUrl = task.getResult();
+                    Call<Void> call = serverMethods.retrofitInterface.uploadProfilePhoto(mAuth.getCurrentUser().getUid(), downloadUrl.toString());
+                    call.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Change Profile Image: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                                retrieveData();
+                                dialog.dismiss();
+                            } else {
+                                Toast.makeText(getContext(), "Wrong Change Profile Image: " + response.message(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                            Toast.makeText(getContext(), "onFailure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
+                    Toast.makeText(getContext(), "Failed to upload image: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                loadingBar.dismiss();
+                dialog.dismiss();
+            }
+        });
     }
 
 
-    /**
-     * Retrieves the data contained in the widgets and submits it to the database
-     * Before doing so it checks to make sure the username chosen is unique
-     */
+
+
+
+
+
+
+
+        /**
+         * Retrieves the data contained in the widgets and submits it to the database
+         * Before doing so it checks to make sure the username chosen is unique
+         */
     private void saveProfileSettings() {
         HashMap<String, Object> updatedUser = new HashMap<>();
         HashMap<String, Object> updatedUserAccountSettings = new HashMap<>();
+        long phoneNumber = -1;
 
         final String website = mWebsite.getText().toString();
         final String description = mDescription.getText().toString();
-        final long phoneNumber = Long.parseLong(mPhoneNumber.getText().toString());
+        if(!(mPhoneNumber.getText().toString().equals("none"))) {
+            phoneNumber = Long.parseLong(mPhoneNumber.getText().toString());
+        }
         final String full_name = mDisplayName.getText().toString();
 
         if (Long.parseLong(mUserSettings.getUser().getPhone_number()) != phoneNumber) {
@@ -288,6 +339,7 @@ public class EditProfileFragment extends Fragment {
                             if (response.code() == 200) {
                                 Toast.makeText(getContext(), "Updated UserAccountSettings: " + mAuth.getCurrentUser().getEmail(),
                                         Toast.LENGTH_LONG).show();
+                                retrieveData();
                                 getActivity().finish();
                             } else if (response.code() == 404) {
                                 Toast.makeText(getContext(), "Wrong Credentials: " + response.message(),
@@ -324,7 +376,6 @@ public class EditProfileFragment extends Fragment {
 
 
     private void setProfileWidgets(User user, UserAccountSettings userAccountSettings) {
-
         Glide.with(mContext)
                 .load(userAccountSettings.getProfile_photo())
                 .placeholder(R.drawable.ic_android)
@@ -437,6 +488,7 @@ public class EditProfileFragment extends Fragment {
                             if (response.code() == 200) {
                                 assert result2 != null;
                                 setProfileWidgets(result1, result2);
+                                mUserSettings = new UserSettings(result1,result2);
                             } else if (response.code() == 400) {
                                 Toast.makeText(mContext,
                                         "Don't exist", Toast.LENGTH_LONG).show();
@@ -469,6 +521,21 @@ public class EditProfileFragment extends Fragment {
         });
 
     }
+
+//    private void animationNavigate(){
+//            FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();;
+//
+//            // Set custom animations
+//            fragmentTransaction.setCustomAnimations(R.anim.fragment_slide_in, R.anim.fragment_slide_out);
+//
+//            // Replace the fragment container with the second fragment
+//            fragmentTransaction.replace(R.id.SecondFragment, new ProfileFragment());
+//
+//            // Optional: Add the transaction to the back stack
+//            fragmentTransaction.addToBackStack(null);
+//
+//            fragmentTransaction.commit();
+//    }
 
     @Override
     public void onStart() {

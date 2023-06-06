@@ -2,6 +2,8 @@ package Server;
 
 import android.net.Uri;
 
+import com.google.common.primitives.Bytes;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,8 +64,8 @@ public interface RetrofitInterface {
     @PATCH("/uploadNewPost/{uid}") //need to Implement
     Call<Void> uploadNewPost (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
-    @PATCH("/uploadProfilePhoto/{uid}/{image_uri}") //need to Implement
-    Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_uri") Uri image_uri);
+    @PATCH("/uploadProfilePhoto/{uid}/{image_string}") //need to Implement
+    Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_string") String image_string);
 
     @GET("/getIngredients/") //need to Implement
     Call<String[]> getIngredients();

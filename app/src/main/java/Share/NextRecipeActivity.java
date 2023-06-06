@@ -1,11 +1,13 @@
 package Share;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,20 +34,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.instafoodies.R;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.EventListener;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -64,6 +79,9 @@ public class NextRecipeActivity extends AppCompatActivity {
 
     private List<Uri> imageUris;
     FirebaseAuth mAuth;
+    private ProgressDialog loadingBar;
+    private StorageTask uploadTask;
+
     private ImageAdapter adapter;
     private ViewPager2 viewPagerImages;
     private ServerMethods serverMethods;
@@ -98,7 +116,7 @@ public class NextRecipeActivity extends AppCompatActivity {
     List<ImageButton> deleteImageButtons;
 
     AutoCompleteTextView autoCompleteSearchView;
-    ImageButton submit;
+    MaterialButton submit;
     ArrayAdapter<String> arraySearchAdapter;
 
     ArrayList<String> ingredientNamesList;
@@ -114,6 +132,9 @@ public class NextRecipeActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         serverMethods = new ServerMethods(NextRecipeActivity.this);
+        loadingBar = new ProgressDialog(NextRecipeActivity.this);
+
+
 
         // Initialize the list of image URIs
         imageUris = new ArrayList<>();
@@ -290,39 +311,116 @@ public class NextRecipeActivity extends AppCompatActivity {
                 r.setCopy_rights(currentUser.getUid());
             }
 
-            HashMap<String, Object> uploadPost = createPost(r);
-            Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
-
-            call.enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                    if (response.code() == 200) {
-                        Toast.makeText(NextRecipeActivity.this,
-                                "Success Upload Post", Toast.LENGTH_LONG).show();
-                        moveToActivity(r.getTitle());
-
-                    } else if (response.code() == 400) {
-                        Toast.makeText(NextRecipeActivity.this,
-                                "Upload Post failed", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(NextRecipeActivity.this, response.message(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                    Toast.makeText(NextRecipeActivity.this, t.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                }
-            });
+            uploadImageToStorage(imageUris,r);
+//            ServerTry(imageUris,r);
 
         }
     }
 
-    private HashMap<String, Object> createPost(Recipe r) {
+    private void uploadImageToStorage(List<Uri> imageUris,Recipe r) {
+        loadingBar.setTitle("Sending File");
+        loadingBar.setMessage("Please wait, we are sending....");
+        loadingBar.setCanceledOnTouchOutside(false);
+        loadingBar.show();
+        String uuid_post = createHash();
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("photos_posts");
+        List<Task<Uri>> uploadTasks = new ArrayList<>();
+
+        for (int i = 0; i < imageUris.size(); i++) {
+            Uri imageUri = imageUris.get(i);
+            final StorageReference filePath = storageReference.child(mAuth.getCurrentUser().getUid()).child(uuid_post + i + ".jpg");
+
+            uploadTasks.add(filePath.putFile(imageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    return filePath.getDownloadUrl();
+                }
+            }));
+        }
+
+        Tasks.whenAllComplete(uploadTasks).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+            @Override
+            public void onComplete(@NonNull Task<List<Task<?>>> task) {
+                if (task.isSuccessful()) {
+                    List<String> downloadUrls = new ArrayList<>();
+
+                    for (Task<?> uploadTask : task.getResult()) {
+                        if (uploadTask.isSuccessful()) {
+                            Uri downloadUri = (Uri) uploadTask.getResult();
+                            downloadUrls.add(downloadUri.toString());
+                        } else {
+                            // Handle individual upload failures
+                            Exception exception = uploadTask.getException();
+                            Toast.makeText(NextRecipeActivity.this, "Failed to upload image: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    if (!downloadUrls.isEmpty()) {
+                        // All images uploaded successfully
+                        HashMap<String, Object> uploadPost = createPost(r,uuid_post,downloadUrls);
+                        Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
+                        call.enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(NextRecipeActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                                    selectedIngredients.clear();
+                                } else {
+                                    Toast.makeText(NextRecipeActivity.this, "Upload Post failed" + response.message(), Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                                Toast.makeText(NextRecipeActivity.this, "onFailure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                } else {
+                    // Handle task completion failure
+                    Toast.makeText(NextRecipeActivity.this, "Failed to upload images: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                loadingBar.dismiss();
+            }
+        });
+    }
+
+
+    private void ServerTry(List<Uri> imageUris,Recipe r){
+        String uuid_post = createHash();
+        List<String> avi = new ArrayList<>();
+        avi.add("nnn");
+        avi.add("aaa");
         Post post = new Post();
-        return post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), imageUris, createHash(), mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
+        HashMap<String, Object> uploadPost = post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), avi, "kkkk", mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
+        Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(NextRecipeActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                    selectedIngredients.clear();
+                } else {
+                    Toast.makeText(NextRecipeActivity.this, "Upload Post failed" + response.message(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Toast.makeText(NextRecipeActivity.this, "onFailure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+
+
+    private HashMap<String, Object> createPost(Recipe r,String post_uid, List<String>post_photos) {
+        Post post = new Post();
+        return post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), post_photos, post_uid, mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
     }
 
     private String getTags(String caption) {
@@ -389,7 +487,8 @@ public class NextRecipeActivity extends AppCompatActivity {
         if (selectedIngredients == null || selectedIngredients.size() == 0) {
             selectedIngredients = new ArrayList<>();
         }
-        InitAutoCompleteSearchView(dialog);
+//        InitAutoCompleteSearchView(dialog);
+        loadIngredients(dialog);
         adapterIngredients = new ListIngredientsAdapter(dialog.getContext(), selectedIngredients, "add");
         listView.setAdapter(adapterIngredients);
 
@@ -404,56 +503,102 @@ public class NextRecipeActivity extends AppCompatActivity {
     }
 
     // Set the filter names list + set adapter for the autoCompleteSearchView - Ingredients
-    private void InitAutoCompleteSearchView(Dialog d) {
+//    private void InitAutoCompleteSearchView(Dialog d) {
+//
+//        Call<String[]> call = serverMethods.retrofitInterface.getIngredients();
+//
+//        call.enqueue(new Callback<String[]>() {
+//            @Override
+//            public void onResponse(@NonNull Call<String[]> call, @NonNull Response<String[]> response) {
+//                String[] arrIngredients = response.body();
+//                if (response.code() == 200) {
+//                    if(arrIngredients != null) {
+//                        Toast.makeText(NextRecipeActivity.this,
+//                                "Success load ingredients", Toast.LENGTH_LONG).show();
+//                        ingredientNamesList = new ArrayList<String>(Arrays.asList(arrIngredients));
+//                        arraySearchAdapter = new ArrayAdapter<>(NextRecipeActivity.this, android.R.layout.simple_list_item_activated_1, ingredientNamesList);
+//                        autoCompleteSearchView.setAdapter(arraySearchAdapter);
+//                        autoCompleteSearchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                            @Override
+//                            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+//                                String ingredient = parent.getItemAtPosition(pos).toString();
+//                                addIngredientAmountDialog(ingredient, d);
+//                                autoCompleteSearchView.setText("");
+//
+//                            }
+//                        });
+//                        autoCompleteSearchView.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+//                            @Override
+//                            public void onDismiss() {
+//                                // Hide my keyboard
+//                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                                imm.hideSoftInputFromWindow(d.getCurrentFocus().getApplicationWindowToken(), 0);
+//                            }
+//                        });
+//                    }
+//                } else if (response.code() == 400) {
+//                    Toast.makeText(NextRecipeActivity.this,
+//                            "failed load ingredients", Toast.LENGTH_LONG).show();
+//                } else {
+//                    Toast.makeText(NextRecipeActivity.this, response.message(),
+//                            Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<String[]> call, @NonNull Throwable t) {
+//                Toast.makeText(NextRecipeActivity.this, t.getMessage(),
+//                        Toast.LENGTH_LONG).show();
+//            }
+//        });
+//
+//    }
 
-        Call<String[]> call = serverMethods.retrofitInterface.getIngredients();
 
-        call.enqueue(new Callback<String[]>() {
+    private void loadIngredients(Dialog d) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference documentRef = db.collection("utils").document("ingredients");
+
+        documentRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onResponse(@NonNull Call<String[]> call, @NonNull Response<String[]> response) {
-                String[] arrIngredients = response.body();
-                if (response.code() == 200) {
-                    if(arrIngredients != null) {
-                        Toast.makeText(NextRecipeActivity.this,
-                                "Success load ingredients", Toast.LENGTH_LONG).show();
-                        ingredientNamesList = new ArrayList<String>(Arrays.asList(arrIngredients));
-                        arraySearchAdapter = new ArrayAdapter<>(NextRecipeActivity.this, android.R.layout.simple_list_item_activated_1, ingredientNamesList);
-                        autoCompleteSearchView.setAdapter(arraySearchAdapter);
-                        autoCompleteSearchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                                String ingredient = parent.getItemAtPosition(pos).toString();
-                                addIngredientAmountDialog(ingredient, d);
-                                autoCompleteSearchView.setText("");
-
-                            }
-                        });
-                        autoCompleteSearchView.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
-                            @Override
-                            public void onDismiss() {
-                                // Hide my keyboard
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(d.getCurrentFocus().getApplicationWindowToken(), 0);
-                            }
-                        });
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        List<String> ingredients = (List<String>) document.get("ingredients");
+                        if (ingredients != null) {
+                            Toast.makeText(NextRecipeActivity.this, "Success load ingredients", Toast.LENGTH_LONG).show();
+                            ingredientNamesList = new ArrayList<>(ingredients);
+                            arraySearchAdapter = new ArrayAdapter<>(NextRecipeActivity.this, android.R.layout.simple_list_item_activated_1, ingredientNamesList);
+                            autoCompleteSearchView.setAdapter(arraySearchAdapter);
+                            autoCompleteSearchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+                                    String ingredient = parent.getItemAtPosition(pos).toString();
+                                    addIngredientAmountDialog(ingredient, d);
+                                    autoCompleteSearchView.setText("");
+                                }
+                            });
+                            autoCompleteSearchView.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+                                @Override
+                                public void onDismiss() {
+                                    // Hide the keyboard
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(d.getCurrentFocus().getApplicationWindowToken(), 0);
+                                }
+                            });
+                        }
+                    } else {
+                        Toast.makeText(NextRecipeActivity.this, "Failed to load ingredients: Document does not exist", Toast.LENGTH_LONG).show();
                     }
-                } else if (response.code() == 400) {
-                    Toast.makeText(NextRecipeActivity.this,
-                            "failed load ingredients", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(NextRecipeActivity.this, response.message(),
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(NextRecipeActivity.this, "Failed to fetch ingredients: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
-
-            @Override
-            public void onFailure(@NonNull Call<String[]> call, @NonNull Throwable t) {
-                Toast.makeText(NextRecipeActivity.this, t.getMessage(),
-                        Toast.LENGTH_LONG).show();
-            }
         });
-
     }
+
+
 
     private void addIngredientAmountDialog(String ingredient, Dialog d) {
         AlertDialog.Builder builder = new AlertDialog.Builder(NextRecipeActivity.this, androidx.appcompat.R.style.Base_V7_Theme_AppCompat_Dialog);
@@ -479,7 +624,8 @@ public class NextRecipeActivity extends AppCompatActivity {
         });
 
         builder.setNegativeButton("Cancel", (dialogInterface, which) -> {
-            InitAutoCompleteSearchView(d);
+//            InitAutoCompleteSearchView(d);
+            loadIngredients(d);
         });
         AlertDialog dialog = builder.create();
         dialog.show();

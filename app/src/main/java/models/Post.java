@@ -24,7 +24,7 @@ public class Post implements Parcelable {
     private String date_created;
 
     @SerializedName("image_paths")
-    private List<Uri> image_paths;
+    private List<String> image_paths;
 
     @SerializedName("post_id")
     private String post_id;
@@ -40,24 +40,33 @@ public class Post implements Parcelable {
 
     }
 
-    public HashMap<String, Object> PostMapForServer(Recipe recipe, String caption, String date_created, List<Uri> image_path, String photo_id, String user_id, String tags){
+    public HashMap<String, Object> PostMapForServer(Recipe recipe, String caption, String date_created, List<String> image_paths, String photo_id, String user_id, String tags){
         HashMap<String, Object> ans = new HashMap<>();
-        ans.put("recipe", recipe);
-        ans.put("caption", caption);
-        ans.put("date_created", date_created);
-        ans.put("image_paths", image_path);
-        ans.put("post_id", photo_id);
-        ans.put("user_id", user_id);
-        ans.put("tags", tags);
-
+        if(recipe != null) {
+            ans.put("recipe", recipe);
+            ans.put("caption", caption);
+            ans.put("date_created", date_created);
+            ans.put("image_paths", image_paths);
+            ans.put("post_id", photo_id);
+            ans.put("user_id", user_id);
+            ans.put("tags", tags);
+        }else{
+            ans.put("caption", caption);
+            ans.put("date_created", date_created);
+            ans.put("image_paths", image_paths);
+            ans.put("post_id", photo_id);
+            ans.put("user_id", user_id);
+            ans.put("tags", tags);
+        }
         return ans;
     }
 
-    public Post(Recipe recipe,String caption, String date_created, List<Uri> image_path, String photo_id, String user_id, String tags) {
+
+    public Post(Recipe recipe,String caption, String date_created, List<String> image_paths, String photo_id, String user_id, String tags) {
         this.recipe = recipe;
         this.caption = caption;
         this.date_created = date_created;
-        this.image_paths = image_path;
+        this.image_paths = image_paths;
         this.post_id = photo_id;
         this.user_id = user_id;
         this.tags = tags;
@@ -66,7 +75,7 @@ public class Post implements Parcelable {
     protected Post(Parcel in) {
         caption = in.readString();
         date_created = in.readString();
-        image_paths = in.createTypedArrayList(Uri.CREATOR);
+        image_paths = in.createStringArrayList();
         post_id = in.readString();
         user_id = in.readString();
         tags = in.readString();
@@ -100,17 +109,17 @@ public class Post implements Parcelable {
         this.date_created = date_created;
     }
 
-    public List<Uri> getImage_paths() {
+    public List<String> getImage_paths() {
         return image_paths;
     }
 
-    public void setImage_path(List<Uri> image_path) {
+    public void setImage_path(List<String> image_paths) {
         this.image_paths.clear();
-        this.image_paths.addAll(image_path);
+        this.image_paths.addAll(image_paths);
     }
-    public void setImage_path(Uri[] image_path) {
+    public void setImage_path(String[] image_paths) {
         this.image_paths.clear();
-        this.image_paths.addAll(Arrays.asList(image_path));
+        this.image_paths.addAll(Arrays.asList(image_paths));
     }
 
     public String getPost_id() {
@@ -159,7 +168,7 @@ public class Post implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(caption);
         dest.writeString(date_created);
-        dest.writeTypedList(image_paths);
+        dest.writeStringList(image_paths);
         dest.writeString(post_id);
         dest.writeString(user_id);
         dest.writeString(tags);
