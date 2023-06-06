@@ -3,18 +3,19 @@ package Chat;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instafoodies.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,11 +44,10 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 
-public class RequestsFragment extends Fragment {
+public class RequestsActivity extends AppCompatActivity {
 
     Context mContext;
 
-    private View RequestsFragmentView;
     private RecyclerView myRequestsList;
     private RequestsAdapter requestsAdapter;
 
@@ -66,16 +66,10 @@ public class RequestsFragment extends Fragment {
     private static ServerMethods serverMethods;
 
 
-
-    public RequestsFragment() {
-        // Required empty public constructor
-    }
-
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        RequestsFragmentView = inflater.inflate(R.layout.fragment_requests, container, false);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_requests);
 
         db = FirebaseFirestore.getInstance();
         usersCollection = db.collection("users");
@@ -87,19 +81,16 @@ public class RequestsFragment extends Fragment {
         ChatRequestsRef = FirebaseDatabase.getInstance().getReference().child("Chat Requests");
         ContactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
 
-        mContext = requireActivity().getApplicationContext();
+        mContext = this;
 
 
         serverMethods = new ServerMethods(mContext);
 
 
-        myRequestsList = (RecyclerView) RequestsFragmentView.findViewById(R.id.chat_requests_list);
+        myRequestsList = (RecyclerView) findViewById(R.id.chat_requests_list);
         myRequestsList.setLayoutManager(new LinearLayoutManager(mContext));
 
-
-        return RequestsFragmentView;
     }
-
 
     @Override
     public void onStart() {
@@ -243,7 +234,7 @@ public class RequestsFragment extends Fragment {
                                                                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                                                                 if (task.isSuccessful()) {
                                                                                                                     System.out.println("Removed the requests");
-                                                                                                                    Toast.makeText(getContext(), "New Contact Saved", Toast.LENGTH_SHORT).show();
+                                                                                                                    Toast.makeText(mContext, "New Contact Saved", Toast.LENGTH_SHORT).show();
                                                                                                                     removeItem(position);
                                                                                                                 }
                                                                                                             }
@@ -277,7 +268,7 @@ public class RequestsFragment extends Fragment {
                                                                     public void onComplete(@NonNull Task<Void> task) {
                                                                         if (task.isSuccessful()) {
                                                                             removeItem(position);
-                                                                            Toast.makeText(getContext(), "Contact Deleted", Toast.LENGTH_SHORT).show();
+                                                                            Toast.makeText(mContext, "Contact Deleted", Toast.LENGTH_SHORT).show();
                                                                         }
                                                                     }
                                                                 });
@@ -315,7 +306,7 @@ public class RequestsFragment extends Fragment {
                                                                     @Override
                                                                     public void onComplete(@NonNull Task<Void> task) {
                                                                         if (task.isSuccessful()) {
-                                                                            Toast.makeText(getContext(), "you have cancelled the chat request.", Toast.LENGTH_SHORT).show();
+                                                                            Toast.makeText(mContext, "you have cancelled the chat request.", Toast.LENGTH_SHORT).show();
                                                                         }
                                                                     }
                                                                 });

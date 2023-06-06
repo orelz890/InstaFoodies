@@ -55,6 +55,8 @@ public class ChatsFragment extends Fragment
     private ChatsAdapter chatsAdapter;
 
     private DatabaseReference ContactsRef;
+    private DatabaseReference ChatsRef;
+
     private DocumentReference usersDoc;
     private DocumentReference usersAccountDoc;
     private FirebaseAuth mAuth;
@@ -77,6 +79,7 @@ public class ChatsFragment extends Fragment
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
         ContactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID);
+        ChatsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID);
         usersDoc = FirebaseFirestore.getInstance().collection("users").document(currentUserID);
         usersAccountDoc = FirebaseFirestore.getInstance().collection("users_account_settings").document(currentUserID);
 
@@ -172,7 +175,10 @@ public class ChatsFragment extends Fragment
                 holder.userStatus.setText(user.getEmail());
                 // Load the profile image using a library like Picasso or Glide
                 String profile_photo = userAccountSettings.getProfile_photo();
+                System.out.println(">>>>profile_photo = " + profile_photo);
+
                 if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+                    System.out.println("profile_photo = " + profile_photo);
 //                System.out.println("!profile_photo.isEmpty(): " + profile_photo);
                     Picasso.get().load(profile_photo).into(holder.profileImage);
                 } else {

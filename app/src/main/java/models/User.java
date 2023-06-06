@@ -34,6 +34,8 @@ public class User implements Serializable {
     @SerializedName("time")
     private String time;
 
+    @SerializedName("device_token")
+    private String device_token;
 
     public User(User user) {
         this(user.passwordHash, user.user_id, user.email, user.phone_number, user.username, user.full_name, user.state, user.date, user.time);
@@ -86,7 +88,10 @@ public class User implements Serializable {
         this.state = state;
         this.date = date;
         this.time = time;
+        this.device_token = "";
     }
+
+
 
     public User(String passwordHash, String user_id, String email, String phone_number,
                 String username, String full_name) {
@@ -100,6 +105,7 @@ public class User implements Serializable {
         this.state = "online";
         this.date = "";
         this.time = "";
+        this.device_token = "";
     }
 
     public String getPasswordHash() {
@@ -172,5 +178,13 @@ public class User implements Serializable {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getDevice_token() {
+        return device_token;
+    }
+
+    public void setDevice_token(String device_token) {
+        this.device_token = device_token;
     }
 }

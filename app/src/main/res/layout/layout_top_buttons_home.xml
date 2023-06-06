@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@color/Gray"
+    android:layout_alignParentTop="true">
+
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/insta_foodies_logo2"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"/>
+
+    <ImageView
+        android:id="@+id/iv_messenger"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/messenger_icon"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="10dp"/>
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_heart_red"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="70dp"/>
+
+</RelativeLayout>

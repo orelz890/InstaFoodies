@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.example.instafoodies.R;
@@ -46,6 +48,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import Chat.ChatsFragment;
+import Chat.MainChatActivity;
+import Chat.MainChatActivity2;
 import Login.LoginActivity;
 import MLKIT.audio.AudioClassificationActivity;
 import MLKIT.helpers.AudioHelperActivity;
@@ -70,6 +75,8 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
+    private ImageView messenger;
+
 
 
     @Override
@@ -80,18 +87,35 @@ public class HomeActivity extends AppCompatActivity {
 
 
         setupFirebaseAuth();
+        setupImageViews();
 
 
         InitImageLoader();
         setupBottomNavigationView();
-        setupViewPager();
+//        setupViewPager();
+
 //        MoveToThisPage();
     }
 
+    private void setupImageViews() {
+
+        messenger = (ImageView) findViewById(R.id.iv_messenger);
+        messenger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MoveToMessenger();
+            }
+        });
+    }
 
 
     private void MoveToThisPage(){
         Intent intent = new Intent(mContext, forwardActivity.class);
+        startActivity(intent);
+    }
+
+    private void MoveToMessenger(){
+        Intent intent = new Intent(mContext, MainChatActivity2.class);
         startActivity(intent);
     }
 
@@ -108,7 +132,7 @@ public class HomeActivity extends AppCompatActivity {
         SectionsPagerAdapter adapter = new SectionsPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new CameraFragment()); // index 0
         adapter.addFragment(new HomeFragment()); // index 1
-        adapter.addFragment(new MessagesFragment()); // index 2
+        adapter.addFragment(new ChatsFragment()); // index 2
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager_container);
         viewPager.setAdapter(adapter);
 
@@ -223,6 +247,7 @@ public class HomeActivity extends AppCompatActivity {
             // ...
         };
     }
+
     @Override
     public void onStart() {
         super.onStart();

@@ -236,7 +236,7 @@ public class ChatActivity extends AppCompatActivity
            fileUri = data.getData();
            if(!checker.equals("image"))
            {
-               StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
+               StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Chat Images and Files");
                final String messageSenderRef = "Messages/" + messageSenderID + "/" + messageReceiverID;
                final String messageReceiverRef = "Messages/" + messageReceiverID + "/" + messageSenderID;
 
@@ -289,13 +289,12 @@ public class ChatActivity extends AppCompatActivity
                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
                        double p = (100.0 * taskSnapshot.getBytesTransferred())/taskSnapshot.getTotalByteCount();
                        loadingBar.setMessage((int)p + "% Uploading...");
-
                    }
                });
            }
            else if(checker.equals("image"))
            {
-               StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Image Files");
+               StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Chat Images and Files");
                final String messageSenderRef = "Messages/" + messageSenderID + "/" + messageReceiverID;
                final String messageReceiverRef = "Messages/" + messageReceiverID + "/" + messageSenderID;
 
@@ -401,15 +400,37 @@ public class ChatActivity extends AppCompatActivity
     protected void onStart()
     {
         super.onStart();
+
         RootRef.child("Messages").child(messageSenderID).child(messageReceiverID)
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s)
                     {
-                     Messages messages = dataSnapshot.getValue(Messages.class);
-                     messagesList.add(messages);
-                     messageAdapter.notifyDataSetChanged();
-                     userMessagesList.smoothScrollToPosition(Objects.requireNonNull(userMessagesList.getAdapter()).getItemCount());
+                        Messages messages = dataSnapshot.getValue(Messages.class);
+//                         if (!messagesList.contains(messages)){
+//                             messagesList.add(messages);
+//                             messageAdapter.notifyDataSetChanged();
+//                             userMessagesList.smoothScrollToPosition(Objects.requireNonNull(userMessagesList.getAdapter()).getItemCount());
+//                         }
+                        // Check if the message ID already exists in the messagesList
+                        boolean isDuplicate = false;
+                        for (Messages existingMessage : messagesList) {
+                            if (existingMessage.getMessageID().equals(messages.getMessageID())) {
+                                isDuplicate = true;
+                                break;
+                            }
+                        }
+
+                        // Check if the message is an image message and already exists in the messagesList
+                        if (isDuplicate) {
+                            return; // Skip adding the duplicate image message
+                        }
+
+                        // Add the message to the list
+                        messagesList.add(messages);
+                        messageAdapter.notifyDataSetChanged();
+                        userMessagesList.smoothScrollToPosition(userMessagesList.getAdapter().getItemCount());
+
                     }
 
                     @Override

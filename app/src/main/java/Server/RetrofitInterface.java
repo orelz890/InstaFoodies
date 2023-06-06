@@ -62,7 +62,7 @@ public interface RetrofitInterface {
     @PATCH("/uploadNewPost/{uid}") //need to Implement
     Call<Void> uploadNewPost (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
-    @PATCH("/uploadProfilePhoto/{uid}/{image_uri") //need to Implement
+    @PATCH("/uploadProfilePhoto/{uid}/{image_uri}") //need to Implement
     Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_uri") Uri image_uri);
 
     @GET("/getIngredients/") //need to Implement

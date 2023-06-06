@@ -27,6 +27,8 @@
         <activity android:name="Chat.SettingsActivity"> </activity>
         <activity android:name="Chat.FindFriendsActivity"
             android:parentActivityName="Chat.MainChatActivity"> </activity>
+        <activity android:name="Chat.RequestsActivity"
+            android:parentActivityName="Chat.MainChatActivity"> </activity>
 
         <activity android:name="Chat.ChatProfileActivity"> </activity>
         <activity android:name="Chat.ChatActivity"
@@ -54,6 +56,8 @@
                 android:value="" />
         </activity>
         <activity android:name="Chat.MainChatActivity" />
+        <activity android:name="Chat.MainChatActivity2" />
+
         <activity
             android:name="MLKIT.text.SpamTextDetectionActivity"
             android:exported="true">
