@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_above="@+id/bottom_nav">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:id="@+id/relLayout1">
+
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:id="@+id/profile_photo"
+                android:layout_marginTop="20dp"
+                app:civ_border_color="@color/black"
+                app:civ_border_overlay="true"
+                app:civ_border_width="2dp"
+                android:layout_marginLeft="15dp"
+                android:layout_centerVertical="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text=""
+                android:layout_toRightOf="@+id/profile_photo"
+                android:layout_marginLeft="10dp"
+                android:layout_centerVertical="true"
+                android:id="@+id/username"
+                android:textColor="@color/black"
+                />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_ellipses"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:id="@+id/ivEllipses"
+                />
+
+
+        </RelativeLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/post_images"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_below="@+id/relLayout1"
+            android:layout_marginTop="-1dp"
+            android:scaleType="centerCrop" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:id="@+id/relLayout2"
+            android:layout_below="@id/post_images">
+
+            <RelativeLayout
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:id="@+id/heartLayout"
+                android:background="@color/white">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:id="@+id/image_heart_red"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="20dp"
+                    android:src="@drawable/ic_heart_red"
+                    android:visibility="invisible"/>
+
+                <ImageView
+                    android:id="@+id/image_heart"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="20dp"
+                    android:src="@drawable/ic_heart_outline"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
+
+
+            <ImageView
+                android:id="@+id/speech_bubble"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/heartLayout"
+                android:src="@drawable/ic_speech_bubble"
+                android:visibility="visible" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relLayout3"
+            android:layout_below="@id/relLayout2"
+            android:layout_alignParentBottom="true"
+            android:padding="20dp"
+            >
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Liked by Harel, Eilon, Zamler and 30 others"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:id="@+id/image_likes"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="harel.giadi mountains #earthporn #mountains"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:id="@+id/post_caption"
+                android:layout_below="@id/image_likes"
+                android:layout_marginTop="15dp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="view all 3 comments"
+                android:textColor="@color/Gray"
+                android:textSize="18sp"
+                android:layout_below="@id/post_caption"
+                android:id="@+id/image_comments_link"
+                android:layout_marginTop="15dp"
+                android:visibility="invisible"
+                />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3 DAYS AGO"
+                android:textColor="@color/Gray"
+                android:textSize="18sp"
+                android:layout_below="@id/image_comments_link"
+                android:id="@+id/post_time_posted"
+                android:layout_marginTop="10dp"
+                />
+
+            <TextView
+                android:id="@+id/tvSeeMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="see more.."
+                android:textColor="@color/link_color"
+                android:textStyle="bold"
+                android:visibility="invisible"
+                />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+</ScrollView>

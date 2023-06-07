@@ -9,7 +9,7 @@
     <ImageView
         android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/insta_foodies_logo2"
+        android:src="@drawable/instafoodies_text"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"/>
 
