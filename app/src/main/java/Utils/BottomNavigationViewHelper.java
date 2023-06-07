@@ -64,13 +64,15 @@ public class BottomNavigationViewHelper {
                                     case R.id.post_item:
                                         // Handle menu item 1 click
                                         Intent intent3 = new Intent(context, ShareActivity.class);// ACTIVITY_NUM 2
-                                        intent3.putExtra("key", "recipe");
+                                        // 0 == Recipe post
+                                        intent3.putExtra("key", 0);
                                         context.startActivity(intent3);
                                         return true;
                                     case R.id.recipe_item:
                                         // Handle menu item 2 click
                                         Intent intent6 = new Intent(context, ShareActivity.class);
-                                        intent6.putExtra("key", "post");
+                                        //1 == post
+                                        intent6.putExtra("key", 1);
                                         context.startActivity(intent6);
                                         return true;
                                     default:

@@ -2,6 +2,7 @@ package Share;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +37,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import Home.HomeActivity;
 import Utils.ServerMethods;
 import models.Post;
 import retrofit2.Call;
@@ -99,14 +101,14 @@ public class NextActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: share Post");
-                uploadImageToStorage(imageUris);
+                uploadImageToStorageAndUploadPost(imageUris);
             }
         });
 
     }
 
 
-    private void uploadImageToStorage(List<Uri> imageUris) {
+    private void uploadImageToStorageAndUploadPost(List<Uri> imageUris) {
         loadingBar.setTitle("Sending File");
         loadingBar.setMessage("Please wait, we are sending....");
         loadingBar.setCanceledOnTouchOutside(false);
@@ -156,6 +158,8 @@ public class NextActivity extends AppCompatActivity {
                             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                                 if (response.isSuccessful()) {
                                     Toast.makeText(NextActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                                    startActivity(new Intent(NextActivity.this, HomeActivity.class));
+
                                 } else {
                                     Toast.makeText(NextActivity.this, "Upload Post failed" + response.message(), Toast.LENGTH_LONG).show();
                                 }

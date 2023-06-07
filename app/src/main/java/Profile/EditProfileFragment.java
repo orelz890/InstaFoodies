@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,7 +85,7 @@ public class EditProfileFragment extends Fragment {
 
     //vars
     private UserSettings mUserSettings;
-
+    private ProgressBar mProgressBar;
     private Context mContext;
 
     private ProgressDialog loadingBar;
@@ -105,6 +106,8 @@ public class EditProfileFragment extends Fragment {
         mEmail.setEnabled(false);
         mPhoneNumber = (EditText) view.findViewById(R.id.etPhoneNumber);
         mChangeProfilePhoto = (TextView) view.findViewById(R.id.changeProfilePhoto);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.edit_profileProgressBar);
+
         FirebaseMethods = new FirebaseMethods(getActivity());
         serverMethods = new ServerMethods(getActivity());
         mContext = getActivity();
@@ -130,8 +133,7 @@ public class EditProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back to ProfileActivity");
-                retrieveData();
-                getActivity().finish();
+                requireActivity().finish();
             }
         });
 
@@ -215,7 +217,7 @@ public class EditProfileFragment extends Fragment {
         btnChange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadImageToStorage(imageUri,dialog);
+                uploadImageToStorage(imageUri, dialog);
             }
         });
 
@@ -281,17 +283,10 @@ public class EditProfileFragment extends Fragment {
     }
 
 
-
-
-
-
-
-
-
-        /**
-         * Retrieves the data contained in the widgets and submits it to the database
-         * Before doing so it checks to make sure the username chosen is unique
-         */
+    /**
+     * Retrieves the data contained in the widgets and submits it to the database
+     * Before doing so it checks to make sure the username chosen is unique
+     */
     private void saveProfileSettings() {
         HashMap<String, Object> updatedUser = new HashMap<>();
         HashMap<String, Object> updatedUserAccountSettings = new HashMap<>();
@@ -299,7 +294,7 @@ public class EditProfileFragment extends Fragment {
 
         final String website = mWebsite.getText().toString();
         final String description = mDescription.getText().toString();
-        if(!(mPhoneNumber.getText().toString().equals("none"))) {
+        if (!(mPhoneNumber.getText().toString().equals("none"))) {
             phoneNumber = Long.parseLong(mPhoneNumber.getText().toString());
         }
         final String full_name = mDisplayName.getText().toString();
@@ -339,8 +334,7 @@ public class EditProfileFragment extends Fragment {
                             if (response.code() == 200) {
                                 Toast.makeText(getContext(), "Updated UserAccountSettings: " + mAuth.getCurrentUser().getEmail(),
                                         Toast.LENGTH_LONG).show();
-                                retrieveData();
-                                getActivity().finish();
+                                requireActivity().finish();
                             } else if (response.code() == 404) {
                                 Toast.makeText(getContext(), "Wrong Credentials: " + response.message(),
                                         Toast.LENGTH_LONG).show();
@@ -406,7 +400,7 @@ public class EditProfileFragment extends Fragment {
         mEmail.setText(user.getEmail());
         mPhoneNumber.setText(String.valueOf(user.getPhone_number()));
 
-
+        mProgressBar.setVisibility(View.GONE);
     }
        /*
     ------------------------------------ Firebase ---------------------------------------------
@@ -471,39 +465,19 @@ public class EditProfileFragment extends Fragment {
 
 
     private void retrieveData() {
-        Call<User> call = serverMethods.retrofitInterface.getUser(mAuth.getCurrentUser().getUid());
-        Call<UserAccountSettings> call2 = serverMethods.retrofitInterface.getUserAccountSettings(mAuth.getCurrentUser().getUid());
 
-        call.enqueue(new Callback<User>() {
+        Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(mAuth.getCurrentUser().getUid());
+        call.enqueue(new Callback<UserSettings>() {
             @Override
-            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+            public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
 
-                User result1 = response.body();
+                UserSettings userSettings = response.body();
                 if (response.code() == 200) {
-                    assert result1 != null;
-                    call2.enqueue(new Callback<UserAccountSettings>() {
-                        @Override
-                        public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
-                            UserAccountSettings result2 = response.body();
-                            if (response.code() == 200) {
-                                assert result2 != null;
-                                setProfileWidgets(result1, result2);
-                                mUserSettings = new UserSettings(result1,result2);
-                            } else if (response.code() == 400) {
-                                Toast.makeText(mContext,
-                                        "Don't exist", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(mContext, response.message(),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
-                            Toast.makeText(mContext, t.getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    assert userSettings != null;
+                    if(userSettings.getSettings() != null) {
+                        setProfileWidgets(userSettings.getUser(), userSettings.getSettings());
+                        mUserSettings = new UserSettings(userSettings.getUser(), userSettings.getSettings());
+                    }
                 } else if (response.code() == 400) {
                     Toast.makeText(mContext,
                             "Don't exist", Toast.LENGTH_LONG).show();
@@ -514,7 +488,7 @@ public class EditProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<UserSettings> call, @NonNull Throwable t) {
                 Toast.makeText(mContext, t.getMessage(),
                         Toast.LENGTH_LONG).show();
             }

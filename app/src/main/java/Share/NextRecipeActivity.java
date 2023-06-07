@@ -66,6 +66,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import Home.HomeActivity;
 import Search.SearchActivity;
 import Utils.ServerMethods;
 import models.Post;
@@ -311,13 +312,13 @@ public class NextRecipeActivity extends AppCompatActivity {
                 r.setCopy_rights(currentUser.getUid());
             }
 
-            uploadImageToStorage(imageUris,r);
+            uploadImageToStorageAndUploadPost(imageUris,r);
 //            ServerTry(imageUris,r);
 
         }
     }
 
-    private void uploadImageToStorage(List<Uri> imageUris,Recipe r) {
+    private void uploadImageToStorageAndUploadPost(List<Uri> imageUris,Recipe r) {
         loadingBar.setTitle("Sending File");
         loadingBar.setMessage("Please wait, we are sending....");
         loadingBar.setCanceledOnTouchOutside(false);
@@ -368,6 +369,7 @@ public class NextRecipeActivity extends AppCompatActivity {
                                 if (response.isSuccessful()) {
                                     Toast.makeText(NextRecipeActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
                                     selectedIngredients.clear();
+                                    startActivity(new Intent(NextRecipeActivity.this, HomeActivity.class));
                                 } else {
                                     Toast.makeText(NextRecipeActivity.this, "Upload Post failed" + response.message(), Toast.LENGTH_LONG).show();
                                 }

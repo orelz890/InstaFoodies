@@ -232,38 +232,70 @@ public class ProfileFragment extends Fragment {
             }
         };
 
-        Call<User> call = serverMethods.retrofitInterface.getUser(mAuth.getCurrentUser().getUid());
-        Call<UserAccountSettings> call2 = serverMethods.retrofitInterface.getUserAccountSettings(mAuth.getCurrentUser().getUid());
+        retrieveData();
+//        Call<User> call = serverMethods.retrofitInterface.getUser(mAuth.getCurrentUser().getUid());
+//        Call<UserAccountSettings> call2 = serverMethods.retrofitInterface.getUserAccountSettings(mAuth.getCurrentUser().getUid());
+//
+//        call.enqueue(new Callback<User>() {
+//            @Override
+//            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+//
+//                User result1 = response.body();
+//                if (response.code() == 200) {
+//                    assert result1 != null;
+//                    call2.enqueue(new Callback<UserAccountSettings>() {
+//                        @Override
+//                        public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
+//                            UserAccountSettings result2 = response.body();
+//                            if (response.code() == 200) {
+//                                assert result2 != null;
+//                                setProfileWidgets(result1, result2);
+//                            } else if (response.code() == 400) {
+//                                Toast.makeText(mContext,
+//                                        "Don't exist", Toast.LENGTH_LONG).show();
+//                            } else {
+//                                Toast.makeText(mContext, response.message(),
+//                                        Toast.LENGTH_LONG).show();
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
+//                            Toast.makeText(mContext, t.getMessage(),
+//                                    Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+//                } else if (response.code() == 400) {
+//                    Toast.makeText(mContext,
+//                            "Don't exist", Toast.LENGTH_LONG).show();
+//                } else {
+//                    Toast.makeText(mContext, response.message(),
+//                            Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+//                Toast.makeText(mContext, t.getMessage(),
+//                        Toast.LENGTH_LONG).show();
+//            }
+//        });
 
-        call.enqueue(new Callback<User>() {
+    }
+
+
+    private void retrieveData() {
+        Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(mAuth.getCurrentUser().getUid());
+        call.enqueue(new Callback<UserSettings>() {
             @Override
-            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+            public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
 
-                User result1 = response.body();
+                UserSettings userSettings = response.body();
                 if (response.code() == 200) {
-                    assert result1 != null;
-                    call2.enqueue(new Callback<UserAccountSettings>() {
-                        @Override
-                        public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
-                            UserAccountSettings result2 = response.body();
-                            if (response.code() == 200) {
-                                assert result2 != null;
-                                setProfileWidgets(result1, result2);
-                            } else if (response.code() == 400) {
-                                Toast.makeText(mContext,
-                                        "Don't exist", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(mContext, response.message(),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
-                            Toast.makeText(mContext, t.getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    assert userSettings != null;
+                    if(userSettings.getSettings() != null) {
+                        setProfileWidgets(userSettings.getUser(), userSettings.getSettings());
+                    }
                 } else if (response.code() == 400) {
                     Toast.makeText(mContext,
                             "Don't exist", Toast.LENGTH_LONG).show();
@@ -274,7 +306,7 @@ public class ProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<UserSettings> call, @NonNull Throwable t) {
                 Toast.makeText(mContext, t.getMessage(),
                         Toast.LENGTH_LONG).show();
             }
@@ -283,11 +315,13 @@ public class ProfileFragment extends Fragment {
     }
 
 
-    @Override
+        @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-    }
+        retrieveData();
+
+        }
 
     @Override
     public void onStop() {

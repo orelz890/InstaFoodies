@@ -42,8 +42,8 @@ public class UserSettings implements Serializable {
     @Override
     public String toString() {
         return "UserSettings{" +
-                "user=" + user +
-                ", settings=" + settings +
+                "user=" + user.toString()+
+                ", settings=" + settings.toString() +
                 '}';
     }
 }

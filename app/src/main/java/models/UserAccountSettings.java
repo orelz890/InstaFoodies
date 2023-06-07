@@ -36,10 +36,13 @@ public class UserAccountSettings implements Serializable {
     private List<String> following_ids;
 
 
+    @SerializedName("followers_ids")
+    private List<String> followers_ids;
+
 
     public UserAccountSettings(UserAccountSettings settings) {
         this(settings.description, settings.profile_photo, settings.isBusiness, settings.followers,
-                settings.following, settings.posts, settings.website, settings.following_ids);
+                settings.following, settings.posts, settings.website, settings.following_ids,settings.followers_ids);
     }
 
 
@@ -51,7 +54,8 @@ public class UserAccountSettings implements Serializable {
                                                             int posts,
                                                             String website,
                                                             String email,
-                                                            List<String> following_ids) {
+                                                            List<String> following_ids,
+                                                            List<String> followers_ids) {
         HashMap<String, Object> ans = new HashMap<>();
         ans.put("email", email);
         ans.put("description", description);
@@ -62,6 +66,7 @@ public class UserAccountSettings implements Serializable {
         ans.put("profile_photo", profile_photo);
         ans.put("website", website);
         ans.put("following_ids", following_ids);
+        ans.put("followers_ids", followers_ids);
         return ans;
     }
 
@@ -75,6 +80,7 @@ public class UserAccountSettings implements Serializable {
         ans.put("profile_photo", this.profile_photo);
         ans.put("website", this.website);
         ans.put("following_ids", this.following_ids);
+        ans.put("followers_ids", this.followers_ids);
         return ans;
     }
 
@@ -87,10 +93,11 @@ public class UserAccountSettings implements Serializable {
         this.website = "none";
         this.isBusiness = false;
         this.following_ids = new ArrayList<>();
+        this.followers_ids = new ArrayList<>();
     }
 
     public UserAccountSettings(String description, String profile_photo, boolean isBusiness, int followers,
-                               int following, int posts, String website, List<String> following_ids) {
+                               int following, int posts, String website, List<String> following_ids,List<String> followers_ids) {
         this.description = description;
         this.profile_photo = profile_photo;
         this.isBusiness = isBusiness;
@@ -99,6 +106,7 @@ public class UserAccountSettings implements Serializable {
         this.posts = posts;
         this.website = website;
         setFollowing_ids(following_ids);
+        setFollowers_ids(followers_ids);
     }
 
 
@@ -165,5 +173,14 @@ public class UserAccountSettings implements Serializable {
     public void setFollowing_ids(List<String> following_ids) {
         this.following_ids = new ArrayList<>();
         this.following_ids.addAll(following_ids);
+    }
+
+    public List<String> getFollowers_ids() {
+        return followers_ids;
+    }
+
+    public void setFollowers_ids(List<String> followers_ids) {
+        this.followers_ids = new ArrayList<>();
+        this.followers_ids.addAll(followers_ids);
     }
 }
