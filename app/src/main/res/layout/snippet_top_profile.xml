@@ -15,8 +15,10 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="2dp"
             android:text=""
+            android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="16sp"
+            app:layout_constraintHorizontal_bias="0.529"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,7 +29,7 @@
             android:layout_marginStart="7dp"
             android:layout_marginTop="2dp"
             android:text="Posts"
-            android:textColor="@color/Gray"
+            android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvPost" />
@@ -37,11 +39,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
+            android:layout_marginStart="8dp"
             android:text=""
+            android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/tvFollowing"
-            app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toEndOf="@+id/tvPost"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -51,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="Followers"
-            android:textColor="@color/Gray"
+            android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@+id/textFollowing"
             app:layout_constraintHorizontal_bias="0.529"
@@ -65,9 +68,11 @@
             android:layout_marginTop="2dp"
             android:layout_marginEnd="12dp"
             android:text=""
+            android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.529"
+            app:layout_constraintEnd_toEndOf="@+id/textFollowing"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -77,7 +82,7 @@
             android:layout_marginTop="2dp"
             android:layout_marginEnd="1dp"
             android:text="Following"
-            android:textColor="@color/Gray"
+            android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvFollowing" />
@@ -99,3 +104,5 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </merge>
+
+
