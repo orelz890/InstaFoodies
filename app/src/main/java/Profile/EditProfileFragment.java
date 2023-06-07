@@ -233,8 +233,8 @@ public class EditProfileFragment extends Fragment {
 
     private void uploadImageToStorage(Uri imageUri, Dialog dialog) {
 
-        loadingBar.setTitle("Sending File");
-        loadingBar.setMessage("Please wait, we are sending....");
+        loadingBar.setTitle("Updating profile image");
+        loadingBar.setMessage("Updating....");
         loadingBar.setCanceledOnTouchOutside(false);
         loadingBar.show();
 
@@ -261,8 +261,11 @@ public class EditProfileFragment extends Fragment {
                         public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(getContext(), "Change Profile Image: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
-                                retrieveData();
+                                //retrieveData();
                                 dialog.dismiss();
+                                //TODO need to check if it work appropriate ->>
+                                Intent intent = new Intent(getActivity(), ProfileFragment.class);
+                                startActivity(intent);
                             } else {
                                 Toast.makeText(getContext(), "Wrong Change Profile Image: " + response.message(), Toast.LENGTH_LONG).show();
                             }

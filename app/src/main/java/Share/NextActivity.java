@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.instafoodies.R;
@@ -53,6 +55,7 @@ public class NextActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
+    private TextView imageCounterTextView;
     private ViewPager2 viewPager;
     private EditText caption;
     private ImageAdapter adapter;
@@ -68,6 +71,7 @@ public class NextActivity extends AppCompatActivity {
         setContentView(R.layout.activity_next);
 
 
+
         mAuth = FirebaseAuth.getInstance();
         loadingBar = new ProgressDialog(NextActivity.this);
 
@@ -80,10 +84,23 @@ public class NextActivity extends AppCompatActivity {
         imageUris = new ArrayList<>();
         imageUris = getIntent().getParcelableArrayListExtra(getString(R.string.selected_images));
 
+        // Initialize the image counter
+        imageCounterTextView = findViewById(R.id.imageCounterTextView);
+        updateImageCounter(0); // Set the initial counter to 0
+
         // Set up the ViewPager
         viewPager = findViewById(R.id.viewPager);
         adapter = new ImageAdapter(imageUris);
         viewPager.setAdapter(adapter);
+
+        // Add a page change listener to update the image counter when the current page changes
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                updateImageCounter(position);
+            }
+        });
 
         ImageView backArrow = findViewById(R.id.ivBackArrow);
         backArrow.setOnClickListener(new View.OnClickListener() {
@@ -94,23 +111,34 @@ public class NextActivity extends AppCompatActivity {
             }
         });
 
-
         //Upload Post
         TextView share = findViewById(R.id.tvShare);
         share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: share Post");
-                uploadImageToStorageAndUploadPost(imageUris);
+                if (caption.getText().toString().isEmpty()) {
+                    caption.setError("Cannot be Empty");
+                    caption.requestFocus();
+                }else{
+                    uploadImageToStorageAndUploadPost(imageUris);
+                }
             }
         });
 
     }
 
+    private void updateImageCounter(int position) {
+        int totalImages = imageUris.size();
+        int currentImageIndex = position + 1;
+        String counterText = currentImageIndex + "/" + totalImages;
+        imageCounterTextView.setText(counterText);
+    }
+
 
     private void uploadImageToStorageAndUploadPost(List<Uri> imageUris) {
-        loadingBar.setTitle("Sending File");
-        loadingBar.setMessage("Please wait, we are sending....");
+        loadingBar.setTitle("Upload Post");
+        loadingBar.setMessage("Uploading....");
         loadingBar.setCanceledOnTouchOutside(false);
         loadingBar.show();
         String uuid_post = createHash();
@@ -151,7 +179,7 @@ public class NextActivity extends AppCompatActivity {
 
                     if (!downloadUrls.isEmpty()) {
                         // All images uploaded successfully
-                        HashMap<String, Object> uploadPost = createPost(uuid_post,downloadUrls);
+                        HashMap<String, Object> uploadPost = createPost(uuid_post, downloadUrls);
                         Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
                         call.enqueue(new Callback<Void>() {
                             @Override
@@ -181,10 +209,9 @@ public class NextActivity extends AppCompatActivity {
     }
 
 
-
-    private HashMap<String, Object> createPost(String post_uid, List<String>post_photos) {
+    private HashMap<String, Object> createPost(String post_uid, List<String> post_photos) {
         Post post = new Post();
-        return post.PostMapForServer(null,caption.toString(), timeStamp(), post_photos, post_uid, mAuth.getCurrentUser().getUid(), getTags(caption.toString()));
+        return post.PostMapForServer(null, caption.getText().toString(), timeStamp(), post_photos, post_uid, mAuth.getCurrentUser().getUid(), getTags(caption.toString()));
     }
 
     private String getTags(String caption) {
@@ -220,8 +247,6 @@ public class NextActivity extends AppCompatActivity {
         sdf.setTimeZone(TimeZone.getTimeZone("Israel/Israel")); // Set the timezone to Israel
         return sdf.format(new Date());
     }
-
-
 
 
 }

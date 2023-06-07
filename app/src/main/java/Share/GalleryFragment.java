@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -101,23 +102,29 @@ public class GalleryFragment extends Fragment {
                 Log.d(TAG, "onClick: navigating to the final share screen.");
 
                 // Handle the selected images
-                for (Object imageUri : selectedImages) {
+                for (Uri imageUri : selectedImages) {
                     // Do something with the image URI
                     Log.d(TAG, "Selected Image URI: " + imageUri.toString());
                 }
 
-                // Proceed to the next screen
-                if (isRootTask()) {
-                    Intent intent = new Intent(getActivity(), NextActivity.class);
-                    // Pass the selected images to the next activity
-                    intent.putParcelableArrayListExtra(getString(R.string.selected_images), selectedImages);
-                    startActivity(intent);
-                } else {
-                    Intent intent = new Intent(getActivity(), NextRecipeActivity.class);
-                    // Pass the selected images to the account settings activity
-                    intent.putParcelableArrayListExtra(getString(R.string.selected_images), new ArrayList<>(selectedImages));
-                    startActivity(intent);
+
+                if (selectedImages.size() >= 1) {
+                    // Proceed to the next screen
+                    if (isRootTask()) {
+                        Intent intent = new Intent(getActivity(), NextActivity.class);
+                        // Pass the selected images to the next activity
+                        intent.putParcelableArrayListExtra(getString(R.string.selected_images), new ArrayList<>(selectedImages));
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(getActivity(), NextRecipeActivity.class);
+                        // Pass the selected images to the account settings activity
+                        intent.putParcelableArrayListExtra(getString(R.string.selected_images), new ArrayList<>(selectedImages));
+                        startActivity(intent);
+                    }
+                }else{
+                    Toast.makeText(getActivity(), "Your Post must to Include at Least One Photo " , Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
 
@@ -183,6 +190,7 @@ public class GalleryFragment extends Fragment {
                         int count = data.getClipData().getItemCount();
                         for (int i = 0; i < count; i++) {
                             Uri imageUri = data.getClipData().getItemAt(i).getUri();
+                            setImage(imageUri, galleryImage, mAppend);
                             selectedImages.add(imageUri);  // Add the imageUri to the list
                         }
                         // Update the GridView with the selected images
@@ -191,6 +199,7 @@ public class GalleryFragment extends Fragment {
                         Uri imageUri = data.getData();
                         selectedImages.add(imageUri);  // Add the imageUri to the list
                         // Update the GridView with the selected images
+                        setImage(imageUri, galleryImage, mAppend);
                         adapter.notifyDataSetChanged();
                     }
                 }
@@ -206,7 +215,7 @@ public class GalleryFragment extends Fragment {
                         .crop()                    //Crop image(Optional), Check Customization for more option
                         .cropFreeStyle()
                         .cropSquare()
-                        .setMultipleAllowed(true)
+                        .setMultipleAllowed(false)
                         .bothCameraGallery()
                         .maxResultSize(1080, 1080, true)    //Final image resolution will be less than 1080 x 1080(Optional)
                         .provider(ImageProvider.BOTH)
