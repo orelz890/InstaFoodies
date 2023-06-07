@@ -17,7 +17,7 @@
         android:id="@+id/iv_messenger"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/messenger_icon"
+        android:src="@drawable/messenger"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="10dp"/>
@@ -28,6 +28,7 @@
         android:src="@drawable/ic_heart_red"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="70dp"/>
+        android:layout_marginRight="70dp"
+        android:visibility="invisible"/>
 
 </RelativeLayout>
