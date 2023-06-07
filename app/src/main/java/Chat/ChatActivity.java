@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,6 +73,7 @@ public class ChatActivity extends AppCompatActivity
     private UserSettings senderUserSettings;
 
     private TextView userName, userLastSeen;
+    private ImageView arrowBack;
     private CircleImageView userImage;
 
     private MaterialToolbar mToolbar;
@@ -202,6 +204,15 @@ public class ChatActivity extends AppCompatActivity
         userName = (TextView) findViewById(R.id.custom_profile_name);
         userImage = (CircleImageView) findViewById(R.id.custom_profile_image);
         userLastSeen = (TextView) findViewById(R.id.custom_user_last_seen);
+
+        arrowBack = (ImageView) findViewById(R.id.iv_arrow_back);
+
+        arrowBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         SendMessageButton = (ImageButton) findViewById(R.id.send_message_btn);
         SendFilesButton = (ImageButton) findViewById(R.id.send_files_btn);

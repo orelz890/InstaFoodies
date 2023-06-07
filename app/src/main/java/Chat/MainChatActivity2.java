@@ -442,7 +442,7 @@ public class MainChatActivity2 extends AppCompatActivity
 
         SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
         saveCurrentTime = currentTime.format(calendar.getTime());
-        updates.put("time", saveCurrentDate);
+        updates.put("time", saveCurrentTime);
 
         userRef.update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
