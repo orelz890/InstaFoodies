@@ -66,6 +66,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             super(itemView);
             view = itemView;
             senderMessageText = (TextView) itemView.findViewById(R.id.sender_message_text);
+//            senderMessageText.set
             receiverMessageText = (TextView) itemView.findViewById(R.id.receiver_message_text);
             receiverProfileImage = (CircleImageView) itemView.findViewById(R.id.message_profile_image);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
@@ -201,8 +202,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                             public void onClick(DialogInterface dialogInterface, int position) {
                                 if (position == 0) {
                                    deleteSentMessage(messageViewHolder.getAdapterPosition(),messageViewHolder);
-                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(), HomeActivity.class);
-                                    messageViewHolder.itemView.getContext().startActivity(intent);
+//                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(), HomeActivity.class);
+//                                    messageViewHolder.itemView.getContext().startActivity(intent);
 
                                 } else if (position == 1) {
                                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(userMessagesList.get(messageViewHolder.getAdapterPosition()).getMessage()));
@@ -228,8 +229,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                             public void onClick(DialogInterface dialogInterface, int position) {
                                 if (position == 0) {
                                     deleteSentMessage(messageViewHolder.getAdapterPosition(),messageViewHolder);
-                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(),HomeActivity.class);
-                                    messageViewHolder.itemView.getContext().startActivity(intent);
+//                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(),HomeActivity.class);
+//                                    messageViewHolder.itemView.getContext().startActivity(intent);
 
                                 }else if (position == 2) {
                                     deleteMessageForEveryOne(messageViewHolder.getAdapterPosition(),messageViewHolder);
@@ -253,8 +254,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                             public void onClick(DialogInterface dialogInterface, int position) {
                                 if (position == 0) {
                                   deleteSentMessage(messageViewHolder.getAdapterPosition(),messageViewHolder);
-                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(),HomeActivity.class);
-                                    messageViewHolder.itemView.getContext().startActivity(intent);
+//                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(),HomeActivity.class);
+//                                    messageViewHolder.itemView.getContext().startActivity(intent);
 
                                 } else if (position == 1) {
                                     Intent intent = new Intent(messageViewHolder.itemView.getContext(),ImageViewerActivity.class);
@@ -312,8 +313,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                             public void onClick(DialogInterface dialogInterface, int position) {
                                 if (position == 0) {
                                     deleteReceiverMessage(messageViewHolder.getAdapterPosition(),messageViewHolder);
-                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(),HomeActivity.class);
-                                    messageViewHolder.itemView.getContext().startActivity(intent);
+//                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(),HomeActivity.class);
+//                                    messageViewHolder.itemView.getContext().startActivity(intent);
                                 }
                             }
                         });
@@ -333,13 +334,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                             public void onClick(DialogInterface dialogInterface, int position) {
                                 if (position == 0) {
                                     deleteReceiverMessage(messageViewHolder.getAdapterPosition(),messageViewHolder);
-                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(),HomeActivity.class);
-                                    messageViewHolder.itemView.getContext().startActivity(intent);
+//                                    Intent intent = new Intent(messageViewHolder.itemView.getContext(),HomeActivity.class);
+//                                    messageViewHolder.itemView.getContext().startActivity(intent);
 
                                 } else if (position == 1) {
-                                   Intent intent = new Intent(messageViewHolder.itemView.getContext(),ImageViewerActivity.class);
-                                    intent.putExtra("url",userMessagesList.get(messageViewHolder.getAdapterPosition()).getMessage());
-                                    messageViewHolder.itemView.getContext().startActivity(intent);
+//                                   Intent intent = new Intent(messageViewHolder.itemView.getContext(),ImageViewerActivity.class);
+//                                    intent.putExtra("url",userMessagesList.get(messageViewHolder.getAdapterPosition()).getMessage());
+//                                    messageViewHolder.itemView.getContext().startActivity(intent);
                                 }
                             }
                         });
@@ -371,6 +372,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                if(task.isSuccessful())
                {
                    Toast.makeText(holder.itemView.getContext(),"Deleted Successfully.",Toast.LENGTH_SHORT).show();
+
                }
                else
                {
@@ -434,7 +436,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 }
                 else
                 {
-                    Toast.makeText(holder.itemView.getContext(),"Error Occurred.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(holder.itemView.getContext(),"Error Occurred." + task.getResult(),Toast.LENGTH_SHORT).show();
                 }
             }
         });

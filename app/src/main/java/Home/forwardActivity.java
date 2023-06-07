@@ -29,7 +29,9 @@ public class forwardActivity extends AppCompatActivity {
         chat = findViewById(R.id.button3);
 
         init();
+
     }
+
 
     private void init(){
         object.setOnClickListener(new View.OnClickListener() {

@@ -5,14 +5,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent"
+    app:backgroundTint="@null"
+    android:background="@color/white"
     tools:context="Chat.MainChatActivity2">
 
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/chatBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:backgroundTint="@null"
+        android:background="@color/white"
+        >
 
         <include layout="@layout/app_bar_layout" />
 
@@ -31,6 +35,8 @@
             android:layout_toEndOf="@+id/friendsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:backgroundTint="@null"
+            android:background="@color/white"
             android:layout_marginTop="2dp"
             app:boxCornerRadiusTopStart="16dp"
             app:boxCornerRadiusTopEnd="16dp"

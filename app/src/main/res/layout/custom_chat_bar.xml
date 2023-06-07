@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background = "@color/whatsapp_green">
+    android:background = "@color/white">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/custom_profile_image"
@@ -22,7 +22,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:text="Display UserName"
-        android:textColor="@android:color/background_light"
+        android:layout_marginStart="50dp"
+        android:textColor="@android:color/black"
         android:textStyle="bold"
         android:textSize="18sp"
         />
@@ -33,8 +34,9 @@
         android:layout_below="@+id/custom_profile_name"
         android:layout_alignParentStart="true"
         android:layout_marginTop="3dp"
+        android:layout_marginStart="50dp"
         android:text="Last Seen"
-        android:textColor="@android:color/background_light"
+        android:textColor="@android:color/black"
         android:textStyle="bold"
         android:textSize="14sp"
         />

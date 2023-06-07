@@ -23,7 +23,7 @@
             android:id="@+id/chat_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabBackground="@color/whatsapp_green"
+            app:tabBackground="@drawable/custom_chat_bar_color"
             app:tabIndicatorColor="@color/white"
             app:tabSelectedTextColor="@color/black"
             app:tabTextColor="@color/Gray"

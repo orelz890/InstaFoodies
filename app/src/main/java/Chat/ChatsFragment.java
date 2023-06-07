@@ -46,7 +46,6 @@ public class ChatsFragment extends Fragment
 {
 
     private static Context mContext;
-    private String BASE_URL = "http://10.0.2.2:8080";
     private static ServerMethods serverMethods;
 
     private View PrivateChatsView;

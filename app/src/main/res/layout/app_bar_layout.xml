@@ -11,8 +11,9 @@
         android:id="@+id/chat_page_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="ChatUp"
+        app:title=""
         app:menu="@menu/options_chat_menu"
+        android:background="@color/white"
         style="@style/CustomToolbarStyle"
         />
     <LinearLayout

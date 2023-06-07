@@ -339,36 +339,38 @@ public class MainChatActivity2 extends AppCompatActivity
         if (currentUser == null){
             SendUserToLoginActivity();
         }
-//        createContactsFeed();
-//        createChatsFeed();
-        checkShit();
+
+        changeToolbarName();
+        createContactsFeed();
+        createChatsFeed();
 
     }
 
-    private void checkShit() {
-        serverMethods.retrofitInterface.getProfileFeedPosts(currentUserId).enqueue(new Callback<RequestUserFeed>() {
+    private void changeToolbarName() {
+
+        serverMethods.retrofitInterface.getUser(currentUserId).enqueue(new Callback<User>() {
             @Override
-            public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.code() == 200) {
                     System.out.println("Find Success!!!");
 
-                    RequestUserFeed feed = response.body();
-                    if(feed != null){
-                        Log.d("MainChatActivity: ", feed.getPost(0).toString() + "\n" + feed.getAccount().getWebsite() + "\n" + feed.getUser().getFull_name());
-
+                    User user = response.body();
+                    if (user != null){
+                        Log.d("MainChatActivity2", user.toString());
+                        mToolbar.setTitle(user.getUsername());
                     }
-                    else {
-                        Log.d("MainChatActivity: ", "feed == null");
+                    else{
+                        Log.d("MainChatActivity2", "user == null");
                     }
-
-                }else {
-                    Log.d("MainChatActivity: ", "Error");
+                }
+                else {
+                    Log.d("MainChatActivity2", "Error");
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<RequestUserFeed> call, @NonNull Throwable t) {
-                Log.d("MainChatActivity: ", "Error: " + t.getMessage());
+            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+                Log.d("MainChatActivity2", "Error: " + t.getMessage());
             }
         });
     }
@@ -550,7 +552,7 @@ public class MainChatActivity2 extends AppCompatActivity
         @NonNull
         @Override
         public ChatsAdapter.ChatsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.users_display_layout, viewGroup, false);
+            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.users_chat_display_layout, viewGroup, false);
             return new ChatsAdapter.ChatsViewHolder(view);
         }
 
@@ -576,7 +578,7 @@ public class MainChatActivity2 extends AppCompatActivity
                     holder.profileImage.setImageResource(R.drawable.profile_image);
                 }
 
-                holder.userName.setText(user.getFull_name());
+                holder.userName.setText(user.getUsername());
                 String state = user.getState();
                 String date = user.getDate();
                 String time = user.getTime();
@@ -672,7 +674,7 @@ public class MainChatActivity2 extends AppCompatActivity
                     viewHolder.profileImage.setImageResource(R.drawable.profile_image);
                 }
 
-                viewHolder.textView.setText(item.getUser().getFull_name());
+                viewHolder.textView.setText(item.getUser().getUsername());
             }
 
             return convertView;

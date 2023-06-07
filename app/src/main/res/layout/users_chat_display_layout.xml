@@ -17,8 +17,8 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/users_profile_image"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:src="@drawable/profile_image" />
 
         <LinearLayout
@@ -38,7 +38,7 @@
                     android:layout_height="wrap_content"
                     android:text="user name"
                     android:textAlignment="textStart"
-                    android:textSize="18sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <ImageView
@@ -58,47 +58,8 @@
                 android:text="user status"
                 android:textAlignment="textStart"
                 android:maxLines="1"
-                android:textSize="16sp" />
+                android:textSize="13sp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="32dp"
-                android:orientation="horizontal">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/request_accept_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    app:backgroundTint="@null"
-                    android:background="@drawable/custom_green_button"
-                    android:text="Accept"
-                    android:textAllCaps="false"
-                    android:textAlignment="center"
-                    android:textSize="11sp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:visibility="invisible"
-                    />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/request_cancel_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="10dp"
-                    app:backgroundTint="@null"
-                    android:background="@drawable/custom_red_button"
-                    android:text="Cancel"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/background_light"
-                    android:textAlignment="center"
-                    android:textSize="11sp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:visibility="invisible"
-                    />
-
-
-            </LinearLayout>
 
         </LinearLayout>
 
