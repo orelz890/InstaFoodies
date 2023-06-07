@@ -69,6 +69,7 @@ import MLKIT.object.ObjectDetectionActivity;
 import MLKIT.text.SpamTextDetectionActivity;
 import MLKIT.image.ImageClassificationActivity;
 import Server.RequestUserFeed;
+import Search.SearchActivity;
 import Utils.BottomNavigationViewHelper;
 import Utils.SectionsPagerAdapter;
 import Utils.ServerMethods;

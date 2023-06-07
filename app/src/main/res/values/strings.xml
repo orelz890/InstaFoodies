@@ -26,17 +26,25 @@
 
     <!-- Intent Extras -->
     <string name="calling_activity">calling_activity</string>
+    <string name="intent_user">intent_user</string>
 
     <!-- activity names -->
     <string name="profile_activity">Profile Activity</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="new_group">New group</string>
+    <string name="gallery">GALLERY</string>
+    <string name="photo">PHOTO</string>
+    <string name="string_open_camera">OPEN CAMERA</string>
+    <string name="string_next">Next</string>
     <string name="string_add">Add</string>
     <string name="selected_uris">selected uris</string>
     <string name="selected_images">selected images</string>
+    <string name="string_share">Share</string>
     <string name="calories">calories</string>
     <string name="recipe_details">Recipe</string>
+    <string name="search_activity">Search Activity</string>
+
     <string name="view_post_fragment">view_post_fragment</string>
 
 
@@ -84,7 +92,6 @@
     <string name="selected_image">selected_image</string>
     <string name="selected_bitmap">selected_bitmap</string>
     <string name="return_to_fragment">return_to_fragment</string>
-    <string name="intent_user">intent_user</string>
 
     <!-- Bundle arg names -->
     <string name="activity_number">activity_number</string>
@@ -92,13 +99,8 @@
     <string name="bundle_user_account_settings">bundle_user_account_settings</string>
 
     <!-- activity names -->
-    <string name="search_activity">Search Activity</string>
     <string name="home_activity">Home Activity</string>
 
     <!-- strings -->
-    <string name="gallery">GALLERY</string>
-    <string name="post">PHOTO</string>
-    <string name="string_open_camera">Open Camera</string>
-    <string name="string_next">Next</string>
-    <string name="string_share">Share</string>
+    <string name="post">PHOTO</string>]
 </resources>
