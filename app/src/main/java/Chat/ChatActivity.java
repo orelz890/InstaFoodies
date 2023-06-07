@@ -113,7 +113,7 @@ public class ChatActivity extends AppCompatActivity
         UserAccountSettings userAccountSettings = receiverUserSettings.getSettings();
 
         messageReceiverID = user.getUser_id();
-        messageReceiverName = user.getFull_name();
+        messageReceiverName = user.getUsername();
         messageReceiverImage = userAccountSettings.getProfile_photo();
 
 
