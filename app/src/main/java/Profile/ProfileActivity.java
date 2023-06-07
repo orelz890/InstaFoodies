@@ -1,5 +1,6 @@
 package Profile;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
@@ -17,16 +18,40 @@ import android.widget.ProgressBar;
 
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
 import Utils.BottomNavigationViewHelper;
 import Utils.GridImageAdapter;
 import Utils.UniversalImageLoader;
+import Utils.ViewPostFragment;
+import models.Post;
+import models.User;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements ProfileFragment.OnGridImageSelectedListener {
 
     private static final String TAG = "ProfileActivity";
+
+    @Override
+    public void onGridImageSelected(Post post, int activityNumber) {
+        Log.d(TAG, "onGridImageSelected: selected an image gridview: " + post.toString());
+
+        // sets arguments to be passed to the fragment
+        ViewPostFragment fragment = new ViewPostFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(getString(R.string.post), post);
+        args.putInt(getString(R.string.activity_number), activityNumber);
+
+        fragment.setArguments(args);
+
+        FragmentTransaction transaction  = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, fragment);
+        transaction.addToBackStack(getString(R.string.view_post_fragment));
+        transaction.commit();
+
+    }
+
     private Context mContext = ProfileActivity.this;
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
@@ -35,104 +60,58 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView profilePhoto;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
-
-
-
-//        setupBottomNavigationView();
-//        setupToolbar();
-//        setupActivityWidgets();
-//        setProfileImage();
-//        tempGridSetup();
+        Log.d(TAG, "onCreate: started.");
 
         init();
+
 
     }
 
     private void init(){
-        Log.d(TAG,"init: inflating" + "Profile" );
-        ProfileFragment fragment = new ProfileFragment();
-        FragmentTransaction transaction = ProfileActivity.this.getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.container,fragment);
-        transaction.addToBackStack("Profile");
-        transaction.commit();
+//        Log.d(TAG, "init: inflating " + getString(R.string.profile_fragment));
+
+        Intent intent = getIntent();
+        if(intent.hasExtra(getString(R.string.calling_activity))){
+            Log.d(TAG, "init: searching for user object attached as intent extra");
+//            if(intent.hasExtra(getString(R.string.intent_user))){
+//                User user = intent.getParcelableExtra(getString(R.string.intent_user));
+//                if(!user.getUser_id().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+//                    Log.d(TAG, "init: inflating view profile");
+//                    ViewProfileFragment fragment = new ViewProfileFragment();
+//                    Bundle args = new Bundle();
+//                    args.putParcelable(getString(R.string.intent_user),
+//                            intent.getParcelableExtra(getString(R.string.intent_user)));
+//                    fragment.setArguments(args);
+//
+//                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//                    transaction.replace(R.id.container, fragment);
+//                    transaction.addToBackStack(getString(R.string.view_profile_fragment));
+//                    transaction.commit();
+//                }else{
+//                    Log.d(TAG, "init: inflating Profile");
+//                    ProfileFragment fragment = new ProfileFragment();
+//                    FragmentTransaction transaction = ProfileActivity.this.getSupportFragmentManager().beginTransaction();
+//                    transaction.replace(R.id.container, fragment);
+//                    transaction.addToBackStack(getString(R.string.profile_fragment));
+//                    transaction.commit();
+//                }
+//            }else{
+//                Toast.makeText(mContext, "something went wrong", Toast.LENGTH_SHORT).show();
+//            }
+
+        }else{
+            Log.d(TAG, "init: inflating Profile");
+            ProfileFragment fragment = new ProfileFragment();
+            FragmentTransaction transaction = ProfileActivity.this.getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.container, fragment);
+            transaction.addToBackStack(getString(R.string.profile_fragment));
+            transaction.commit();
+        }
+
     }
 
-//    private void tempGridSetup(){
-//        ArrayList<String> imgURLs = new ArrayList<>();
-//        imgURLs.add("https://www.androidcentral.com/sites/androidcentral.com/files/styles/xlarge/public/article_images/2016/08/ac-lloyd.jpg?itok=bb72IoLf");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/00142f61e0d46bee6f643945dd51193d.jpg");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/00000324b863b403921c72a2246d32aa.jpg");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/000003a25ffacce67a9b5c8803a7daae.jpg");
-//        imgURLs.add("https://www.androidcentral.com/sites/androidcentral.com/files/styles/xlarge/public/article_images/2016/08/ac-lloyd.jpg?itok=bb72IoLf");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/00142f61e0d46bee6f643945dd51193d.jpg");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/00000324b863b403921c72a2246d32aa.jpg");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/000003a25ffacce67a9b5c8803a7daae.jpg");
-//        imgURLs.add("https://www.androidcentral.com/sites/androidcentral.com/files/styles/xlarge/public/article_images/2016/08/ac-lloyd.jpg?itok=bb72IoLf");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/00142f61e0d46bee6f643945dd51193d.jpg");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/00000324b863b403921c72a2246d32aa.jpg");
-//        imgURLs.add("https://cdn.mos.cms.futurecdn.net/000003a25ffacce67a9b5c8803a7daae.jpg");
-//
-//        setupImageGrid(imgURLs);
-//    }
-//
-//    /**
-//     * In the future this method will get the images from firebase
-//     * @param imgURLs
-//     */
-//    private void setupImageGrid(ArrayList<String> imgURLs){
-//        GridView gridView = (GridView) findViewById(R.id.gridView);
-//
-//        // Distribute the grid width evenly
-//        int gridWidth = getResources().getDisplayMetrics().widthPixels;
-//        int imageWidth = gridWidth/NUM_GRID_COLUMNS;
-//        gridView.setColumnWidth(imageWidth);
-//
-//        GridImageAdapter adapter = new GridImageAdapter(mContext, R.layout.layout_grid_image_view,
-//                "", imgURLs);
-//        gridView.setAdapter(adapter);
-//    }
-//
-//    private void setProfileImage(){
-//        Log.d(TAG, "setProfileImage: setting profile photo.");
-//        String imageURL = "www.androidcentral.com/sites/androidcentral.com/files/styles/xlarge/public/article_images/2016/08/ac-lloyd.jpg?itok=bb72IoLf";
-//        UniversalImageLoader.setImage(imageURL, profilePhoto, mProgressBar, "https://");
-//    }
-//
-//    private void setupActivityWidgets(){
-//        mProgressBar = (ProgressBar) findViewById(R.id.profileProgressBar);
-//        mProgressBar.setVisibility(View.GONE);
-//        profilePhoto = (ImageView) findViewById(R.id.profilePhoto);
-//    }
-//    private void setupToolbar(){
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.profileToolBar);
-//        setSupportActionBar(toolbar);
-//
-//        ImageView profileMenu = (ImageView) findViewById(R.id.profileMenu);
-//        profileMenu.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.d(TAG, "onClick: navigating to account settings.");
-//                Intent intent = new Intent(mContext, AccountSettingsActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-//    }
-//
-//
-//    /**
-//     * BottomNavigationView setup
-//     */
-//    private void setupBottomNavigationView(){
-//        Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
-//        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavViewBar);
-//        BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
-//        Menu menu = bottomNavigationView.getMenu();
-//        MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
-//        menuItem.setChecked(true);
-//    }
-//
+
 }

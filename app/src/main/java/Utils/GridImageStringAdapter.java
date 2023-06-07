@@ -1,15 +1,13 @@
 package Utils;
 
+
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
-
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,21 +18,17 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-
 
 import java.util.List;
 
-public class GridImageAdapter extends ArrayAdapter<Uri> {
+public class GridImageStringAdapter extends ArrayAdapter<String> {
     private Context mContext;
     private LayoutInflater mInflater;
     private int layoutResource;
     private String mAppend;
-    private List<Uri> imgURLs;
+    private List<String> imgURLs;
 
-    public GridImageAdapter(Context context, int layoutResource, String append, List<Uri> imgURLs) {
+    public GridImageStringAdapter(Context context, int layoutResource, String append, List<String> imgURLs) {
         super(context, layoutResource, imgURLs);
         mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -99,7 +93,7 @@ public class GridImageAdapter extends ArrayAdapter<Uri> {
     }
 
     @Override
-    public Uri getItem(int position) {
+    public String getItem(int position) {
         return imgURLs.get(position);
     }
 }

@@ -66,7 +66,7 @@ public class GalleryFragment extends Fragment {
 
     private ArrayList<String> directories;
     private String mAppend = "file:/";
-    private List<Uri> selectedImages;
+    private ArrayList<Uri> selectedImages;
     private GridImageAdapter adapter;
     private ActivityResultLauncher<Intent> launcher;
 
@@ -101,7 +101,7 @@ public class GalleryFragment extends Fragment {
                 Log.d(TAG, "onClick: navigating to the final share screen.");
 
                 // Handle the selected images
-                for (Uri imageUri : selectedImages) {
+                for (Object imageUri : selectedImages) {
                     // Do something with the image URI
                     Log.d(TAG, "Selected Image URI: " + imageUri.toString());
                 }
@@ -110,7 +110,7 @@ public class GalleryFragment extends Fragment {
                 if (isRootTask()) {
                     Intent intent = new Intent(getActivity(), NextActivity.class);
                     // Pass the selected images to the next activity
-                    intent.putParcelableArrayListExtra(getString(R.string.selected_images), new ArrayList<>(selectedImages));
+                    intent.putParcelableArrayListExtra(getString(R.string.selected_images), selectedImages);
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(getActivity(), NextRecipeActivity.class);

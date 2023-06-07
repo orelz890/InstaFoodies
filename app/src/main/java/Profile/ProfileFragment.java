@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -33,14 +34,26 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
+import java.util.ArrayList;
+
 import Login.LoginActivity;
+import Server.RequestUserFeed;
 import Utils.BottomNavigationViewHelper;
 import Utils.FirebaseMethods;
+import Utils.GridImageAdapter;
+import Utils.GridImageStringAdapter;
 import Utils.ServerMethods;
 import Utils.UniversalImageLoader;
 import de.hdodenhof.circleimageview.CircleImageView;
+import models.Post;
 import models.User;
 import models.UserAccountSettings;
 import models.UserSettings;
@@ -52,12 +65,19 @@ public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
 
+
+    public interface OnGridImageSelectedListener{
+        void onGridImageSelected(Post post, int activityNumber);
+    }
+
+    private OnGridImageSelectedListener mOnGridImageSelectedListener;
     private View view; // Add this line to declare the view variable
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
 
     //firebase
     private FirebaseAuth mAuth;
+    private String uid;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseMethods mFirebaseMethods;
     private ServerMethods serverMethods;
@@ -108,6 +128,7 @@ public class ProfileFragment extends Fragment {
         setupToolbar();
 
         setupFirebaseAuth();
+        setupGridView();
 
         AppCompatButton editProfile = (AppCompatButton) view.findViewById(R.id.textEditProfile);
         editProfile.setOnClickListener(new View.OnClickListener() {
@@ -123,6 +144,79 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+
+    @Override
+    public void onAttach(Context context) {
+        try{
+            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
+        }catch (ClassCastException e){
+            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage() );
+        }
+        super.onAttach(context);
+    }
+
+    private void setupGridView(){
+        Log.d(TAG, "setupGridView: Setting up image grid.");
+
+        System.out.println("\nsetupGridView: Setting up image grid.\n");
+
+        uid = mAuth.getCurrentUser().getUid();
+
+        if (uid != null) {
+            serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
+                @Override
+                public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
+                    if (response.isSuccessful()){
+                        Log.d(TAG, "setupGridView: success");
+                        System.out.println("setupGridView: success");
+
+                        RequestUserFeed userFeed = response.body();
+                        if (userFeed != null){
+                            System.out.println("userFeed: userFeed.size() =  " + userFeed.size());
+                            //setup our image grid
+                            int gridWidth = getResources().getDisplayMetrics().widthPixels;
+                            int imageWidth = gridWidth/NUM_GRID_COLUMNS;
+                            gridView.setColumnWidth(imageWidth);
+
+                            ArrayList<String> imgUrls = new ArrayList<String>();
+                            for(int i = 0; i < userFeed.size(); i++){
+                                imgUrls.add(userFeed.getPost(i).getImage_paths().get(0));
+                                System.out.println("Image (" + i + ") = " + userFeed.getPost(i).getImage_paths().get(0));
+                            }
+
+                            GridImageStringAdapter adapter = new GridImageStringAdapter(getActivity(),R.layout.layout_grid_image_view,
+                                    "", imgUrls);
+                            gridView.setAdapter(adapter);
+                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    mOnGridImageSelectedListener.onGridImageSelected(userFeed.getPost(position), ACTIVITY_NUM);
+                                }
+                            });
+
+                        }
+                        else {
+                            Log.d(TAG, "setupGridView: userFeed == null");
+                            System.out.println("setupGridView: userFeed == null");
+                        }
+
+                    }
+                    else {
+                        Log.d(TAG, "setupGridView: Error: " + response.message());
+                        System.out.println("setupGridView: Error: " + response.message());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<RequestUserFeed> call, @NonNull Throwable t) {
+                    Log.d(TAG, "setupGridView: Error: " + t.getMessage());
+                    System.out.println("setupGridView: Error: " + t.getMessage());
+                }
+            });
+        }
+
+
+    }
 
     private void setProfileWidgets(User user, UserAccountSettings userAccountSettings) {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
@@ -225,7 +319,9 @@ public class ProfileFragment extends Fragment {
 
                 if (user != null) {
                     // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    uid = user.getUid();
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + uid);
+
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -317,13 +413,13 @@ public class ProfileFragment extends Fragment {
     }
 
 
-        @Override
+    @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
         retrieveData();
 
-        }
+    }
 
     @Override
     public void onStop() {
