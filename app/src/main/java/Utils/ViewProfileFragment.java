@@ -1,4 +1,4 @@
-package Profile;
+package Utils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
@@ -31,27 +30,16 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
 
-import Login.LoginActivity;
+import Profile.AccountSettingsActivity;
+import Profile.ProfileActivity;
+import Profile.ProfileFragment;
 import Server.RequestUserFeed;
-import Utils.BottomNavigationViewHelper;
-import Utils.FirebaseMethods;
-import Utils.GridImageAdapter;
-import Utils.GridImageStringAdapter;
-import Utils.ServerMethods;
-import Utils.UniversalImageLoader;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.User;
@@ -61,25 +49,19 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProfileFragment extends Fragment {
+public class ViewProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
-//
-//    public interface OnGridImageSelectedListener{
-//        void onGridImageSelected(Photo photo, int activityNumber);
-//    }
-//    OnGridImageSelectedListener mOnGridImageSelectedListener;
-
-
 
     public interface OnGridImageSelectedListener{
         void onGridImageSelected(Post post, int activityNumber);
     }
 
-    private OnGridImageSelectedListener mOnGridImageSelectedListener;
+    private ProfileFragment.OnGridImageSelectedListener mOnGridImageSelectedListener;
     private View view; // Add this line to declare the view variable
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
+
 
     //firebase
     private FirebaseAuth mAuth;
@@ -87,7 +69,6 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseMethods mFirebaseMethods;
     private ServerMethods serverMethods;
-
 
     //widgets
     private TextView mPosts, mFollowers, mFollowing, mDisplayName, mUsername, mWebsite, mDescription;
@@ -104,12 +85,13 @@ public class ProfileFragment extends Fragment {
     private int mFollowersCount = 0;
     private int mFollowingCount = 0;
     private int mPostsCount = 0;
+    private UserSettings mUserSettings;
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_profile, container, false);
+        view = inflater.inflate(R.layout.fragment_view_profile, container, false);
         mDisplayName = (TextView) view.findViewById(R.id.tv_display_name);
         mUsername = (TextView) view.findViewById(R.id.profileName);
         mWebsite = (TextView) view.findViewById(R.id.tv_website);
@@ -129,41 +111,27 @@ public class ProfileFragment extends Fragment {
         serverMethods = new ServerMethods(mContext);
         Log.d(TAG, "onCreateView: stared.");
 
+        try {
+            mUserSettings=getUserSettingFromBundle();
+        }catch (NullPointerException e){
+            Log.d(TAG, "onCreateView: NullPointerException: "+ e.getMessage());
+            Toast.makeText(mContext, "something went wrong", Toast.LENGTH_SHORT).show();
+            getActivity().getSupportFragmentManager().popBackStack();
+        }
 
         setupBottomNavigationView();
         setupToolbar();
-
         setupFirebaseAuth();
         setupGridView();
 
-        AppCompatButton editProfile = (AppCompatButton) view.findViewById(R.id.textEditProfile);
-        editProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
-                Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
-                intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
-                startActivity(intent);
-            }
-        });
 
         return view;
     }
 
-//    @Override
-//    public void onAttach(Context context) {
-//        try{
-//            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
-//        }catch (ClassCastException e){
-//            Log.e(TAG, "onAttach: ClassCastException: "+e.getMessage());
-//        }
-//        super.onAttach(context);
-//    }
- 
     @Override
     public void onAttach(Context context) {
         try{
-            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
+            mOnGridImageSelectedListener = (ProfileFragment.OnGridImageSelectedListener) getActivity();
         }catch (ClassCastException e){
             Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage() );
         }
@@ -175,7 +143,7 @@ public class ProfileFragment extends Fragment {
 
         System.out.println("\nsetupGridView: Setting up image grid.\n");
 
-        uid = mAuth.getCurrentUser().getUid();
+        uid = mUserSettings.getUser().getUser_id();
 
         if (uid != null) {
             serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
@@ -233,6 +201,28 @@ public class ProfileFragment extends Fragment {
 
     }
 
+    private  void init(){
+        //set the profile widgets
+        User user = mUserSettings.getUser();
+        UserAccountSettings userAccountSettings = mUserSettings.getSettings();
+        setProfileWidgets(user, userAccountSettings);
+
+    }
+
+
+    private UserSettings getUserSettingFromBundle(){
+        Log.d(TAG,"getUserSettingFromBundle: arguments"+getArguments());
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null){
+            return bundle.getParcelable(getString(R.string.intent_user));
+        }
+        else{
+            return null;
+        }
+
+    }
+
     private void setProfileWidgets(User user, UserAccountSettings userAccountSettings) {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
@@ -260,7 +250,6 @@ public class ProfileFragment extends Fragment {
                 .into(mProfilePhoto);
 
 
-//        UniversalImageLoader.setImage(userAccountSettings.getProfile_photo(), mProfilePhoto, null, "");
 
         mDisplayName.setText(user.getFull_name());
         mUsername.setText(user.getUsername());
@@ -290,17 +279,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-//    /**
-//     * BottomNavigationView setup
-//     */
-//    private void setupBottomNavigationView() {
-//        Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
-//        BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-//        BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
-//        Menu menu = bottomNavigationView.getMenu();
-//        MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
-//        menuItem.setChecked(true);
-//    }
+
 
     /**
      * BottomNavigationView setup
@@ -334,9 +313,7 @@ public class ProfileFragment extends Fragment {
 
                 if (user != null) {
                     // User is signed in
-                    uid = user.getUid();
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + uid);
-
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -345,96 +322,18 @@ public class ProfileFragment extends Fragment {
             }
         };
 
-        retrieveData();
-//        Call<User> call = serverMethods.retrofitInterface.getUser(mAuth.getCurrentUser().getUid());
-//        Call<UserAccountSettings> call2 = serverMethods.retrofitInterface.getUserAccountSettings(mAuth.getCurrentUser().getUid());
-//
-//        call.enqueue(new Callback<User>() {
-//            @Override
-//            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
-//
-//                User result1 = response.body();
-//                if (response.code() == 200) {
-//                    assert result1 != null;
-//                    call2.enqueue(new Callback<UserAccountSettings>() {
-//                        @Override
-//                        public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
-//                            UserAccountSettings result2 = response.body();
-//                            if (response.code() == 200) {
-//                                assert result2 != null;
-//                                setProfileWidgets(result1, result2);
-//                            } else if (response.code() == 400) {
-//                                Toast.makeText(mContext,
-//                                        "Don't exist", Toast.LENGTH_LONG).show();
-//                            } else {
-//                                Toast.makeText(mContext, response.message(),
-//                                        Toast.LENGTH_LONG).show();
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
-//                            Toast.makeText(mContext, t.getMessage(),
-//                                    Toast.LENGTH_LONG).show();
-//                        }
-//                    });
-//                } else if (response.code() == 400) {
-//                    Toast.makeText(mContext,
-//                            "Don't exist", Toast.LENGTH_LONG).show();
-//                } else {
-//                    Toast.makeText(mContext, response.message(),
-//                            Toast.LENGTH_LONG).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-//                Toast.makeText(mContext, t.getMessage(),
-//                        Toast.LENGTH_LONG).show();
-//            }
-//        });
-
     }
 
 
-    private void retrieveData() {
-        Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(mAuth.getCurrentUser().getUid());
-        call.enqueue(new Callback<UserSettings>() {
-            @Override
-            public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
-
-                UserSettings userSettings = response.body();
-                if (response.code() == 200) {
-                    assert userSettings != null;
-                    if(userSettings.getSettings() != null) {
-                        setProfileWidgets(userSettings.getUser(), userSettings.getSettings());
-                    }
-                } else if (response.code() == 400) {
-                    Toast.makeText(mContext,
-                            "Don't exist", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(mContext, response.message(),
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<UserSettings> call, @NonNull Throwable t) {
-                Toast.makeText(mContext, t.getMessage(),
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-
-    }
-
-
-    @Override
+        @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-        retrieveData();
+//        maybe need to change retrive for getting user from bundle
+//        retrieveData();
+            setProfileWidgets(mUserSettings.getUser(), mUserSettings.getSettings());
 
-    }
+        }
 
     @Override
     public void onStop() {

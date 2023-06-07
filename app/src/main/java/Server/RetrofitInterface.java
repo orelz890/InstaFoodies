@@ -46,7 +46,7 @@ public interface RetrofitInterface {
     @GET("/getUserAccountSettings/{uid}") // Working!
     Call<UserAccountSettings> getUserAccountSettings (@Path("uid") String uid);
 
-
+//for both user and user setting
     @GET("/getUserSettings/{uid}") // Working!
     Call<UserSettings> getUserSettings (@Path("uid") String uid);
 

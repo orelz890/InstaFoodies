@@ -157,4 +157,8 @@
     <color name="colorBlack">#000000</color>
     <color name="colorGray">#4C4848</color>
     <color name="darkGray">#252525</color>
+    <color name="link_blue">#4d94ff</color>
+    <color name="darkRed">#cc0000</color>
+
+
 </resources>
