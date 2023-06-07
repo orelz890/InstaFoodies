@@ -290,19 +290,18 @@ public class EditProfileFragment extends Fragment {
     private void saveProfileSettings() {
         HashMap<String, Object> updatedUser = new HashMap<>();
         HashMap<String, Object> updatedUserAccountSettings = new HashMap<>();
-        long phoneNumber = -1;
 
         final String website = mWebsite.getText().toString();
         final String description = mDescription.getText().toString();
-        if (!(mPhoneNumber.getText().toString().equals("none"))) {
-            phoneNumber = Long.parseLong(mPhoneNumber.getText().toString());
-        }
         final String full_name = mDisplayName.getText().toString();
+        final String phoneNumber = mPhoneNumber.getText().toString();
 
-        if (Long.parseLong(mUserSettings.getUser().getPhone_number()) != phoneNumber) {
-            updatedUser.put("phone_number", phoneNumber);
+        if (!(mUserSettings.getUser().getPhone_number().equals(phoneNumber))) {
+            //update phone_number
+            updatedUser.put("phone_number", mPhoneNumber.getText().toString());
         }
         if (!mUserSettings.getUser().getFull_name().equals(full_name)) {
+            //update full_name
             updatedUser.put("full_name", full_name);
         }
 
