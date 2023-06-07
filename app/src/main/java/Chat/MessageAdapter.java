@@ -66,7 +66,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             super(itemView);
             view = itemView;
             senderMessageText = (TextView) itemView.findViewById(R.id.sender_message_text);
-//            senderMessageText.set
+
             receiverMessageText = (TextView) itemView.findViewById(R.id.receiver_message_text);
             receiverProfileImage = (CircleImageView) itemView.findViewById(R.id.message_profile_image);
             messageReceiverPicture = itemView.findViewById(R.id.message_receiver_image_view);
@@ -138,15 +138,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     messageViewHolder.senderMessageText.setVisibility(View.VISIBLE);
 
                     messageViewHolder.senderMessageText.setBackgroundResource(R.drawable.sender_messages_layout);
-                    messageViewHolder.senderMessageText.setTextColor(Color.BLACK);
-                    messageViewHolder.senderMessageText.setText(messages.getMessage() + "\n \n" + messages.getTime() + " - " + messages.getDate());
+                    messageViewHolder.senderMessageText.setTextColor(Color.WHITE);
+                    messageViewHolder.senderMessageText.setText(messages.getMessage() + "\n \n" + messages.getTime());
                 } else {
                     messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
                     messageViewHolder.receiverMessageText.setVisibility(View.VISIBLE);
 
                     messageViewHolder.receiverMessageText.setBackgroundResource(R.drawable.receiver_messages_layout);
                     messageViewHolder.receiverMessageText.setTextColor(Color.BLACK);
-                    messageViewHolder.receiverMessageText.setText(messages.getMessage() + "\n \n" + messages.getTime() + " - " + messages.getDate());
+                    messageViewHolder.receiverMessageText.setText(messages.getMessage() + "\n \n" + messages.getTime());
                 }
                 break;
             case "image":

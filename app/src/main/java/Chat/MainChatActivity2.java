@@ -442,7 +442,7 @@ public class MainChatActivity2 extends AppCompatActivity
 
         SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
         saveCurrentTime = currentTime.format(calendar.getTime());
-        updates.put("time", saveCurrentDate);
+        updates.put("time", saveCurrentTime);
 
         userRef.update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
@@ -489,7 +489,7 @@ public class MainChatActivity2 extends AppCompatActivity
             User user = data.getUser(position);
             UserAccountSettings userAccountSettings = data.getAccount(position);
 
-            holder.userName.setText(user.getUsername());
+//            holder.userName.setText(user.getUsername());
             // Load the profile image using a library like Picasso or Glide
             String profile_photo = userAccountSettings.getProfile_photo();
             if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {

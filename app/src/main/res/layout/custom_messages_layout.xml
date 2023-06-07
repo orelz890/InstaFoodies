@@ -24,12 +24,12 @@
         android:layout_marginTop = "10dp"
         android:layout_marginLeft = "5dp"
         android:layout_toEndOf = "@+id/message_profile_image"
-        android:background = "@drawable/receiver_messages_layout"
+        app:backgroundTint="@null"
+        android:background="@color/colorAccent"
         android:text = "receiver messages here"
         android:padding = "10dp"
         android:textSize = "14sp"
-        android:textStyle = "bold"
-        android:textColor = "@android:color/black"
+        android:textColor = "@color/black"
         />
 
     <ImageView
@@ -54,19 +54,36 @@
         />
 
     <TextView
-        android:id = "@+id/sender_message_text"
-        android:layout_width = "wrap_content"
-        android:layout_height = "wrap_content"
-        android:layout_alignParentEnd = "true"
-        android:layout_marginTop = "10dp"
+        android:id="@+id/sender_message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
         android:layout_alignParentTop="@+id/receiver_message_text"
         app:backgroundTint="@null"
-        android:backgroundTint="@color/purple_200"
+        android:background="@color/colorAccent"
         android:text="sender messages"
         android:textSize="14sp"
         android:padding="10dp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        />
+        android:textColor="@color/white" />
+
+
+<!--    <TextView-->
+<!--        android:id = "@+id/sender_message_text"-->
+<!--        android:layout_width = "wrap_content"-->
+<!--        android:layout_height = "wrap_content"-->
+<!--        android:layout_alignParentEnd = "true"-->
+<!--        android:layout_marginTop = "10dp"-->
+<!--        android:layout_marginRight="10dp"-->
+<!--        android:layout_alignParentTop="@+id/receiver_message_text"-->
+<!--        app:backgroundTint="@null"-->
+<!--        android:backgroundTint="@color/MediumPurple"-->
+<!--        android:background="@drawable/custom_chat_bar_color"-->
+<!--        android:text="sender messages"-->
+<!--        android:textSize="14sp"-->
+<!--        android:padding="10dp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textColor="@color/white"-->
+<!--        />-->
 </RelativeLayout>

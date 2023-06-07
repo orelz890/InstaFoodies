@@ -15,30 +15,51 @@
         android:cropToPadding="true"
         android:layout_marginRight="10dp" />
 
-    <TextView
-        android:id="@+id/custom_profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <ImageView
+        android:id="@+id/iv_arrow_back"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Display UserName"
-        android:layout_marginStart="50dp"
-        android:textColor="@android:color/black"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        />
-    <TextView
-        android:id="@+id/custom_user_last_seen"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="0dp"
+        android:src="@drawable/arrow_back"
+        android:background="@null"/>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/custom_profile_name"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="3dp"
-        android:layout_marginStart="50dp"
-        android:text="Last Seen"
-        android:textColor="@android:color/black"
-        android:textStyle="bold"
-        android:textSize="14sp"
-        />
+        android:layout_marginStart="15dp"
+        android:layout_toEndOf="@+id/iv_arrow_back"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/custom_profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:text="name"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            />
+
+        <TextView
+            android:id="@+id/custom_user_last_seen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/custom_profile_name"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="3dp"
+            android:text="Last Seen"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            />
+
+    </LinearLayout>
+
 
 </RelativeLayout>

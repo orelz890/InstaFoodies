@@ -2,17 +2,30 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Default state -->
+
     <item>
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#603EAF"
-                android:centerColor="#8162AC"
-                android:endColor="#972997"
+                android:startColor="#57487A"
+                android:centerColor="#9672C8"
+                android:endColor="#C565C5"
                 android:type="linear"
                 android:angle="90"/>
             <corners android:radius="0dp"/>
         </shape>
     </item>
+
+<!--    <item>-->
+<!--        <shape android:shape="rectangle">-->
+<!--            <gradient-->
+<!--                android:startColor="#57487A"-->
+<!--                android:centerColor="#9672C8"-->
+<!--                android:endColor="#C565C5"-->
+<!--                android:type="linear"-->
+<!--                android:angle="90"/>-->
+<!--            <corners android:radius="0dp"/>-->
+<!--        </shape>-->
+<!--    </item>-->
 
 <!--    <item>-->
 <!--        <shape android:shape="rectangle">-->
