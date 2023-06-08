@@ -1,7 +1,9 @@
 package Profile;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -91,6 +94,7 @@ public class ProfileFragment extends Fragment {
 
     //widgets
     private TextView mPosts, mFollowers, mFollowing, mDisplayName, mUsername, mWebsite, mDescription;
+    private Dialog mImageDialog;
     private ProgressBar mProgressBar;
     private CircleImageView mProfilePhoto;
     private GridView gridView;
@@ -135,6 +139,15 @@ public class ProfileFragment extends Fragment {
 
         setupFirebaseAuth();
         setupGridView();
+
+        mProfilePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showImagePopup();
+            }
+        });
+
+
 
         AppCompatButton editProfile = (AppCompatButton) view.findViewById(R.id.textEditProfile);
         editProfile.setOnClickListener(new View.OnClickListener() {
@@ -425,6 +438,19 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+    }
+
+    private void showImagePopup() {
+        mImageDialog = new Dialog(mContext);
+        mImageDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mImageDialog.setContentView(R.layout.dialog_image_zoom);
+        mImageDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        mImageDialog.setCanceledOnTouchOutside(true);
+
+        ImageView imageView = mImageDialog.findViewById(R.id.zoomImageView);
+        imageView.setImageDrawable(mProfilePhoto.getDrawable());
+
+        mImageDialog.show();
     }
 
 

@@ -1,35 +1,71 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
+    <!-- Top section: Toolbar -->
     <RelativeLayout
+        android:id="@+id/relLayout1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/relLayout1">
+        android:layout_height="wrap_content">
 
-        <!-- toolbar -->
-        <include layout="@layout/snippet_top_nexttoolbar"/>
+        <!-- Toolbar -->
+        <include layout="@layout/snippet_top_nexttoolbar" />
 
     </RelativeLayout>
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
+    <!-- Middle section: ViewPager with counter -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/relLayout1"
-        android:layout_above="@+id/caption"
-        android:scaleType="centerCrop"
-        />
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <EditText
-        android:id="@+id/caption"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:hint="Write a description..."
-        android:padding="100dp"
-        android:gravity="start"
-        android:background="@null" />
+        <!-- ViewPager -->
 
-</RelativeLayout>
+        <!-- Counter background circle -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="9dp"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/circle_background" />
+
+        <!-- Counter text -->
+        <TextView
+            android:id="@+id/imageCounterTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_alignParentEnd="true"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+        <!-- Bottom section: Description EditText -->
+        <EditText
+            android:id="@+id/caption"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignBottom="@id/viewPager"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/circle_background"
+            android:hint="Write a description..."
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

@@ -78,13 +78,15 @@ import retrofit2.Response;
 
 public class NextRecipeActivity extends AppCompatActivity {
 
+
+
     private List<Uri> imageUris;
     FirebaseAuth mAuth;
     private ProgressDialog loadingBar;
-    private StorageTask uploadTask;
 
     private ImageAdapter adapter;
     private ViewPager2 viewPagerImages;
+    private TextView imageCounterTextView;
     private ServerMethods serverMethods;
 
 
@@ -141,10 +143,23 @@ public class NextRecipeActivity extends AppCompatActivity {
         imageUris = new ArrayList<>();
         imageUris = getIntent().getParcelableArrayListExtra(getString(R.string.selected_images));
 
+        // Initialize the image counter
+        imageCounterTextView = findViewById(R.id.imageCounterNextRecipe);
+        updateImageCounter(0); // Set the initial counter to 0
+
         // Set up the ViewPager
         viewPagerImages = findViewById(R.id.viewPager_next_recipe);
         adapter = new ImageAdapter(imageUris);
         viewPagerImages.setAdapter(adapter);
+
+        // Add a page change listener to update the image counter when the current page changes
+        viewPagerImages.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                updateImageCounter(position);
+            }
+        });
 
         etIngredients = findViewById(R.id.etIngredients);
         addIngredients = findViewById(R.id.ib_add_ingredient);
@@ -163,6 +178,12 @@ public class NextRecipeActivity extends AppCompatActivity {
         });
     }
 
+    private void updateImageCounter(int position) {
+        int totalImages = imageUris.size();
+        int currentImageIndex = position + 1;
+        String counterText = currentImageIndex + "/" + totalImages;
+        imageCounterTextView.setText(counterText);
+    }
 
     public static String ingredients(ArrayList<String> ingredients) {
         String ingredient = "";
@@ -313,14 +334,14 @@ public class NextRecipeActivity extends AppCompatActivity {
             }
 
             uploadImageToStorageAndUploadPost(imageUris,r);
-//            ServerTry(imageUris,r);
+            //            ServerTry(imageUris,r);
 
         }
     }
 
     private void uploadImageToStorageAndUploadPost(List<Uri> imageUris,Recipe r) {
-        loadingBar.setTitle("Sending File");
-        loadingBar.setMessage("Please wait, we are sending....");
+        loadingBar.setTitle("Upload Post");
+        loadingBar.setMessage("Uploading....");
         loadingBar.setCanceledOnTouchOutside(false);
         loadingBar.show();
         String uuid_post = createHash();
@@ -643,6 +664,7 @@ public class NextRecipeActivity extends AppCompatActivity {
         listView.setAdapter(adapterIngredients);
         adapterIngredients.notifyDataSetChanged();
     }
+
 
 }
 
