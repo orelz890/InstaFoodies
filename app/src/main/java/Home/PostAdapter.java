@@ -88,7 +88,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
                 // Set the post pictures
                 List<String> image_paths = post.getImage_paths();
-                if (!image_paths.isEmpty()) {
+                if (image_paths != null && !image_paths.isEmpty()) {
                     holder.adapter = new StringImageAdapter(image_paths);
                     holder.post_images.setAdapter(holder.adapter);
                 }

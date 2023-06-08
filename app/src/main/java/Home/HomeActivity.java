@@ -1,7 +1,9 @@
 package Home;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -10,7 +12,12 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -19,13 +26,17 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.instafoodies.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -33,6 +44,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -44,6 +56,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -68,12 +82,14 @@ import MLKIT.image.ImageClassificationActivity;
 import MLKIT.object.ObjectDetectionActivity;
 import MLKIT.text.SpamTextDetectionActivity;
 import MLKIT.image.ImageClassificationActivity;
+import Profile.ProfileActivity;
 import Server.RequestUserFeed;
 import Search.SearchActivity;
 import Utils.BottomNavigationViewHelper;
 import Utils.SectionsPagerAdapter;
 import Utils.ServerMethods;
 import Utils.UniversalImageLoader;
+import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.UserAccountSettings;
 import retrofit2.Call;
@@ -90,6 +106,7 @@ public class HomeActivity extends AppCompatActivity {
     // Server
     private static ServerMethods serverMethods;
 
+    private BottomNavigationView bottomNavigationView;
     //firebase
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -103,7 +120,9 @@ public class HomeActivity extends AppCompatActivity {
     // Post Displaying
     private PostAdapter postAdapter;
     private RecyclerView postList;
+    private FirebaseFirestore db;
 
+    private UserAccountSettings userAccountSettings;
 
 
     @Override
@@ -112,11 +131,15 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: starting.");
 
+        mAuth = FirebaseAuth.getInstance();
         serverMethods = new ServerMethods(this);
         postList = (RecyclerView) findViewById(R.id.rvPostList);
         postList.setLayoutManager(new LinearLayoutManager(this));
+        db = FirebaseFirestore.getInstance();
 
 
+
+//        setupToolbar();
         setupFirebaseAuth();
         setupImageViews();
 
@@ -124,12 +147,92 @@ public class HomeActivity extends AppCompatActivity {
 
         setupBottomNavigationView();
 
+
         // Most be after setupMainFeed()
-        setProfileIconInNevigation();
+//        setProfileIconInNevigation();
 
         setSwipeRefresh();
 
     }
+
+//    private void setupToolbar() {
+//        db.collection("users_account_settings")
+//                .document(mAuth.getCurrentUser().getUid())
+//                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        if (task.isSuccessful()){
+//                            DocumentSnapshot document1 = task.getResult();
+//                            if (document1 != null && document1.exists()) {
+//                                UserAccountSettings userAccountSettings1 = document1.toObject(UserAccountSettings.class);
+//                                assert userAccountSettings1 != null;
+//                                userAccountSettings = new UserAccountSettings(userAccountSettings1);
+//                                setupBottomNavigationView();
+//
+//                                MaterialToolbar MToolbar = findViewById(R.id.chat_page_toolbar);
+//                                setSupportActionBar(MToolbar);
+//
+//                                bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavViewBar);
+//                                BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
+//                                Menu menu = bottomNavigationView.getMenu();
+//                                onCreateOptionsMenu(menu);
+//                            }
+//                            else {
+//                                setupBottomNavigationView();
+//                            }
+//                        }
+//                        else{
+//                            setupBottomNavigationView();
+//                        }
+//                    }
+//                });
+//    }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//
+//        System.out.println("onCreateOptionsMenu - im in");
+//
+////        getMenuInflater().inflate(R.menu.bottom_navigation_menu, menu);
+//
+//        MenuItem menuItem = menu.findItem(R.id.ic_android);
+//        View view = MenuItemCompat.getActionView(menuItem);
+//
+//        CircleImageView profileImage = view.findViewById(R.id.profile_custom_icon);
+//
+//        if (this.requestUserFeed != null) {
+//            UserAccountSettings account = this.requestUserFeed.getAccount();
+//            if (account != null) {
+//                String profile_photo = account.getProfile_photo();
+//                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+//                    System.out.println("onCreateOptionsMenu - success");
+//                    Glide.with(this)
+//                            .load(profile_photo)  // Provide the resource ID or URL of the new icon
+//                            .into(profileImage);
+//                }
+//                else{
+//                    System.out.println("onCreateOptionsMenu - profile_photo.isEmpty() || !profile_photo.equals(none)");
+//                }
+//            }
+//            else{
+//                System.out.println("onCreateOptionsMenu - this.requestUserFeed == null");
+//
+//            }
+//        }
+//        else{
+//            System.out.println("onCreateOptionsMenu - this.requestUserFeed == null");
+//        }
+//
+//        profileImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                System.out.println("im the king");
+//                Intent intent = new Intent(mContext, ProfileActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
     private void setSwipeRefresh() {
         swipeRefreshLayout = findViewById(R.id.HomeRefreshLayout);
@@ -157,7 +260,9 @@ public class HomeActivity extends AppCompatActivity {
                 if (response.isSuccessful()){
                     System.out.println(TAG + " - setupMainFeed - response.isSuccessful()");
                     requestUserFeed = response.body();
-                    setProfileIconInNevigation();
+//                    setProfileIconInNevigation();
+
+
                     if (requestUserFeed != null){
                         System.out.println(TAG + " - setupMainFeed - requestUserFeed != null");
                         shufflePosts();
@@ -198,11 +303,50 @@ public class HomeActivity extends AppCompatActivity {
      */
     private void setupBottomNavigationView(){
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavViewBar);
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavViewBar);
         BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();
-        MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
-        menuItem.setChecked(true);
+
+////        getMenuInflater().inflate(R.menu.bottom_navigation_menu, menu);
+//
+//        MenuItem menuItem = menu.findItem(R.id.ic_android);
+//        View view = MenuItemCompat.getActionView(menuItem);
+//
+//        CircleImageView profileImage = view.findViewById(R.id.profile_custom_icon);
+//
+//        if (this.requestUserFeed != null) {
+//            UserAccountSettings account = this.requestUserFeed.getAccount();
+//            if (account != null) {
+//                String profile_photo = account.getProfile_photo();
+//                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+//                    System.out.println("onCreateOptionsMenu - success");
+//                    Glide.with(this)
+//                            .load(profile_photo)  // Provide the resource ID or URL of the new icon
+//                            .into(profileImage);
+//                }
+//                else{
+//                    System.out.println("onCreateOptionsMenu - profile_photo.isEmpty() || !profile_photo.equals(none)");
+//                }
+//            }
+//            else{
+//                System.out.println("onCreateOptionsMenu - this.requestUserFeed == null");
+//
+//            }
+//        }
+//        else{
+//            System.out.println("onCreateOptionsMenu - this.requestUserFeed == null");
+//        }
+//
+//        profileImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                System.out.println("im the king");
+//                Intent intent = new Intent(mContext, ProfileActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+        MenuItem menuItem2 = menu.getItem(ACTIVITY_NUM);
+        menuItem2.setChecked(true);
     }
 
 
@@ -296,22 +440,19 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setProfileIconInNevigation() {
+        if (this.requestUserFeed != null) {
+            UserAccountSettings account = this.requestUserFeed.getAccount();
+            if (account != null) {
+                String profile_photo = account.getProfile_photo();
+                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+                    Menu menu = bottomNavigationView.getMenu();
+                    MenuItem menuItem = menu.findItem(R.id.ic_android);
 
-//        if (this.requestUserFeed != null){
-//            UserAccountSettings account = this.requestUserFeed.getAccount();
-//            if (account != null){
-//                String profile_photo = account.getProfile_photo();
-//                if (!profile_photo.isEmpty() && !profile_photo.equals("none")){
-//                    MenuItem menuItem = findViewById(R.id.ic_android);
-//                    ImageView imageView = new ImageView(this);
-//                    Glide.with(this)
-//                            .load(profile_photo)
-//                            .into(imageView);
-//                    menuItem.setIcon(new BitmapDrawable(getResources(), imageView.getDrawingCache()));
-//                }
-//            }
-//        }
+                }
+            }
+        }
     }
+
 
     @Override
     public void onStop() {

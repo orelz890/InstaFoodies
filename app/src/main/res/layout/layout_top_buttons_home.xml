@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:src="@drawable/instafoodies_text"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"/>
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"/>
 
     <ImageView
         android:id="@+id/iv_messenger"
