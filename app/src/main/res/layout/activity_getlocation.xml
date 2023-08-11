@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    tools:context="Location.Getlocation">
+
+    <TextView
+        android:id="@+id/heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="your location"
+        android:textColor="#000"
+        android:textSize="29sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address"
+        android:layout_below="@id/heading"
+        android:layout_marginTop="15dp"
+        android:id="@+id/address"
+        android:textSize="18sp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="City"
+        android:layout_below="@id/address"
+        android:layout_marginTop="15dp"
+        android:id="@+id/city"
+        android:textSize="18sp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Country"
+        android:layout_below="@id/city"
+        android:layout_marginTop="15dp"
+        android:id="@+id/Country"
+        android:textSize="18sp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lattitude"
+        android:layout_below="@id/Country"
+        android:layout_marginTop="15dp"
+        android:id="@+id/Lattitude"
+        android:textSize="18sp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Longitude"
+        android:layout_below="@id/Lattitude"
+        android:layout_marginTop="15dp"
+        android:id="@+id/Longitude"
+        android:textSize="18dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Longitude"
+        android:text="Find Location"
+        android:textSize="28sp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/loc_btn"/>
+
+
+
+</RelativeLayout>
