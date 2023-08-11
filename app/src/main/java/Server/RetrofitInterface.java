@@ -61,8 +61,21 @@ public interface RetrofitInterface {
 
 
     // ================================ share ==============================
-    @PATCH("/uploadNewPost/{uid}") //need to Implement
+    @PATCH("/uploadNewPost/{uid}")
     Call<Void> uploadNewPost (@Path("uid") String uid, @Body HashMap<String, Object> map);
+
+
+
+
+
+    @PATCH("/addOrRemovePostLiked/{uid}/{postOwnerId}/{postId}") // need to finish
+    Call<Boolean> addOrRemovePostLiked (@Path("uid") String uid, @Path("postOwnerId") String postOwnerId, @Path("postId") String postId);
+
+
+
+
+
+
 
     @GET("/getUserFeedPosts/{uid}")
     Call<RequestUserFeed> getUserFeedPosts (@Path("uid") String uid);
@@ -71,12 +84,12 @@ public interface RetrofitInterface {
     Call<RequestUserFeed> getProfileFeedPosts (@Path("uid") String uid);
 
 
-    @PATCH("/uploadProfilePhoto/{uid}/{image_uri}") //need to Implement
+    @PATCH("/uploadProfilePhoto/{uid}/{image_uri}")
     Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_uri") Uri image_uri);
     @PATCH("/uploadProfilePhoto/{uid}/{image_string}") //need to Implement
     Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_string") String image_string);
 
-    @GET("/getIngredients/") //need to Implement
+    @GET("/getIngredients/")
     Call<String[]> getIngredients();
 
     @DELETE("/deleteObjectFromRef/{ref}/{email}")

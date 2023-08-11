@@ -262,11 +262,10 @@ public class HomeActivity extends AppCompatActivity {
                     requestUserFeed = response.body();
 //                    setProfileIconInNevigation();
 
-
                     if (requestUserFeed != null){
                         System.out.println(TAG + " - setupMainFeed - requestUserFeed != null");
                         shufflePosts();
-                        postAdapter = new PostAdapter(requestUserFeed);
+                        postAdapter = new PostAdapter(requestUserFeed, mContext);
                         postList.setAdapter(postAdapter);
                     }
                     else {

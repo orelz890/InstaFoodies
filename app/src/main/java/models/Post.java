@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,10 @@ public class Post implements Parcelable, Serializable {
     @SerializedName("tags")
     private String tags;
 
+    @SerializedName("Liked")
+    private List<String> liked;
+
+
     public Recipe getRecipe() {
         return recipe;
     }
@@ -43,21 +48,20 @@ public class Post implements Parcelable, Serializable {
         this.recipe = recipe;
     }
 
-    public void setImage_paths(List<String> image_paths) {
-        this.image_paths = image_paths;
-    }
 
     public Post() {
 
     }
 
-    public HashMap<String, Object> PostMapForServer(Recipe recipe, String caption, String date_created, List<String> image_paths, String photo_id, String user_id, String tags){
+
+    public HashMap<String, Object> PostMapForServer(Recipe recipe, String caption, String date_created, List<String> image_paths, List<String> liked, String photo_id, String user_id, String tags){
         HashMap<String, Object> ans = new HashMap<>();
         if(recipe != null) {
             ans.put("recipe", recipe);
             ans.put("caption", caption);
             ans.put("date_created", date_created);
             ans.put("image_paths", image_paths);
+            ans.put("liked", liked);
             ans.put("post_id", photo_id);
             ans.put("user_id", user_id);
             ans.put("tags", tags);
@@ -65,6 +69,7 @@ public class Post implements Parcelable, Serializable {
             ans.put("caption", caption);
             ans.put("date_created", date_created);
             ans.put("image_paths", image_paths);
+            ans.put("image_paths", liked);
             ans.put("post_id", photo_id);
             ans.put("user_id", user_id);
             ans.put("tags", tags);
@@ -73,11 +78,17 @@ public class Post implements Parcelable, Serializable {
     }
 
 
-    public Post(Recipe recipe,String caption, String date_created, List<String> image_paths, String photo_id, String user_id, String tags) {
+    public Post(Recipe recipe,String caption, String date_created, List<String> image_paths, List<String> liked, String photo_id, String user_id, String tags) {
         this.recipe = recipe;
         this.caption = caption;
         this.date_created = date_created;
         this.image_paths = image_paths;
+        if (liked != null){
+            this.liked = liked;
+        }
+        else {
+            this.liked = new ArrayList<>();
+        }
         this.post_id = photo_id;
         this.user_id = user_id;
         this.tags = tags;
@@ -87,6 +98,7 @@ public class Post implements Parcelable, Serializable {
         caption = in.readString();
         date_created = in.readString();
         image_paths = in.createStringArrayList();
+        liked = in.createStringArrayList();
         post_id = in.readString();
         user_id = in.readString();
         tags = in.readString();
@@ -124,13 +136,52 @@ public class Post implements Parcelable, Serializable {
         return image_paths;
     }
 
-    public void setImage_path(List<String> image_paths) {
-        this.image_paths.clear();
-        this.image_paths.addAll(image_paths);
-    }
+
     public void setImage_path(String[] image_paths) {
         this.image_paths.clear();
         this.image_paths.addAll(Arrays.asList(image_paths));
+    }
+
+    public void setImage_paths(List<String> image_paths) {
+        this.image_paths.clear();
+        this.image_paths.addAll(image_paths);
+    }
+
+
+    public List<String> getLiked() {
+        return liked;
+    }
+
+    public void setLiked(List<String> liked) {
+        this.liked.clear();
+        this.liked.addAll(liked);
+    }
+
+
+    public void addLike(String uid) {
+        if (this.liked == null) {
+            this.liked = new ArrayList<>();
+        }
+        this.liked.add(uid);
+    }
+
+    public void removeLike(String uid) {
+        if (this.liked == null) {
+            return;
+        }
+        this.liked.remove(uid);
+    }
+
+    public void setLiked(String[] liked) {
+        this.liked.clear();
+        this.liked.addAll(Arrays.asList(liked));
+    }
+
+    public int getLikesCount(){
+        if (this.liked == null){
+            return 0;
+        }
+        return this.liked.size();
     }
 
     public String getPost_id() {
@@ -165,6 +216,7 @@ public class Post implements Parcelable, Serializable {
                     "caption='" + caption + '\'' +
                     ", date_created='" + date_created + '\'' +
                     ", image_paths='" + image_paths + '\'' +
+                    ", image_paths='" + liked + '\'' +
                     ", post_id='" + post_id + '\'' +
                     ", user_id='" + user_id + '\'' +
                     ", tags='" + tags + '\'' +
@@ -175,6 +227,7 @@ public class Post implements Parcelable, Serializable {
                     "caption='" + caption + '\'' +
                     ", date_created='" + date_created + '\'' +
                     ", image_paths='" + image_paths + '\'' +
+                    ", image_paths='" + liked + '\'' +
                     ", post_id='" + post_id + '\'' +
                     ", user_id='" + user_id + '\'' +
                     ", tags='" + tags + '\'' +
@@ -192,6 +245,7 @@ public class Post implements Parcelable, Serializable {
         dest.writeString(caption);
         dest.writeString(date_created);
         dest.writeStringList(image_paths);
+        dest.writeStringList(liked);
         dest.writeString(post_id);
         dest.writeString(user_id);
         dest.writeString(tags);

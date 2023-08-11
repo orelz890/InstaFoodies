@@ -308,6 +308,9 @@ public class ChatProfileActivity extends AppCompatActivity {
                                         }
                                     });
                         }
+                        else {
+                            System.out.println("receiverUserID = " + receiverUserID + ", senderUserID = " + senderUserID);
+                        }
                     }
                 });
     }

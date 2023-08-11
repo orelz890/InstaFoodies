@@ -129,8 +129,6 @@ public class RequestsFragment extends Fragment {
                                     System.out.println("Full name = " + requestsResponse.getUsers().get(0).getFull_name());
                                     requestsAdapter = new RequestsAdapter(requestsResponse);
                                     myRequestsList.setAdapter(requestsAdapter);
-
-
                                 }
                             } else {
                                 System.out.println("Failed!\nmessage: " + response.message() + "\n\n" + response.errorBody());

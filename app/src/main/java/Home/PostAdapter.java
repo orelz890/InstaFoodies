@@ -1,5 +1,6 @@
 package Home;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,29 +21,38 @@ import java.util.List;
 
 import Chat.MessageAdapter;
 import Server.RequestUserFeed;
+import Utils.ServerMethods;
 import Utils.StringImageAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.User;
 import models.UserAccountSettings;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder>{
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
+
+    // Server
+    private ServerMethods serverMethods;
 
 
     private RequestUserFeed requestUserFeed;
 
 
     private FirebaseAuth mAuth;
+    private String uid;
+
     private DatabaseReference usersRef;
     private DocumentReference usersDoc;
+    private Context mContext;
 
 
-    public PostAdapter(RequestUserFeed requestUserFeed) {
+    public PostAdapter(RequestUserFeed requestUserFeed, Context context) {
         this.requestUserFeed = requestUserFeed;
+        this.mContext = context;
+        this.serverMethods = new ServerMethods(context);
     }
-
-
-
 
 
     @NonNull
@@ -52,6 +62,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 .inflate(R.layout.layout_main_posts, viewGroup, false);
 
         mAuth = FirebaseAuth.getInstance();
+        uid = mAuth.getCurrentUser().getUid();
+
 
         return new PostViewHolder(view);
     }
@@ -65,7 +77,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             Post post = requestUserFeed.getPost(position);
 
             // Set the user info & photo
-            if (userAccountSettings != null){
+            if (userAccountSettings != null) {
                 System.out.println("PostAdapter - onBindViewHolder - userAccountSettings != null\n Post(" + position + "): " + userAccountSettings.toString());
                 // Set photo
                 String profile_photo = userAccountSettings.getProfile_photo();
@@ -77,8 +89,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
                 // Set username
                 holder.username.setText(user.getUsername());
-            }
-            else{
+            } else {
                 System.out.println("PostAdapter - onBindViewHolder - userAccountSettings == null");
             }
 
@@ -99,15 +110,35 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 // Set time
                 holder.post_time_posted.setText(post.getDate_created());
 
-            }
-            else{
+                holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+
+                List<String> liked = post.getLiked();
+                if (liked != null && liked.contains(uid)){
+                    holder.image_heart.setImageResource(R.drawable.heart_red);
+                }
+                else {
+                    holder.image_heart.setImageResource(R.drawable.heart);
+                }
+
+                holder.image_heart.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        if (holder.image_heart.getDrawable().getConstantState().equals(mContext.getResources().getDrawable(R.drawable.heart).getConstantState())) {
+                            holder.image_heart.setImageResource(R.drawable.heart_red);
+                        } else {
+                            holder.image_heart.setImageResource(R.drawable.heart);
+                        }
+                        updatePostLiked(holder, uid, post);
+                    }
+                });
+
+            } else {
                 System.out.println("PostAdapter - onBindViewHolder - post == null");
             }
-        }
-        else{
+        } else {
             System.out.println("PostAdapter - onBindViewHolder - requestUserFeed == null");
         }
-
     }
 
 
@@ -118,6 +149,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
+
         public TextView username, image_likes, post_caption, image_comments_link, post_time_posted;
         public CircleImageView profile_photo;
         public ImageView ivEllipses, image_heart_red, image_heart, speech_bubble;
@@ -125,9 +157,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         public StringImageAdapter adapter;
         public View view;
 
-
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
+
             view = itemView;
             username = (TextView) itemView.findViewById(R.id.username); // <<<
             profile_photo = (CircleImageView) itemView.findViewById(R.id.profile_photo); // <<<
@@ -141,6 +173,33 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             image_comments_link = (TextView) itemView.findViewById(R.id.image_comments_link);
             post_time_posted = (TextView) itemView.findViewById(R.id.post_time_posted); // <<<<
         }
+    }
+
+    private void updatePostLiked(PostViewHolder holder, String uid, Post post) {
+        serverMethods.retrofitInterface.addOrRemovePostLiked(uid, post.getUser_id(), post.getPost_id()).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    System.out.println(mContext + " - PostAdapter - updatePostLiked - response.isSuccessful()");
+                    Boolean like = response.body();
+                    if (like != null) {
+                        System.out.println("likesCount = " + like);
+                        if (like) {
+                            post.addLike(uid);
+                            holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+                        } else {
+                            post.removeLike(uid);
+                            holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                System.out.println(mContext + " - PostAdapter - updatePostLiked - onFailure - " + t.getMessage());
+            }
+        });
     }
 
 }

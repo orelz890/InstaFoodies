@@ -411,39 +411,39 @@ public class NextRecipeActivity extends AppCompatActivity {
         });
     }
 
-
-    private void ServerTry(List<Uri> imageUris,Recipe r){
-        String uuid_post = createHash();
-        List<String> avi = new ArrayList<>();
-        avi.add("nnn");
-        avi.add("aaa");
-        Post post = new Post();
-        HashMap<String, Object> uploadPost = post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), avi, "kkkk", mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
-        Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(NextRecipeActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
-                    selectedIngredients.clear();
-                } else {
-                    Toast.makeText(NextRecipeActivity.this, "Upload Post failed" + response.message(), Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                Toast.makeText(NextRecipeActivity.this, "onFailure: " + t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-    }
+//
+//    private void ServerTry(List<Uri> imageUris,Recipe r){
+//        String uuid_post = createHash();
+//        List<String> avi = new ArrayList<>();
+//        avi.add("nnn");
+//        avi.add("aaa");
+//        Post post = new Post();
+//        HashMap<String, Object> uploadPost = post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), avi, "kkkk", mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
+//        Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
+//        call.enqueue(new Callback<Void>() {
+//            @Override
+//            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+//                if (response.isSuccessful()) {
+//                    Toast.makeText(NextRecipeActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+//                    selectedIngredients.clear();
+//                } else {
+//                    Toast.makeText(NextRecipeActivity.this, "Upload Post failed" + response.message(), Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+//                Toast.makeText(NextRecipeActivity.this, "onFailure: " + t.getMessage(), Toast.LENGTH_LONG).show();
+//            }
+//        });
+//    }
 
 
 
 
     private HashMap<String, Object> createPost(Recipe r,String post_uid, List<String>post_photos) {
         Post post = new Post();
-        return post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), post_photos, post_uid, mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
+        return post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), post_photos, null, post_uid, mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
     }
 
     private String getTags(String caption) {
