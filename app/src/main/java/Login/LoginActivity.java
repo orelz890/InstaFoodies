@@ -72,6 +72,7 @@ public class LoginActivity extends AppCompatActivity {
     private ServerMethods serverMethods;
 
 
+
     String ipAddress = (new ClientInfo()).getIpAddress();
     String email;
 
@@ -159,12 +160,13 @@ public class LoginActivity extends AppCompatActivity {
 //            }
 //        });
 //
-//        findViewById(R.id.acb_getUser).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-////                handleGetUserDialog();
-//            }
-//        });
+        findViewById(R.id.acb_getUser).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tast();
+//                handleGetUserDialog();
+            }
+        });
 //
 //        findViewById(R.id.acb_delUser).setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -178,6 +180,11 @@ public class LoginActivity extends AppCompatActivity {
 //                //handlePatchUserDialog();
 //            }
 //        });
+    }
+
+    private void tast() {
+        Intent test_intent = new Intent(this, Location.mainLocation.class);
+        startActivity(test_intent);
     }
 
     private SSLContext getSSLContext() throws Exception {
@@ -355,7 +362,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-
+//
 //    private void handleGetUserDialog() {
 //
 //        acb_getUser.setOnClickListener(new View.OnClickListener() {
@@ -448,7 +455,7 @@ public class LoginActivity extends AppCompatActivity {
     /*
 ------------------------------------ Firebase ---------------------------------------------
 */
-    private void init() {
+    private void init(){
 
         //initialize the button for logging in
         Button btnLogin = (Button) findViewById(R.id.btn_login);

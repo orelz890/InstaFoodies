@@ -60,6 +60,13 @@ public interface RetrofitInterface {
     Call<Void> patchUserAccountSettings (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
 
+    // ================================ Search ==============================
+    @GET("/getUsers/")
+    Call<User[]> getUsers();
+
+    @GET("/getUserByUserName/")
+    Call<User> getUserByUserName(@Path("uid") String username);
+
     // ================================ share ==============================
     @PATCH("/uploadNewPost/{uid}")
     Call<Void> uploadNewPost (@Path("uid") String uid, @Body HashMap<String, Object> map);

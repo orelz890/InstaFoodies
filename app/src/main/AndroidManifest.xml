@@ -9,6 +9,11 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+
+
 
     <application
         android:allowBackup="true"
@@ -20,6 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Instafoodies"
         android:usesCleartextTraffic="true"
+        
         tools:targetApi="31">
 
         <activity android:name="Chat.ImageViewerActivity"> </activity>
@@ -56,6 +62,13 @@
                 android:value="" />
         </activity>
         <activity android:name="Chat.MainChatActivity" />
+        <activity
+            android:name="Location.Getlocation"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity android:name="Chat.MainChatActivity2" />
 
         <activity
@@ -121,6 +134,23 @@
         <activity android:name="Share.ShareActivity" />
         <activity android:name="Share.NextActivity" />
         <activity android:name="Profile.AccountSettingsActivity" />
+
+
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCbn4v84xZy_3VIkLB7f_9CBGzRmciPrSU" />
+
+        <activity
+            android:name="Location.mainLocation"
+            android:exported="true"
+            tools:ignore="Instantiatable">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
 
     </application>
