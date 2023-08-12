@@ -101,7 +101,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/heartLayout"
-                android:src="@drawable/ic_speech_bubble"
+                android:src="@drawable/comments"
                 android:visibility="visible" />
 
         </RelativeLayout>

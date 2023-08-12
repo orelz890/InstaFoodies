@@ -8,6 +8,7 @@
     tools:context="Home.HomeActivity">
 
     <RelativeLayout
+        android:id="@+id/RL_home_activity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

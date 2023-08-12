@@ -101,5 +101,6 @@
     <string name="home_activity">Home Activity</string>
 
     <!-- strings -->
-    <string name="post">PHOTO</string>]
+    <string name="post">PHOTO</string>
+    <string name="comments">Comments</string>]
 </resources>

@@ -9,7 +9,7 @@ import android.widget.Button;
 
 import com.example.instafoodies.R;
 
-import Chat.MainChatActivity;
+import Chat.MainChatActivity2;
 import MLKIT.object.ObjectDetectionActivity;
 import MLKIT.text.SpamTextDetectionActivity;
 
@@ -53,7 +53,7 @@ public class forwardActivity extends AppCompatActivity {
         chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(forwardActivity.this, MainChatActivity.class);
+                Intent intent = new Intent(forwardActivity.this, MainChatActivity2.class);
                 startActivity(intent);
             }
         });

@@ -1,96 +1,39 @@
 package Home;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.ViewPager;
-import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toolbar;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.example.instafoodies.R;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import Chat.ChatsFragment;
-import Chat.ContactsFragment;
-import Chat.MainChatActivity;
 import Chat.MainChatActivity2;
-import Chat.MessageAdapter;
 import Login.LoginActivity;
-import MLKIT.audio.AudioClassificationActivity;
-import MLKIT.helpers.AudioHelperActivity;
-import MLKIT.helpers.TextHelperActivity;
-import MLKIT.image.FaceDetectionActivity;
-import MLKIT.image.ImageClassificationActivity;
-import MLKIT.object.ObjectDetectionActivity;
-import MLKIT.text.SpamTextDetectionActivity;
-import MLKIT.image.ImageClassificationActivity;
-import Profile.ProfileActivity;
 import Server.RequestUserFeed;
-import Search.SearchActivity;
 import Utils.BottomNavigationViewHelper;
-import Utils.SectionsPagerAdapter;
 import Utils.ServerMethods;
-import Utils.UniversalImageLoader;
-import de.hdodenhof.circleimageview.CircleImageView;
-import models.Post;
 import models.UserAccountSettings;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -124,6 +67,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private UserAccountSettings userAccountSettings;
 
+    RelativeLayout layout_home;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +81,8 @@ public class HomeActivity extends AppCompatActivity {
         postList = (RecyclerView) findViewById(R.id.rvPostList);
         postList.setLayoutManager(new LinearLayoutManager(this));
         db = FirebaseFirestore.getInstance();
+
+        layout_home = (RelativeLayout) findViewById(R.id.RL_home_activity);
 
 
 
@@ -265,7 +212,7 @@ public class HomeActivity extends AppCompatActivity {
                     if (requestUserFeed != null){
                         System.out.println(TAG + " - setupMainFeed - requestUserFeed != null");
                         shufflePosts();
-                        postAdapter = new PostAdapter(requestUserFeed, mContext);
+                        postAdapter = new PostAdapter(requestUserFeed, mContext, layout_home);
                         postList.setAdapter(postAdapter);
                     }
                     else {

@@ -1,10 +1,15 @@
 package Home;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -46,12 +51,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private DatabaseReference usersRef;
     private DocumentReference usersDoc;
     private Context mContext;
+    private RelativeLayout layout;
 
 
-    public PostAdapter(RequestUserFeed requestUserFeed, Context context) {
+    public PostAdapter(RequestUserFeed requestUserFeed, Context context, RelativeLayout layout) {
         this.requestUserFeed = requestUserFeed;
         this.mContext = context;
         this.serverMethods = new ServerMethods(context);
+        this.layout = layout;
     }
 
 
@@ -110,6 +117,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 // Set time
                 holder.post_time_posted.setText(post.getDate_created());
 
+                // Set how much likes the post has & the heart color
                 holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
 
                 List<String> liked = post.getLiked();
@@ -133,12 +141,48 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     }
                 });
 
+                holder.speech_bubble.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        createPopupCommentsWindow();
+                    }
+                });
+
+
+
             } else {
                 System.out.println("PostAdapter - onBindViewHolder - post == null");
             }
         } else {
             System.out.println("PostAdapter - onBindViewHolder - requestUserFeed == null");
         }
+    }
+
+    private void createPopupCommentsWindow(){
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        View popupView = inflater.inflate(R.layout.custom_popup_comments_window, null);
+
+        // Get the screen dimensions
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        if (mContext != null){
+            WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        }
+
+        int screenHeight = displayMetrics.heightPixels;
+        int screenWidth = displayMetrics.widthPixels;
+//        int width = ViewGroup.LayoutParams.MATCH_PARENT;
+//        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+        boolean focusable = true;
+        PopupWindow popupWindow = new PopupWindow(popupView, screenWidth, screenHeight / 2, focusable);
+        layout.post(new Runnable() {
+            @Override
+            public void run() {
+                popupWindow.showAtLocation(layout, Gravity.BOTTOM, 0, 0);
+            }
+        });
+
     }
 
 
