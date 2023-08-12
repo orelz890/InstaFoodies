@@ -3,6 +3,7 @@ package Login;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -55,22 +56,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
-
     private static final String TAG = "LoginActivity";
-
 
     //firebase
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
     private Context mContext;
     private ProgressBar mProgressBar;
     private EditText mEmail, mPassword;
     private TextView mPleaseWait;
-
     private ServerMethods serverMethods;
-
 
 
     String ipAddress = (new ClientInfo()).getIpAddress();
@@ -183,7 +179,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void tast() {
-        Intent test_intent = new Intent(this, Location.mainLocation.class);
+        Intent test_intent = new Intent(this, Notifications.reminder.class);
         startActivity(test_intent);
     }
 
