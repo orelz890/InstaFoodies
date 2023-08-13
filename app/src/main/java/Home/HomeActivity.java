@@ -212,7 +212,7 @@ public class HomeActivity extends AppCompatActivity {
                     if (requestUserFeed != null){
                         System.out.println(TAG + " - setupMainFeed - requestUserFeed != null");
                         shufflePosts();
-                        postAdapter = new PostAdapter(requestUserFeed, mContext, layout_home, requestUserFeed.getAccount());
+                        postAdapter = new PostAdapter(requestUserFeed, mContext, layout_home);
                         postList.setAdapter(postAdapter);
                     }
                     else {

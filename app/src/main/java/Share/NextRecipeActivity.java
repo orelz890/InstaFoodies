@@ -443,7 +443,7 @@ public class NextRecipeActivity extends AppCompatActivity {
 
     private HashMap<String, Object> createPost(Recipe r,String post_uid, List<String>post_photos) {
         Post post = new Post();
-        return post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), post_photos, null, post_uid, mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
+        return post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), post_photos, null, null, post_uid, mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
     }
 
     private String getTags(String caption) {

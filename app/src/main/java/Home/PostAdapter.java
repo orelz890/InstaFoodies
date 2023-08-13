@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -26,15 +27,18 @@ import com.google.firebase.firestore.DocumentReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.UUID;
 
 import Chat.MessageAdapter;
 import Server.RequestUserFeed;
 import Utils.ServerMethods;
 import Utils.StringImageAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
+import models.Comment;
 import models.Post;
 import models.User;
 import models.UserAccountSettings;
+import models.UserSettings;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,15 +59,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private DocumentReference usersDoc;
     private Context mContext;
     private RelativeLayout layout;
-    private UserAccountSettings userAccountSettings;
+
+    private CommentsAdapter commentsAdapter;
+    private RecyclerView commentsRecyclerView;
 
 
-    public PostAdapter(RequestUserFeed requestUserFeed, Context context, RelativeLayout layout, UserAccountSettings userAccountSettings) {
+    public PostAdapter(RequestUserFeed requestUserFeed, Context context, RelativeLayout layout) {
         this.requestUserFeed = requestUserFeed;
         this.mContext = context;
         this.serverMethods = new ServerMethods(context);
         this.layout = layout;
-        this.userAccountSettings = userAccountSettings;
     }
 
 
@@ -148,7 +153,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 holder.speech_bubble.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        createPopupCommentsWindow();
+                        createPopupCommentsWindow(position);
                     }
                 });
 
@@ -161,21 +166,28 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
     }
 
-    private void createPopupCommentsWindow() {
+    private void createPopupCommentsWindow(int position) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View popupView = inflater.inflate(R.layout.custom_popup_comments_window, null);
 
         // Find views in the popupView
         EditText etNewComment = popupView.findViewById(R.id.et_new_comment_text);
-        RecyclerView commentsRecyclerView = popupView.findViewById(R.id.commentsRecyclerView);
         CircleImageView profileImage = popupView.findViewById(R.id.user_profile_image);
         ImageView sendButton = popupView.findViewById(R.id.iv_send);
 
+        // setup RecyclerView
+        commentsRecyclerView = popupView.findViewById(R.id.commentsRecyclerView);
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
         // Set user photo
+        UserAccountSettings userAccountSettings = requestUserFeed.getAccount();
         Picasso.get().load(userAccountSettings.getProfile_photo()).placeholder(R.drawable.profile_image).into(profileImage);
 
         // Setup popup abilities
-        setupSendMessageButton(sendButton, etNewComment);
+        setupSendMessageButton(sendButton, etNewComment, position);
+
+        // Setup main comment feed
+        setupCommentsMainFeed(commentsRecyclerView, position);
 
 
         // Get the screen dimensions
@@ -201,7 +213,35 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     }
 
-    private void setupSendMessageButton(ImageView sendButton, EditText etNewComment) {
+    private void setupCommentsMainFeed(RecyclerView recyclerView, int position) {
+        Post post = requestUserFeed.getPost(position);
+        serverMethods.retrofitInterface.getPostComments(post.getUser_id(),post.getPost_id()).enqueue(new Callback<Comment[]>() {
+            @Override
+            public void onResponse(@NonNull Call<Comment[]> call, @NonNull Response<Comment[]> response) {
+                if (response.code() == 200) {
+                    System.out.println("PostAdapter - setupCommentsMainFeed - Success");
+                    Comment[] comments = response.body();
+                    if (comments != null && comments.length > 0) {
+                        System.out.println("comment = " + comments[0].getComment());
+                        commentsAdapter = new CommentsAdapter(comments, mContext, post.getUser_id(), post.getPost_id(), serverMethods);
+                        recyclerView.setAdapter(commentsAdapter);
+                    }
+                }
+                else {
+                    System.out.println("PostAdapter - setupCommentsMainFeed - Failed");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Comment[]> call, @NonNull Throwable t) {
+                System.out.println("PostAdapter - setupCommentsMainFeed - onFailure - " + t.getMessage());
+
+            }
+        });
+
+    }
+
+    private void setupSendMessageButton(ImageView sendButton, EditText etNewComment, int position) {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -212,12 +252,36 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
                 else {
                     // Add comment to post using the server
+                    Post post = requestUserFeed.getPost(position);
+                    UserAccountSettings userAccountSettings = requestUserFeed.getAccount();
+                    String comment_id = createHash();
 
+                    User user = requestUserFeed.getUser();
+                    serverMethods.retrofitInterface.addCommentToPost(post.getUser_id(), post.getPost_id(), uid, commentText, user.getFull_name() ,userAccountSettings.getProfile_photo(), comment_id).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                            if (response.code() == 200) {
+                                System.out.println("PostAdapter - setupSendMessageButton - Success");
+                            }
+                            else {
+                                System.out.println("PostAdapter - setupSendMessageButton - Failed");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                            System.out.println("PostAdapter - setupSendMessageButton - onFailure");
+
+                        }
+                    });
                 }
             }
         });
     }
 
+    private String createHash() {
+        return "comment_" + UUID.randomUUID().toString();
+    }
 
     @Override
     public int getItemCount() {

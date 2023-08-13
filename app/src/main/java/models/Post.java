@@ -39,6 +39,9 @@ public class Post implements Parcelable, Serializable {
     @SerializedName("Liked")
     private List<String> liked;
 
+    @SerializedName("comments")
+    private List<Comment> comments;
+
 
     public Recipe getRecipe() {
         return recipe;
@@ -54,7 +57,7 @@ public class Post implements Parcelable, Serializable {
     }
 
 
-    public HashMap<String, Object> PostMapForServer(Recipe recipe, String caption, String date_created, List<String> image_paths, List<String> liked, String photo_id, String user_id, String tags){
+    public HashMap<String, Object> PostMapForServer(Recipe recipe, String caption, String date_created, List<String> image_paths, List<String> liked, List<Comment> comments, String photo_id, String user_id, String tags){
         HashMap<String, Object> ans = new HashMap<>();
         if(recipe != null) {
             ans.put("recipe", recipe);
@@ -62,6 +65,7 @@ public class Post implements Parcelable, Serializable {
             ans.put("date_created", date_created);
             ans.put("image_paths", image_paths);
             ans.put("liked", liked);
+            ans.put("comments", comments);
             ans.put("post_id", photo_id);
             ans.put("user_id", user_id);
             ans.put("tags", tags);
@@ -70,6 +74,7 @@ public class Post implements Parcelable, Serializable {
             ans.put("date_created", date_created);
             ans.put("image_paths", image_paths);
             ans.put("liked", liked);
+            ans.put("comments", comments);
             ans.put("post_id", photo_id);
             ans.put("user_id", user_id);
             ans.put("tags", tags);
@@ -77,8 +82,16 @@ public class Post implements Parcelable, Serializable {
         return ans;
     }
 
+    public List<Comment> getComments() {
+        return comments;
+    }
 
-    public Post(Recipe recipe,String caption, String date_created, List<String> image_paths, List<String> liked, String photo_id, String user_id, String tags) {
+    public void setComments(List<Comment> comments) {
+        this.comments.clear();
+        this.comments.addAll(comments);
+    }
+
+    public Post(Recipe recipe, String caption, String date_created, List<String> image_paths, List<String> liked, List<Comment> comments, String photo_id, String user_id, String tags) {
         this.recipe = recipe;
         this.caption = caption;
         this.date_created = date_created;
@@ -88,6 +101,12 @@ public class Post implements Parcelable, Serializable {
         }
         else {
             this.liked = new ArrayList<>();
+        }
+        if (comments != null){
+            this.comments = comments;
+        }
+        else {
+            this.comments = new ArrayList<>();
         }
         this.post_id = photo_id;
         this.user_id = user_id;
@@ -99,6 +118,7 @@ public class Post implements Parcelable, Serializable {
         date_created = in.readString();
         image_paths = in.createStringArrayList();
         liked = in.createStringArrayList();
+        comments = in.createTypedArrayList(Comment.CREATOR); // Read comments using createTypedArrayList
         post_id = in.readString();
         user_id = in.readString();
         tags = in.readString();

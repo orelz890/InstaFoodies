@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.Comment;
 import models.User;
 import models.UserAccountSettings;
 import models.UserSettings;
@@ -85,7 +86,13 @@ public interface RetrofitInterface {
     @GET("/getProfileFeedPosts/{uid}")
     Call<RequestUserFeed> getProfileFeedPosts (@Path("uid") String uid);
 
+    @POST("/addOrRemoveLikeToPostComment/{postOwner}/{postId}/{uid}/{position}") // Working!
+    Call<Boolean> addOrRemoveLikeToPostComment (@Path("postOwner") String postOwner,
+                                             @Path("postId") String postId,
+                                             @Path("uid") String uid,
+                                             @Path("position") int position);
 
+    // ===============================
     @PATCH("/uploadProfilePhoto/{uid}/{image_uri}")
     Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_uri") Uri image_uri);
     @PATCH("/uploadProfilePhoto/{uid}/{image_string}") //need to Implement
@@ -101,6 +108,20 @@ public interface RetrofitInterface {
     Call<UserSettings> getBothUserAndHisSettings (@Path("uid") String uid);
 
 
+    // ====================== Comments ================================
+
+    @POST("/addCommentToPost/{postOwnerId}/{postId}/{uid}/{comment}/{name}/{photo}/{commentId}")
+    Call<Void> addCommentToPost (@Path("postOwnerId") String postOwnerId,
+                                 @Path("postId") String postId,
+                                 @Path("uid") String uid,
+                                 @Path("comment") String comment,
+                                 @Path("name") String name,
+                                 @Path("photo") String photo,
+                                 @Path("commentId") String commentId);
+
+    @GET("/getPostComments/{postOwnerId}/{postId}")
+    Call<Comment[]> getPostComments (@Path("postOwnerId") String postOwnerId,
+                                         @Path("postId") String postId);
 
 
 // ================================ Chat ==============================

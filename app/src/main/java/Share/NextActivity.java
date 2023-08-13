@@ -211,7 +211,7 @@ public class NextActivity extends AppCompatActivity {
 
     private HashMap<String, Object> createPost(String post_uid, List<String> post_photos) {
         Post post = new Post();
-        return post.PostMapForServer(null, caption.getText().toString(), timeStamp(), post_photos, null , post_uid, mAuth.getCurrentUser().getUid(), getTags(caption.toString()));
+        return post.PostMapForServer(null, caption.getText().toString(), timeStamp(), post_photos, null, null, post_uid, mAuth.getCurrentUser().getUid(), getTags(caption.toString()));
     }
 
     private String getTags(String caption) {
