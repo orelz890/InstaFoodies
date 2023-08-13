@@ -212,7 +212,7 @@ public class HomeActivity extends AppCompatActivity {
                     if (requestUserFeed != null){
                         System.out.println(TAG + " - setupMainFeed - requestUserFeed != null");
                         shufflePosts();
-                        postAdapter = new PostAdapter(requestUserFeed, mContext, layout_home);
+                        postAdapter = new PostAdapter(requestUserFeed, mContext, layout_home, requestUserFeed.getAccount());
                         postList.setAdapter(postAdapter);
                     }
                     else {
@@ -252,45 +252,6 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavViewBar);
         BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();
-
-////        getMenuInflater().inflate(R.menu.bottom_navigation_menu, menu);
-//
-//        MenuItem menuItem = menu.findItem(R.id.ic_android);
-//        View view = MenuItemCompat.getActionView(menuItem);
-//
-//        CircleImageView profileImage = view.findViewById(R.id.profile_custom_icon);
-//
-//        if (this.requestUserFeed != null) {
-//            UserAccountSettings account = this.requestUserFeed.getAccount();
-//            if (account != null) {
-//                String profile_photo = account.getProfile_photo();
-//                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
-//                    System.out.println("onCreateOptionsMenu - success");
-//                    Glide.with(this)
-//                            .load(profile_photo)  // Provide the resource ID or URL of the new icon
-//                            .into(profileImage);
-//                }
-//                else{
-//                    System.out.println("onCreateOptionsMenu - profile_photo.isEmpty() || !profile_photo.equals(none)");
-//                }
-//            }
-//            else{
-//                System.out.println("onCreateOptionsMenu - this.requestUserFeed == null");
-//
-//            }
-//        }
-//        else{
-//            System.out.println("onCreateOptionsMenu - this.requestUserFeed == null");
-//        }
-//
-//        profileImage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                System.out.println("im the king");
-//                Intent intent = new Intent(mContext, ProfileActivity.class);
-//                startActivity(intent);
-//            }
-//        });
         MenuItem menuItem2 = menu.getItem(ACTIVITY_NUM);
         menuItem2.setChecked(true);
     }

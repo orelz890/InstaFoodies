@@ -74,14 +74,9 @@ public interface RetrofitInterface {
 
 
 
-
+    // =========================== Posts =============================
     @PATCH("/addOrRemovePostLiked/{uid}/{postOwnerId}/{postId}") // need to finish
     Call<Boolean> addOrRemovePostLiked (@Path("uid") String uid, @Path("postOwnerId") String postOwnerId, @Path("postId") String postId);
-
-
-
-
-
 
 
     @GET("/getUserFeedPosts/{uid}")
@@ -104,6 +99,9 @@ public interface RetrofitInterface {
 
     @GET("/getBothUserAndHisSettings/{uid}")
     Call<UserSettings> getBothUserAndHisSettings (@Path("uid") String uid);
+
+
+
 
 // ================================ Chat ==============================
 

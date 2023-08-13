@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/circle_popup_comments_background"
@@ -49,27 +50,51 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         >
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/users_profile_image"
+            android:id="@+id/user_profile_image"
             android:layout_width="45dp"
             android:layout_height="65dp"
-            android:src="@drawable/profile_image" />
+            android:src="@drawable/profile_image"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            />
 
         <EditText
             android:id="@+id/et_new_comment_text"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="65dp"
+            android:hint="@string/add_a_comment"
+            android:layout_toEndOf="@+id/user_profile_image"
+            android:layout_toStartOf="@+id/iv_send"
+            android:layout_margin="5dp"
+            android:maxLines="2"
+            android:maxWidth="100dp"
+            android:maxHeight="100dp"
+            android:maxLength="60"
             />
 
+        <ImageView
+            android:id="@+id/iv_send"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/ic_send_message"
+            />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 

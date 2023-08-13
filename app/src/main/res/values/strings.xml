@@ -102,5 +102,6 @@
 
     <!-- strings -->
     <string name="post">PHOTO</string>
-    <string name="comments">Comments</string>]
+    <string name="comments">Comments</string>
+    <string name="add_a_comment">Add a comment...</string>]
 </resources>

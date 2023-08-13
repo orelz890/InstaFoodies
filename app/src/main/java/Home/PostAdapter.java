@@ -1,16 +1,19 @@
 package Home;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,13 +55,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private DocumentReference usersDoc;
     private Context mContext;
     private RelativeLayout layout;
+    private UserAccountSettings userAccountSettings;
 
 
-    public PostAdapter(RequestUserFeed requestUserFeed, Context context, RelativeLayout layout) {
+    public PostAdapter(RequestUserFeed requestUserFeed, Context context, RelativeLayout layout, UserAccountSettings userAccountSettings) {
         this.requestUserFeed = requestUserFeed;
         this.mContext = context;
         this.serverMethods = new ServerMethods(context);
         this.layout = layout;
+        this.userAccountSettings = userAccountSettings;
     }
 
 
@@ -121,10 +126,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
 
                 List<String> liked = post.getLiked();
-                if (liked != null && liked.contains(uid)){
+                if (liked != null && liked.contains(uid)) {
                     holder.image_heart.setImageResource(R.drawable.heart_red);
-                }
-                else {
+                } else {
                     holder.image_heart.setImageResource(R.drawable.heart);
                 }
 
@@ -149,7 +153,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 });
 
 
-
             } else {
                 System.out.println("PostAdapter - onBindViewHolder - post == null");
             }
@@ -158,13 +161,26 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
     }
 
-    private void createPopupCommentsWindow(){
+    private void createPopupCommentsWindow() {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View popupView = inflater.inflate(R.layout.custom_popup_comments_window, null);
 
+        // Find views in the popupView
+        EditText etNewComment = popupView.findViewById(R.id.et_new_comment_text);
+        RecyclerView commentsRecyclerView = popupView.findViewById(R.id.commentsRecyclerView);
+        CircleImageView profileImage = popupView.findViewById(R.id.user_profile_image);
+        ImageView sendButton = popupView.findViewById(R.id.iv_send);
+
+        // Set user photo
+        Picasso.get().load(userAccountSettings.getProfile_photo()).placeholder(R.drawable.profile_image).into(profileImage);
+
+        // Setup popup abilities
+        setupSendMessageButton(sendButton, etNewComment);
+
+
         // Get the screen dimensions
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        if (mContext != null){
+        if (mContext != null) {
             WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
             windowManager.getDefaultDisplay().getMetrics(displayMetrics);
         }
@@ -183,6 +199,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             }
         });
 
+    }
+
+    private void setupSendMessageButton(ImageView sendButton, EditText etNewComment) {
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String commentText = etNewComment.getText().toString();
+
+                if (TextUtils.isEmpty(commentText)) {
+                    Toast.makeText(mContext, "first write your comment...", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    // Add comment to post using the server
+
+                }
+            }
+        });
     }
 
 

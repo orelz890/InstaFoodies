@@ -24,7 +24,7 @@ public class Post implements Parcelable, Serializable {
     @SerializedName("date_created")
     private String date_created;
 
-    @SerializedName("image_paths")
+    @SerializedName("images")
     private List<String> image_paths;
 
     @SerializedName("post_id")
@@ -69,7 +69,7 @@ public class Post implements Parcelable, Serializable {
             ans.put("caption", caption);
             ans.put("date_created", date_created);
             ans.put("image_paths", image_paths);
-            ans.put("image_paths", liked);
+            ans.put("liked", liked);
             ans.put("post_id", photo_id);
             ans.put("user_id", user_id);
             ans.put("tags", tags);
@@ -146,6 +146,11 @@ public class Post implements Parcelable, Serializable {
         this.image_paths.clear();
         this.image_paths.addAll(image_paths);
     }
+
+//    public void setImage_paths_(List<String> image_paths) {
+//        this.image_paths.clear();
+//        this.image_paths.addAll(image_paths);
+//    }
 
 
     public List<String> getLiked() {

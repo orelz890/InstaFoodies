@@ -68,15 +68,13 @@
 
             </LinearLayout>
 
-
-
             <TextView
                 android:id="@+id/tv_user_comment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="1dp"
                 android:maxLines="1"
-                android:text="user status"
+                android:text="user comment"
                 android:textAlignment="textStart"
                 android:textSize="14sp"
                 android:maxLength="46"
