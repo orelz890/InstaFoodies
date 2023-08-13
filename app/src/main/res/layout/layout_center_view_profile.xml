@@ -30,7 +30,7 @@
                     android:layout_marginStart="25dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/profilePhoto"
+                        android:id="@+id/view_profilePhoto"
                         android:layout_width="90dp"
                         android:layout_height="90dp"
                         app:civ_border_color="@color/black"
@@ -60,7 +60,7 @@
                 android:layout_marginLeft="10dp">
 
                 <TextView
-                    android:id="@+id/tv_display_name"
+                    android:id="@+id/display_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
@@ -69,7 +69,7 @@
                     android:textSize="16sp"/>
 
                 <TextView
-                    android:id="@+id/tv_description"
+                    android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
@@ -78,7 +78,7 @@
                     android:layout_marginTop="5dp"/>
 
                 <TextView
-                    android:id="@+id/tv_website"
+                    android:id="@+id/website"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/DodgerBlue"
@@ -158,14 +158,14 @@
                 >
 
                 <GridView
-                    android:id="@+id/gridView"
+                    android:id="@+id/viewGridView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:numColumns="3"
-                    android:verticalSpacing="1dp"
+                    android:gravity="center"
                     android:horizontalSpacing="1dp"
+                    android:numColumns="3"
                     android:stretchMode="columnWidth"
-                    android:gravity="center">
+                    android:verticalSpacing="1dp">
 
                 </GridView>
             </RelativeLayout>

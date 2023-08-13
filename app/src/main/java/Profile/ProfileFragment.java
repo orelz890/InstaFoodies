@@ -108,6 +108,7 @@ public class ProfileFragment extends Fragment {
     private int mFollowersCount = 0;
     private int mFollowingCount = 0;
     private int mPostsCount = 0;
+    private UserSettings mcurrentUserSettings=null;
 
 
     @Nullable
@@ -136,9 +137,17 @@ public class ProfileFragment extends Fragment {
 
         setupBottomNavigationView();
         setupToolbar();
-
-        setupFirebaseAuth();
-        setupGridView();
+        if (mcurrentUserSettings != null) {
+            // This is the user's own profile, use currentUserSettings to set widgets
+            setProfileWidgets(mcurrentUserSettings.getUser(), mcurrentUserSettings.getSettings());
+            setupGridView();
+        } else {
+            // This is someone else's profile, continue with normal initialization
+            setupFirebaseAuth();
+            setupGridView();
+        }
+//        setupFirebaseAuth();
+//        setupGridView();
 
         mProfilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,16 +172,10 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
-//    @Override
-//    public void onAttach(Context context) {
-//        try{
-//            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
-//        }catch (ClassCastException e){
-//            Log.e(TAG, "onAttach: ClassCastException: "+e.getMessage());
-//        }
-//        super.onAttach(context);
-//    }
- 
+
+public void setCurrentUserSettings(UserSettings userSettings) {
+    this.mcurrentUserSettings = userSettings;
+}
     @Override
     public void onAttach(Context context) {
         try{

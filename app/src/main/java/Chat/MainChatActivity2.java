@@ -49,6 +49,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.StorageTask;
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -508,7 +509,7 @@ public class MainChatActivity2 extends AppCompatActivity
                     UserSettings userSettings = new UserSettings(user,userAccountSettings);
 
                     Intent intent = new Intent(MainChatActivity2.this, ChatProfileActivity.class);
-                    intent.putExtra("userSettings", userSettings);
+                    intent.putExtra("userSettings", (Serializable)userSettings);
                     intent.putExtra("visit_user_id", visit_user_id);
                     startActivity(intent);
                 }
@@ -598,7 +599,7 @@ public class MainChatActivity2 extends AppCompatActivity
                         UserSettings receiverUserSettings = new UserSettings(user, userAccountSettings);
 
                         Intent intent = new Intent(context, ChatActivity.class);
-                        intent.putExtra("receiverUserSettings", receiverUserSettings);
+                        intent.putExtra("receiverUserSettings", (Serializable)receiverUserSettings);
                         startActivity(intent);
                     }
                 });

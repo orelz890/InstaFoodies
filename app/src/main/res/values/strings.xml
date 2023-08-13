@@ -30,6 +30,7 @@
 
     <!-- activity names -->
     <string name="profile_activity">Profile Activity</string>
+    <string name="search_activity">Search Activity</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="new_group">New group</string>
@@ -43,7 +44,6 @@
     <string name="string_share">Share</string>
     <string name="calories">calories</string>
     <string name="recipe_details">Recipe</string>
-    <string name="search_activity">Search Activity</string>
 
     <string name="view_post_fragment">view_post_fragment</string>
 
