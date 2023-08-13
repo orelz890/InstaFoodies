@@ -8,21 +8,21 @@
         android:layout_marginTop="20dp">
 
         <TextView
-            android:id="@+id/tvPost"
+            android:id="@+id/viewTvPost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="1dp"
             android:layout_marginTop="2dp"
-            android:text=""
+            android:text="22"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/txtPosts"
+            app:layout_constraintStart_toStartOf="@+id/viewTextPosts"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="start" />
 
         <TextView
-            android:id="@+id/txtPosts"
+            android:id="@+id/viewTextPosts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -31,51 +31,52 @@
             android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvPost" />
+            app:layout_constraintTop_toBottomOf="@+id/viewTvPost" />
 
         <TextView
-            android:id="@+id/tvFollowers"
+            android:id="@+id/viewTvFollowers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:layout_marginEnd="-50dp"
             android:gravity="start"
-            android:text=""
+            android:text="33"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/textFollowers"
+            app:layout_constraintStart_toStartOf="@+id/viewTextFollowers"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textFollowers"
+            android:id="@+id/viewTextFollowers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:gravity="start"
             android:text="Followers"
             android:textColor="@color/black"
             android:textSize="12sp"
-            app:layout_constraintEnd_toStartOf="@+id/textFollowing"
-            app:layout_constraintStart_toEndOf="@+id/txtPosts"
-            app:layout_constraintTop_toBottomOf="@+id/tvFollowers"
-            android:gravity="start" />
+            app:layout_constraintEnd_toStartOf="@+id/viewTextFollowing"
+            app:layout_constraintHorizontal_bias="0.502"
+            app:layout_constraintStart_toEndOf="@+id/viewTextPosts"
+            app:layout_constraintTop_toBottomOf="@+id/viewTvFollowers" />
 
         <TextView
-            android:id="@+id/tvFollowing"
+            android:id="@+id/viewTvFollowing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:layout_marginStart="1dp"
-            android:text=""
+            android:text="44"
             android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="@+id/textFollowing"
+            app:layout_constraintStart_toStartOf="@+id/viewTextFollowing"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="start" />
 
         <TextView
-            android:id="@+id/textFollowing"
+            android:id="@+id/viewTextFollowing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
@@ -84,7 +85,7 @@
             android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvFollowing"
+            app:layout_constraintTop_toBottomOf="@+id/viewTvFollowing"
             android:gravity="start" />
 
         <!-- Remaining views... -->

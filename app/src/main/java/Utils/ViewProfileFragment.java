@@ -1,7 +1,9 @@
 package Utils;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,12 +12,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,16 +34,31 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
 
+import Login.LoginActivity;
 import Profile.AccountSettingsActivity;
 import Profile.ProfileActivity;
-import Profile.ProfileFragment;
+import Search.SearchActivity;
 import Server.RequestUserFeed;
+import Utils.BottomNavigationViewHelper;
+import Utils.FirebaseMethods;
+import Utils.GridImageAdapter;
+import Utils.GridImageStringAdapter;
+import Utils.ServerMethods;
+import Utils.UniversalImageLoader;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.User;
@@ -52,16 +71,22 @@ import retrofit2.Response;
 public class ViewProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
+//
+//    public interface OnGridImageSelectedListener{
+//        void onGridImageSelected(Photo photo, int activityNumber);
+//    }
+//    OnGridImageSelectedListener mOnGridImageSelectedListener;
+
+
 
     public interface OnGridImageSelectedListener{
         void onGridImageSelected(Post post, int activityNumber);
     }
 
-    private ProfileFragment.OnGridImageSelectedListener mOnGridImageSelectedListener;
+    private OnGridImageSelectedListener mOnGridImageSelectedListener;
     private View view; // Add this line to declare the view variable
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
-
 
     //firebase
     private FirebaseAuth mAuth;
@@ -70,8 +95,10 @@ public class ViewProfileFragment extends Fragment {
     private FirebaseMethods mFirebaseMethods;
     private ServerMethods serverMethods;
 
+
     //widgets
     private TextView mPosts, mFollowers, mFollowing, mDisplayName, mUsername, mWebsite, mDescription;
+    private Dialog mImageDialog;
     private ProgressBar mProgressBar;
     private CircleImageView mProfilePhoto;
     private GridView gridView;
@@ -85,65 +112,118 @@ public class ViewProfileFragment extends Fragment {
     private int mFollowersCount = 0;
     private int mFollowingCount = 0;
     private int mPostsCount = 0;
-    private UserSettings mUserSettings;
+    private UserSettings mUser;
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_view_profile, container, false);
-        mDisplayName = (TextView) view.findViewById(R.id.tv_display_name);
-        mUsername = (TextView) view.findViewById(R.id.profileName);
-        mWebsite = (TextView) view.findViewById(R.id.tv_website);
-        mDescription = (TextView) view.findViewById(R.id.tv_description);
-        mProfilePhoto = (CircleImageView) view.findViewById(R.id.profilePhoto);
-        mPosts = (TextView) view.findViewById(R.id.tvPost);
-        mFollowers = (TextView) view.findViewById(R.id.tvFollowers);
-        mFollowing = (TextView) view.findViewById(R.id.tvFollowing);
-        mProgressBar = (ProgressBar) view.findViewById(R.id.profileProgressBar);
-        gridView = (GridView) view.findViewById(R.id.gridView);
-        toolbar = (Toolbar) view.findViewById(R.id.profileToolBar);
+        mDisplayName = (TextView) view.findViewById(R.id.display_name);
+        mUsername = (TextView) view.findViewById(R.id.username);
+        mWebsite = (TextView) view.findViewById(R.id.website);
+        mDescription = (TextView) view.findViewById(R.id.description);
+        mProfilePhoto = (CircleImageView) view.findViewById(R.id.view_profilePhoto);
+        mPosts = (TextView) view.findViewById(R.id.viewTvPost);
+        mFollowers = (TextView) view.findViewById(R.id.viewTvFollowers);
+        mFollowing = (TextView) view.findViewById(R.id.viewTvFollowing);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.viewProfileProgressBar);
+        gridView = (GridView) view.findViewById(R.id.viewGridView);
+        toolbar = (Toolbar) view.findViewById(R.id.profileToolBarView);
         profileMenu = (ImageView) view.findViewById(R.id.profileMenu);
         bottomNavigationView = (BottomNavigationViewEx) view.findViewById(R.id.bottomNavViewBar);
         mContext = getActivity();
 
-        mFirebaseMethods = new FirebaseMethods(getActivity());
+        //need to be delete if works
+        //mFirebaseMethods = new FirebaseMethods(getActivity());
         serverMethods = new ServerMethods(mContext);
         Log.d(TAG, "onCreateView: stared.");
 
         try {
-            mUserSettings=getUserSettingFromBundle();
+            mUser = getUserFromBundle();
+            init();
         }catch (NullPointerException e){
-            Log.d(TAG, "onCreateView: NullPointerException: "+ e.getMessage());
-            Toast.makeText(mContext, "something went wrong", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage());
+            Toast.makeText(mContext, "something went worng", Toast.LENGTH_SHORT).show();
             getActivity().getSupportFragmentManager().popBackStack();
-        }
 
+
+        }
         setupBottomNavigationView();
         setupToolbar();
         setupFirebaseAuth();
-        setupGridView();
+        // setupGridView();
+
+        mProfilePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showImagePopup();
+            }
+        });
+
+
+
 
 
         return view;
     }
 
+
+    private void init(){
+        //set the profile widgets
+        setProfileWidgets(mUser.getUser(),mUser.getSettings());
+        //get the users profile photos
+        setupGridView(mUser);
+    }
+
+    private UserSettings getUserFromBundle(){
+        Log.d(TAG, "getUserFromBundle: arguments: "+ getArguments());
+        Bundle bundle =  this.getArguments();
+        System.out.println("IN VIEW PROFILE FRAGMENT THE BUNDLE IS "+bundle.toString()+bundle.getParcelable("intent_user"));
+        if (bundle != null){
+            System.out.println("1111111111111111111111111\n what profile view got from bundle should be both:"+bundle.getParcelable(getString(R.string.intent_user)));
+            return bundle.getParcelable(getString(R.string.intent_user));
+            }
+
+        else{return null;}
+
+
+    }
+
+//    private UserSettings getUserFromBundle() {
+//        Log.d(TAG, "getUserFromBundle: arguments: " + getArguments());
+//        Bundle bundle = this.getArguments();
+//        System.out.println("IN VIEW PROFILE FRAGMENT THE BUNDLE IS " + bundle.toString() + bundle.getString("intent_user_json"));
+//
+//        if (bundle != null) {
+//            Gson gson = new Gson();
+//            String userJson = bundle.getString(getString(R.string.intent_user));
+//            if (userJson != null) {
+//                return gson.fromJson(userJson, UserSettings.class);
+//            }
+//        }
+//
+//        return null;
+//    }
+
+
     @Override
     public void onAttach(Context context) {
         try{
-            mOnGridImageSelectedListener = (ProfileFragment.OnGridImageSelectedListener) getActivity();
+            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
         }catch (ClassCastException e){
             Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage() );
         }
         super.onAttach(context);
     }
 
-    private void setupGridView(){
+
+    private void setupGridView(UserSettings mUser){
         Log.d(TAG, "setupGridView: Setting up image grid.");
 
         System.out.println("\nsetupGridView: Setting up image grid.\n");
 
-        uid = mUserSettings.getUser().getUser_id();
+        uid = mUser.getUser().getUser_id();
 
         if (uid != null) {
             serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
@@ -201,27 +281,9 @@ public class ViewProfileFragment extends Fragment {
 
     }
 
-    private  void init(){
-        //set the profile widgets
-        User user = mUserSettings.getUser();
-        UserAccountSettings userAccountSettings = mUserSettings.getSettings();
-        setProfileWidgets(user, userAccountSettings);
-
-    }
 
 
-    private UserSettings getUserSettingFromBundle(){
-        Log.d(TAG,"getUserSettingFromBundle: arguments"+getArguments());
 
-        Bundle bundle = this.getArguments();
-        if (bundle != null){
-            return bundle.getParcelable(getString(R.string.intent_user));
-        }
-        else{
-            return null;
-        }
-
-    }
 
     private void setProfileWidgets(User user, UserAccountSettings userAccountSettings) {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
@@ -250,6 +312,7 @@ public class ViewProfileFragment extends Fragment {
                 .into(mProfilePhoto);
 
 
+//        UniversalImageLoader.setImage(userAccountSettings.getProfile_photo(), mProfilePhoto, null, "");
 
         mDisplayName.setText(user.getFull_name());
         mUsername.setText(user.getUsername());
@@ -273,7 +336,7 @@ public class ViewProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating to account settings.");
-                Intent intent = new Intent(mContext, AccountSettingsActivity.class);
+                Intent intent = new Intent(mContext, SearchActivity.class);
                 startActivity(intent);
             }
         });
@@ -313,7 +376,9 @@ public class ViewProfileFragment extends Fragment {
 
                 if (user != null) {
                     // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    uid = user.getUid();
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + uid);
+
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -325,15 +390,28 @@ public class ViewProfileFragment extends Fragment {
     }
 
 
-        @Override
+
+    private void showImagePopup() {
+        mImageDialog = new Dialog(mContext);
+        mImageDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mImageDialog.setContentView(R.layout.dialog_image_zoom);
+        mImageDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        mImageDialog.setCanceledOnTouchOutside(true);
+
+        ImageView imageView = mImageDialog.findViewById(R.id.zoomImageView);
+        imageView.setImageDrawable(mProfilePhoto.getDrawable());
+
+        mImageDialog.show();
+    }
+
+
+    @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-//        maybe need to change retrive for getting user from bundle
-//        retrieveData();
-            setProfileWidgets(mUserSettings.getUser(), mUserSettings.getSettings());
+       // retrieveData();
 
-        }
+    }
 
     @Override
     public void onStop() {

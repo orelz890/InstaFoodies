@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.bumptech.glide.Glide;
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -17,6 +18,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -50,6 +52,7 @@ public class SearchActivity extends AppCompatActivity {
     private ServerMethods serverMethods;
     private FirebaseFirestore db;
     private CollectionReference usersCollection;
+    private FirebaseAuth mAuth;
 
 
     //Widgets
@@ -63,6 +66,7 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_search);
         mSearchParam = (EditText) findViewById(R.id.search);
         mListView = (ListView)findViewById(R.id.listView);
@@ -92,21 +96,12 @@ public class SearchActivity extends AppCompatActivity {
                     searchForMatch(text);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    //System.out.println("text from search bar was:"+text+"faild on func search for match");
 
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-//                String text = mSearchParam.getText().toString();
-//                try {
-//                    searchForMatch(text);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    //System.out.println("text from search bar was:"+text+"faild on func search for match");
-//
-//                }
             }
         });
     }
@@ -135,7 +130,8 @@ public class SearchActivity extends AppCompatActivity {
                                 if (userData.exists()) {
                                     User user = userData.toObject(User.class);  // Convert DocumentSnapshot to User instance
                                     assert user != null;
-                                    addUserAndUserAccountSettingsToList(user);
+                                    if (!user.getUser_id().equals(mAuth.getCurrentUser().getUid())){
+                                        addUserAndUserAccountSettingsToList(user);}
                                 }
                             }
                         });
@@ -196,11 +192,10 @@ public class SearchActivity extends AppCompatActivity {
 
                 //navigate to profile activity
                 Intent intent = new Intent((SearchActivity.this), (ProfileActivity.class));
-//                intent.putExtra(getString(R.string.calling_activity),getString(R.string.search_activity));
-//                intent.putExtra(getString(R.string.intent_user),mUserList.get(position));
                 intent.putExtra(getString(R.string.calling_activity),getString(R.string.search_activity));
-                intent.putExtra(getString(R.string.intent_user), mUserList.get(position));
-                startActivity(intent);
+                intent.putExtra(getString(R.string.intent_user), (Parcelable) mUserList.get(position));
+                System.out.println("IN SEARCH PERSON WAS CLIKED MOVING TO PROFILE ACTIVITY WITH INTENT USER"+mUserList.get(position));
+               startActivity(intent);
             }
         });
     }
@@ -222,5 +217,6 @@ public class SearchActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
+    }
 }
-}
+

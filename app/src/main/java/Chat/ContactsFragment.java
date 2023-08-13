@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -210,7 +211,7 @@ public class ContactsFragment extends Fragment {
                         UserSettings userSettings = new UserSettings(user, userAccountSettings);
 
                         Intent intent = new Intent(context, ChatProfileActivity.class);
-                        intent.putExtra("userSettings", userSettings);
+                        intent.putExtra("userSettings", (Serializable) userSettings);
                         intent.putExtra("visit_user_id", visit_user_id);
                         startActivity(intent);
                     }

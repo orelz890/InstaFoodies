@@ -28,6 +28,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -202,9 +203,9 @@ public class ChatsFragment extends Fragment
                     public void onClick(View view) {
                         System.out.println("position = " + position);
                         UserSettings receiverUserSettings = new UserSettings(user, userAccountSettings);
-
+//maybe need to chanfe to parcable
                         Intent intent = new Intent(mContext, ChatActivity.class);
-                        intent.putExtra("receiverUserSettings", receiverUserSettings);
+                        intent.putExtra("receiverUserSettings",(Serializable) receiverUserSettings);
                         startActivity(intent);
                     }
                 });

@@ -31,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -184,7 +185,7 @@ public class FindFriendsActivity extends AppCompatActivity {
                     UserSettings userSettings = new UserSettings(user,userAccountSettings);
 
                     Intent intent = new Intent(FindFriendsActivity.this, ChatProfileActivity.class);
-                    intent.putExtra("userSettings", userSettings);
+                    intent.putExtra("userSettings", (Serializable) userSettings);
                     intent.putExtra("visit_user_id", visit_user_id);
                     startActivity(intent);
                 }
