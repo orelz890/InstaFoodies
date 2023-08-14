@@ -2,11 +2,8 @@ package Server;
 
 import android.net.Uri;
 
-import com.google.common.primitives.Bytes;
-
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import models.Comment;
 import models.User;
@@ -73,12 +70,23 @@ public interface RetrofitInterface {
     Call<Void> uploadNewPost (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
 
+    // Cart
+    @GET("/getCartPosts/{uid}") // need to Implement(14/8/2023)
+    Call<RequestPosts> getCartPosts (@Path("uid") String uid);
+
+    @GET("/getLikedPosts/{uid}") // need to Implement(14/8/2023)
+    Call<RequestPosts> getLikedPosts (@Path("uid") String uid);
+
+    @GET("/deleteProfilePosts/{uid}{Posts_id}") // need to Implement(14/8/2023)
+    Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Path("Posts_id") List<String> Posts_id);
 
 
     // =========================== Posts =============================
     @PATCH("/addOrRemovePostLiked/{uid}/{postOwnerId}/{postId}") // need to finish
     Call<Boolean> addOrRemovePostLiked (@Path("uid") String uid, @Path("postOwnerId") String postOwnerId, @Path("postId") String postId);
 
+    @PATCH("/addOrRemoveCartPost/{uid}/{postOwnerId}/{postId}") // need to Implement(14/8/2023)
+    Call<Boolean> addOrRemoveCartPost (@Path("uid") String uid, @Path("postOwnerId") String postOwnerId, @Path("postId") String postId);
 
     @GET("/getUserFeedPosts/{uid}")
     Call<RequestUserFeed> getUserFeedPosts (@Path("uid") String uid);

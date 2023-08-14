@@ -10,12 +10,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.instafoodies.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -97,6 +105,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Most be after setupMainFeed()
 //        setProfileIconInNevigation();
+//        setProfileIconInNavigation();
 
         setSwipeRefresh();
 
@@ -214,12 +223,10 @@ public class HomeActivity extends AppCompatActivity {
                         shufflePosts();
                         postAdapter = new PostAdapter(requestUserFeed, mContext, layout_home);
                         postList.setAdapter(postAdapter);
-                    }
-                    else {
+                    } else {
                         System.out.println(TAG + " - setupMainFeed - requestUserFeed == null");
                     }
-                }
-                else {
+                } else {
                     System.out.println(TAG + " - setupMainFeed - !!response.isSuccessful()");
                 }
             }
@@ -238,10 +245,10 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, MainChatActivity2.class);
-                startActivity(intent);            }
+                startActivity(intent);
+            }
         });
     }
-
 
 
     /**
@@ -260,17 +267,18 @@ public class HomeActivity extends AppCompatActivity {
      /*
     ------------------------------------ Firebase ---------------------------------------------
      */
+
     /**
      * checks to see if the @param 'user' is logged in
+     *
      * @param user
      */
-    private void checkCurrentUser(FirebaseUser user){
+    private void checkCurrentUser(FirebaseUser user) {
         Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
-        if(user == null){
+        if (user == null) {
             Intent intent = new Intent(mContext, LoginActivity.class);
             startActivity(intent);
-        }
-        else{
+        } else {
             uid = user.getUid();
         }
     }
@@ -311,10 +319,12 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
+
+
     /**
      * Setup the firebase auth object
      */
-    private void setupFirebaseAuth(){
+    private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = firebaseAuth -> {

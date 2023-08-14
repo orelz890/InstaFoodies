@@ -3,17 +3,22 @@ package Profile;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -23,7 +28,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
@@ -34,29 +38,24 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import Login.LoginActivity;
+import Server.RequestPosts;
 import Server.RequestUserFeed;
 import Utils.BottomNavigationViewHelper;
 import Utils.FirebaseMethods;
-import Utils.GridImageAdapter;
+import Utils.GridImageSelection;
 import Utils.GridImageStringAdapter;
 import Utils.ServerMethods;
-import Utils.UniversalImageLoader;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
+import models.Recipe;
 import models.User;
 import models.UserAccountSettings;
 import models.UserSettings;
@@ -74,8 +73,7 @@ public class ProfileFragment extends Fragment {
 //    OnGridImageSelectedListener mOnGridImageSelectedListener;
 
 
-
-    public interface OnGridImageSelectedListener{
+    public interface OnGridImageSelectedListener {
         void onGridImageSelected(Post post, int activityNumber);
     }
 
@@ -90,6 +88,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseMethods mFirebaseMethods;
     private ServerMethods serverMethods;
+    private List<Post> mSelectedItems; // To track selected items
 
 
     //widgets
@@ -98,17 +97,27 @@ public class ProfileFragment extends Fragment {
     private ProgressBar mProgressBar;
     private CircleImageView mProfilePhoto;
     private GridView gridView;
+    private TextView emptyGrid;
     private Toolbar toolbar;
     private ImageView profileMenu;
+    private TextView myCart;
+    private TextView myPosts;
+    private TextView myLikedPosts;
     private BottomNavigationViewEx bottomNavigationView;
     private Context mContext;
+    private List<Integer> selectedIndexes = new ArrayList<>();
+    private ImageView delete;
+    private ImageView exportCart;
+    private GridImageSelection adapter;
+    private List<Recipe> selectedToCart = new ArrayList<>();
+    private List<String> selectedToDelete = new ArrayList<>();
 
 
     //vars
     private int mFollowersCount = 0;
     private int mFollowingCount = 0;
     private int mPostsCount = 0;
-    private UserSettings mcurrentUserSettings=null;
+    private UserSettings mcurrentUserSettings = null;
 
 
     @Nullable
@@ -122,16 +131,21 @@ public class ProfileFragment extends Fragment {
         mProfilePhoto = (CircleImageView) view.findViewById(R.id.profilePhoto);
         mPosts = (TextView) view.findViewById(R.id.tvPost);
         mFollowers = (TextView) view.findViewById(R.id.tvFollowers);
+        myCart = (TextView) view.findViewById(R.id.myCart);
+        myPosts = (TextView) view.findViewById(R.id.myPosts);
+        myLikedPosts = (TextView) view.findViewById(R.id.myLikedPosts);
         mFollowing = (TextView) view.findViewById(R.id.tvFollowing);
         mProgressBar = (ProgressBar) view.findViewById(R.id.profileProgressBar);
-        gridView = (GridView) view.findViewById(R.id.gridView);
+        gridView = (GridView) view.findViewById(R.id.gridViewProfile);
         toolbar = (Toolbar) view.findViewById(R.id.profileToolBar);
         profileMenu = (ImageView) view.findViewById(R.id.profileMenu);
         bottomNavigationView = (BottomNavigationViewEx) view.findViewById(R.id.bottomNavViewBar);
         mContext = getActivity();
-
+        emptyGrid = view.findViewById(R.id.emptyGrid);
         mFirebaseMethods = new FirebaseMethods(getActivity());
         serverMethods = new ServerMethods(mContext);
+        delete = view.findViewById(R.id.deleteButton);
+        exportCart = view.findViewById(R.id.exportButton);
         Log.d(TAG, "onCreateView: stared.");
 
 
@@ -139,15 +153,19 @@ public class ProfileFragment extends Fragment {
         setupToolbar();
         if (mcurrentUserSettings != null) {
             // This is the user's own profile, use currentUserSettings to set widgets
+            setupFirebaseAuth();
             setProfileWidgets(mcurrentUserSettings.getUser(), mcurrentUserSettings.getSettings());
-            setupGridView();
+            setupGridViewByOption("myPosts");
         } else {
             // This is someone else's profile, continue with normal initialization
             setupFirebaseAuth();
-            setupGridView();
+            setupGridViewByOption("myPosts");
         }
 //        setupFirebaseAuth();
 //        setupGridView();
+
+//        setupGridViewByOption("myPosts");
+
 
         mProfilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,40 +174,207 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-
-
-        AppCompatButton editProfile = (AppCompatButton) view.findViewById(R.id.textEditProfile);
-        editProfile.setOnClickListener(new View.OnClickListener() {
+        myPosts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
-                Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
-                intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
-                startActivity(intent);
+                setupGridViewByOption("myPosts");
             }
         });
+
+        myCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setupGridViewByOption("myCart");
+
+            }
+        });
+
+        myLikedPosts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setupGridViewByOption("myLikedPosts");
+
+            }
+        });
+
 
         return view;
     }
 
+    private void exportCartList(RequestPosts myCart) {
+        if (!(adapter.getSelectedIndexes().isEmpty())) {
+            for (int index : adapter.getSelectedIndexes()) {
+                Post selectedPost = myCart.getPost(index);
+                if (selectedPost.getRecipe() != null) {
+                    selectedToCart.add(selectedPost.getRecipe());
+                }
+            }
+            sendCartListViaWhatsApp();
+        }
+    }
 
-public void setCurrentUserSettings(UserSettings userSettings) {
-    this.mcurrentUserSettings = userSettings;
-}
+    private void sendCartListViaWhatsApp() {
+        String list = String.valueOf(createIngredientList());
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, list);
+        intent.setType("text/plain");
+        intent.setPackage("com.whatsapp");
+        try {
+            startActivity(intent);
+        } catch (Exception exception) {
+            Toast.makeText(getActivity(), "There Is No Application That Support This Action",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private StringBuilder createIngredientList() {
+        StringBuilder ans = new StringBuilder();
+        try {
+            ArrayList<String> ingredients = new ArrayList<>();
+            ArrayList<Integer> amounts = new ArrayList<>();
+            ArrayList<String> titles = new ArrayList<>();
+            for (Recipe recipe : selectedToCart) {
+                titles.add(recipe.getTitle());
+                List<String> r_Ingre = recipe.getIngredients();
+                for (String ingredient : r_Ingre) {
+                    if (contain(ingredients, (ingredient.split(":")[1]))) {
+                        amounts.set(ingredients.indexOf(ingredient.split(":")[1]), amounts.get(ingredients.indexOf(ingredient.split(":")[1])) + Integer.parseInt(ingredient.split(":")[0]));
+                    } else {
+                        amounts.add(Integer.parseInt(ingredient.split(":")[0]));
+                        ingredients.add(ingredient.split(":")[1]);
+                    }
+                }
+
+            }
+            ans.append("*Your Weekly Plan Recipes:*\n");
+            for (String title : titles) {
+                ans.append(title).append("\n");
+
+            }
+            ans.append("\n*Your Grocery List:*\n");
+            for (int i = 0; i < amounts.size(); i++) {
+                ans.append(amounts.get(i)).append("[g]").append(" ").append(ingredients.get(i)).append("\n");
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            Toast.makeText(getActivity(), "You need to get the new recipes' version",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+
+        return ans;
+    }
+
+    private boolean contain(ArrayList<String> ingredients, String s) {
+        for (String ingredient : ingredients) {
+            if (ingredient.equals(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private void deleteAllSelectedPosts(RequestUserFeed myPosts) {
+        uid = mAuth.getCurrentUser().getUid();
+
+        if (!adapter.getSelectedIndexes().isEmpty()) {
+            for (int index : adapter.getSelectedIndexes()) {
+                String selectedPost_ids = myPosts.getPost(index).getPost_id();
+                selectedToDelete.add(selectedPost_ids);
+            }
+        }
+        if (uid != null) {
+            serverMethods.retrofitInterface.deleteProfilePosts(uid, selectedToDelete).enqueue(new Callback<Boolean>() {
+                @Override
+                public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                    if (response.isSuccessful()) {
+                        Boolean ans = response.body();
+                        if (Boolean.TRUE.equals(ans)) {
+                            setupGridViewByOption("myPosts");
+                        } else {
+                            Log.d(TAG, "Delete Profile Posts Failed Try Again:");
+                            Toast.makeText(getActivity(), "Delete Profile Posts Failed Try Again", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Log.d(TAG, "Delete Profile Posts: Error: " + response.message());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                    Log.d(TAG, "Delete Profile Posts: Error: " + t.getMessage());
+                }
+            });
+        }
+
+
+    }
+
+    public void setCurrentUserSettings(UserSettings userSettings) {
+        this.mcurrentUserSettings = userSettings;
+    }
+
     @Override
     public void onAttach(Context context) {
-        try{
+        try {
             mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
-        }catch (ClassCastException e){
-            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage() );
+        } catch (ClassCastException e) {
+            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage());
         }
         super.onAttach(context);
     }
 
-    private void setupGridView(){
+    private void setupGridViewByOption(String option) {
         Log.d(TAG, "setupGridView: Setting up image grid.");
 
         System.out.println("\nsetupGridView: Setting up image grid.\n");
+
+        changeButtonsColor(option);
+
+
+        switch (option) {
+            case "myPosts":
+                emptyGrid.setVisibility(View.INVISIBLE);
+                gridView.setVisibility(View.VISIBLE);
+                exportCart.setVisibility(View.GONE);
+                GridViewByPosts();
+                break;
+            case "myCart":
+                emptyGrid.setVisibility(View.INVISIBLE);
+                gridView.setVisibility(View.VISIBLE);
+                delete.setVisibility(View.GONE);
+                GridViewByCart();
+                break;
+            case "myLikedPosts":
+                emptyGrid.setVisibility(View.INVISIBLE);
+                gridView.setVisibility(View.VISIBLE);
+                delete.setVisibility(View.GONE);
+                exportCart.setVisibility(View.GONE);
+                GridViewByLiked();
+                break;
+        }
+    }
+
+    private void changeButtonsColor(String option) {
+        myPosts.setTextColor(Color.parseColor("#808080"));
+        myCart.setTextColor(Color.parseColor("#808080"));
+        myLikedPosts.setTextColor(Color.parseColor("#808080"));
+        switch (option) {
+            case "myPosts":
+                myPosts.setTextColor(Color.parseColor("#1790D1"));
+                break;
+            case "myCart":
+                myCart.setTextColor(Color.parseColor("#1790D1"));
+                break;
+            case "myLikedPosts":
+                myLikedPosts.setTextColor(Color.parseColor("#1790D1"));
+                break;
+        }
+
+    }
+
+    private void GridViewByPosts() {
 
         uid = mAuth.getCurrentUser().getUid();
 
@@ -197,42 +382,66 @@ public void setCurrentUserSettings(UserSettings userSettings) {
             serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
                 @Override
                 public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
-                    if (response.isSuccessful()){
+                    if (response.isSuccessful()) {
                         Log.d(TAG, "setupGridView: success");
                         System.out.println("setupGridView: success");
 
                         RequestUserFeed userFeed = response.body();
-                        if (userFeed != null){
+                        if (userFeed != null && userFeed.size() > 0) {
                             System.out.println("userFeed: userFeed.size() =  " + userFeed.size());
                             //setup our image grid
                             int gridWidth = getResources().getDisplayMetrics().widthPixels;
-                            int imageWidth = gridWidth/NUM_GRID_COLUMNS;
+                            int imageWidth = gridWidth / NUM_GRID_COLUMNS;
                             gridView.setColumnWidth(imageWidth);
 
                             ArrayList<String> imgUrls = new ArrayList<String>();
-                            for(int i = 0; i < userFeed.size(); i++){
+                            for (int i = 0; i < userFeed.size(); i++) {
                                 imgUrls.add(userFeed.getPost(i).getImage_paths().get(0));
                                 System.out.println("Image (" + i + ") = " + userFeed.getPost(i).getImage_paths().get(0));
                             }
 
-                            GridImageStringAdapter adapter = new GridImageStringAdapter(getActivity(),R.layout.layout_grid_image_view,
-                                    "", imgUrls);
+
+                            adapter = new GridImageSelection(getActivity(), R.layout.layout_grid_image_view,
+                                    "", imgUrls, gridView);
                             gridView.setAdapter(adapter);
+                            // Set up the GridView
                             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    mOnGridImageSelectedListener.onGridImageSelected(userFeed.getPost(position), ACTIVITY_NUM);
+                                    if (adapter.getSelectedIndexes().size() > 0) {
+                                        adapter.toggleSelection(position); // Toggle selection
+                                    } else {
+                                        mOnGridImageSelectedListener.onGridImageSelected(userFeed.getPost(position), ACTIVITY_NUM);
+                                    }
+                                    if (adapter.getSelectedIndexes().isEmpty()) {
+                                        delete.setVisibility(View.INVISIBLE);
+                                        exportCart.setVisibility(View.INVISIBLE);
+                                    }
+                                }
+//                                    mOnGridImageSelectedListener.onGridImageSelected(userFeed.getPost(position), ACTIVITY_NUM);
+                            });
+                            gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                                @Override
+                                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                                    adapter.selectionMode(position);
+                                    delete.setVisibility(View.VISIBLE);
+                                    return true;
                                 }
                             });
-
-                        }
-                        else {
+                            delete.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    deleteAllSelectedPosts(userFeed);
+                                }
+                            });
+                        } else {
+                            showEmptyGridMessage();
                             Log.d(TAG, "setupGridView: userFeed == null");
                             System.out.println("setupGridView: userFeed == null");
                         }
 
-                    }
-                    else {
+                    } else {
+                        showEmptyGridMessage();
                         Log.d(TAG, "setupGridView: Error: " + response.message());
                         System.out.println("setupGridView: Error: " + response.message());
                     }
@@ -246,8 +455,173 @@ public void setCurrentUserSettings(UserSettings userSettings) {
             });
         }
 
+    }
+
+    private void GridViewByCart() {
+        uid = mAuth.getCurrentUser().getUid();
+
+        if (uid != null) {
+            serverMethods.retrofitInterface.getCartPosts(uid).enqueue(new Callback<RequestPosts>() {
+                @Override
+                public void onResponse(@NonNull Call<RequestPosts> call, @NonNull Response<RequestPosts> response) {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "setupGridView: success");
+                        System.out.println("setupGridView: success");
+
+                        RequestPosts myCart = response.body();
+                        if (myCart != null && myCart.size() > 0) {
+                            System.out.println("myCart: myCart.size() =  " + myCart.size());
+                            //setup our image grid
+                            int gridWidth = getResources().getDisplayMetrics().widthPixels;
+                            int imageWidth = gridWidth / NUM_GRID_COLUMNS;
+                            gridView.setColumnWidth(imageWidth);
+
+                            ArrayList<String> imgUrls = new ArrayList<String>();
+                            for (int i = 0; i < myCart.size(); i++) {
+                                imgUrls.add(myCart.getPost(i).getImage_paths().get(0));
+                                System.out.println("Image (" + i + ") = " + myCart.getPost(i).getImage_paths().get(0));
+                            }
+
+                            // Set up the GridView
+                            adapter = new GridImageSelection(getActivity(), R.layout.layout_grid_image_view,
+                                    "", imgUrls, gridView);
+                            gridView.setAdapter(adapter);
+
+                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    if (adapter.getSelectedIndexes().size() > 0) {
+                                        adapter.toggleSelection(position); // Toggle selection
+                                    } else {
+                                        mOnGridImageSelectedListener.onGridImageSelected(myCart.getPost(position), ACTIVITY_NUM);
+                                    }
+                                    if (adapter.getSelectedIndexes().isEmpty()) {
+                                        delete.setVisibility(View.INVISIBLE);
+                                        exportCart.setVisibility(View.INVISIBLE);
+                                    }
+                                }
+//                                    mOnGridImageSelectedListener.onGridImageSelected(userFeed.getPost(position), ACTIVITY_NUM);
+                            });
+                            gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                                @Override
+                                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                                    adapter.selectionMode(position);
+                                    exportCart.setVisibility(View.VISIBLE);
+                                    return true;
+                                }
+                            });
+                            exportCart.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    exportCartList(myCart);
+                                }
+                            });
+                        } else {
+                            showEmptyGridMessage();
+                            Log.d(TAG, "setupGridView: myCart == null");
+                            System.out.println("setupGridView: myCart == null");
+                        }
+
+                    } else {
+                        showEmptyGridMessage();
+                        Log.d(TAG, "setupGridView: Error: " + response.message());
+                        System.out.println("setupGridView: Error: " + response.message());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<RequestPosts> call, @NonNull Throwable t) {
+                    Log.d(TAG, "setupGridView: Error: " + t.getMessage());
+                    System.out.println("setupGridView: Error: " + t.getMessage());
+                }
+            });
+        }
 
     }
+
+    private void GridViewByLiked() {
+        uid = mAuth.getCurrentUser().getUid();
+        if (uid != null) {
+            serverMethods.retrofitInterface.getLikedPosts(uid).enqueue(new Callback<RequestPosts>() {
+                @Override
+                public void onResponse(@NonNull Call<RequestPosts> call, @NonNull Response<RequestPosts> response) {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "setupGridView: success");
+                        System.out.println("setupGridView: success");
+                        RequestPosts myLikedPosts = response.body();
+                        if (myLikedPosts != null && myLikedPosts.size() > 0) {
+                            System.out.println("myLikedPosts: myLikedPosts.size() =  " + myLikedPosts.size());
+                            //setup our image grid
+                            int gridWidth = getResources().getDisplayMetrics().widthPixels;
+                            int imageWidth = gridWidth / NUM_GRID_COLUMNS;
+                            gridView.setColumnWidth(imageWidth);
+
+                            ArrayList<String> imgUrls = new ArrayList<String>();
+                            for (int i = 0; i < myLikedPosts.size(); i++) {
+                                imgUrls.add(myLikedPosts.getPost(i).getImage_paths().get(0));
+                                System.out.println("Image (" + i + ") = " + myLikedPosts.getPost(i).getImage_paths().get(0));
+                            }
+
+                            // Set up the GridView
+                            adapter = new GridImageSelection(getActivity(), R.layout.layout_grid_image_view,
+                                    "", imgUrls, gridView);
+                            gridView.setAdapter(adapter);
+
+                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    if (adapter.getSelectedIndexes().size() > 0) {
+                                        adapter.toggleSelection(position); // Toggle selection
+                                    } else {
+                                        mOnGridImageSelectedListener.onGridImageSelected(myLikedPosts.getPost(position), ACTIVITY_NUM);
+                                    }
+                                }
+                            });
+                            gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                                @Override
+                                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                                    adapter.selectionMode(position);
+                                    return true;
+                                }
+                            });
+                        } else {
+                            showEmptyGridMessage();
+                            Log.d(TAG, "setupGridView: Error: " + response.message());
+                            System.out.println("setupGridView: Error: " + response.message());
+                        }
+                    } else {
+                        showEmptyGridMessage();
+                        Log.d(TAG, "setupGridView: myLikedPosts == null");
+                        System.out.println("setupGridView: myLikedPosts == null");
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<RequestPosts> call, @NonNull Throwable t) {
+                    Log.d(TAG, "setupGridView: Error: " + t.getMessage());
+                    System.out.println("setupGridView: Error: " + t.getMessage());
+                }
+            });
+        }
+
+    }
+
+    private void showEmptyGridMessage() {
+        emptyGrid.setVisibility(View.VISIBLE);
+        gridView.setVisibility(View.INVISIBLE);
+    }
+
+
+//    @Override
+//    public void onAttach(Context context) {
+//        try{
+//            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
+//        }catch (ClassCastException e){
+//            Log.e(TAG, "onAttach: ClassCastException: "+e.getMessage());
+//        }
+//        super.onAttach(context);
+//    }
+
 
     private void setProfileWidgets(User user, UserAccountSettings userAccountSettings) {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
@@ -306,22 +680,11 @@ public void setCurrentUserSettings(UserSettings userSettings) {
         });
     }
 
-//    /**
-//     * BottomNavigationView setup
-//     */
-//    private void setupBottomNavigationView() {
-//        Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
-//        BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-//        BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
-//        Menu menu = bottomNavigationView.getMenu();
-//        MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
-//        menuItem.setChecked(true);
-//    }
 
     /**
      * BottomNavigationView setup
      */
-    private void setupBottomNavigationView(){
+    private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationView bottomNavigationView = (BottomNavigationView) view.findViewById(R.id.bottomNavViewBar);
         BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
@@ -422,7 +785,7 @@ public void setCurrentUserSettings(UserSettings userSettings) {
                 UserSettings userSettings = response.body();
                 if (response.code() == 200) {
                     assert userSettings != null;
-                    if(userSettings.getSettings() != null) {
+                    if (userSettings.getSettings() != null) {
                         setProfileWidgets(userSettings.getUser(), userSettings.getSettings());
                     }
                 } else if (response.code() == 400) {
@@ -472,5 +835,7 @@ public void setCurrentUserSettings(UserSettings userSettings) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
     }
+
+
 }
 

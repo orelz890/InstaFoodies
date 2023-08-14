@@ -34,8 +34,6 @@ public class RequestUserFeed implements Serializable {
 
     }
 
-
-
     public RequestUserFeed(User user, UserAccountSettings account, Post[] posts) {
         this.user = user;
         this.account = account;

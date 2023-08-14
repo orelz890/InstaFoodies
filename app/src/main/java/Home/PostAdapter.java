@@ -157,6 +157,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     }
                 });
 
+                holder.image_add_cart.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        if (holder.image_add_cart.getDrawable().getConstantState().equals(mContext.getResources().getDrawable(R.drawable.add_to_cart).getConstantState())) {
+                            holder.image_add_cart.setImageResource(R.drawable.added_to_cart);
+                        } else {
+                            holder.image_add_cart.setImageResource(R.drawable.add_to_cart);
+                        }
+                        updateCartPost(uid, post);
+                    }
+                });
+
                 holder.speech_bubble.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -365,7 +378,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         public TextView username, image_likes, post_caption, image_comments_link, post_time_posted;
         public CircleImageView profile_photo;
-        public ImageView ivEllipses, image_heart_red, image_heart, speech_bubble;
+        public ImageView ivEllipses, image_heart_red, image_heart, speech_bubble,image_add_cart,image_add_to_cart_fill;
         public ViewPager2 post_images;
         public StringImageAdapter adapter;
         public View view;
@@ -385,6 +398,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             post_caption = (TextView) itemView.findViewById(R.id.post_caption); // <<<<
             image_comments_link = (TextView) itemView.findViewById(R.id.image_comments_link);
             post_time_posted = (TextView) itemView.findViewById(R.id.post_time_posted); // <<<<
+            image_add_cart = itemView.findViewById(R.id.add_cart);
+            image_add_to_cart_fill = itemView.findViewById(R.id.add_to_cart_fill);
         }
     }
 
@@ -411,6 +426,34 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             @Override
             public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
                 System.out.println(mContext + " - PostAdapter - updatePostLiked - onFailure - " + t.getMessage());
+            }
+        });
+    }
+
+
+    private void updateCartPost(String uid, Post post) {
+        serverMethods.retrofitInterface.addOrRemoveCartPost(uid, post.getUser_id(), post.getPost_id()).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    System.out.println(mContext + " - PostAdapter - updateCartPost - response.isSuccessful()");
+                    Boolean like = response.body();
+//                    if (like != null) {
+//                        System.out.println("likesCount = " + like);
+//                        if (like) {
+//                            post.addLike(uid);
+//                            holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+//                        } else {
+//                            post.removeLike(uid);
+//                            holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+//                        }
+//                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                System.out.println(mContext + " - PostAdapter - updateCartPost - onFailure - " + t.getMessage());
             }
         });
     }

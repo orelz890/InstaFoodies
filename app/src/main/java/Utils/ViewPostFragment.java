@@ -145,18 +145,6 @@ public class ViewPostFragment extends Fragment {
             adapter = new StringImageAdapter(mPost.getImage_paths());
             viewPager.setAdapter(adapter);
 
-
-
-
-
-
-
-
-
-
-
-
-
         }catch (NullPointerException e){
             Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage() );
         }

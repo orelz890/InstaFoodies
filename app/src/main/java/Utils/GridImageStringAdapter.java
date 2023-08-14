@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +21,11 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import models.Post;
 
 public class GridImageStringAdapter extends ArrayAdapter<String> {
     private Context mContext;
@@ -27,6 +33,9 @@ public class GridImageStringAdapter extends ArrayAdapter<String> {
     private int layoutResource;
     private String mAppend;
     private List<String> imgURLs;
+    private List<Integer> selectedPositions = new ArrayList<>(); // To store selected item positions
+
+
 
     public GridImageStringAdapter(Context context, int layoutResource, String append, List<String> imgURLs) {
         super(context, layoutResource, imgURLs);
@@ -35,6 +44,28 @@ public class GridImageStringAdapter extends ArrayAdapter<String> {
         this.layoutResource = layoutResource;
         mAppend = append;
         this.imgURLs = imgURLs;
+
+
+    }
+
+    public void toggleSelection(int position) {
+        if (selectedPositions.contains(position)) {
+            selectedPositions.remove(Integer.valueOf(position));
+        } else {
+            selectedPositions.add(position);
+        }
+        notifyDataSetChanged();
+    }
+    public List<String> getSelectedItems() {
+        List<String> selectedItems = new ArrayList<>();
+        for (Integer position : selectedPositions) {
+            selectedItems.add(getItem(position));
+        }
+        return selectedItems;
+    }
+
+    public List<Integer> getSelectedPositions() {
+        return selectedPositions;
     }
 
     private static class ViewHolder {
@@ -50,6 +81,8 @@ public class GridImageStringAdapter extends ArrayAdapter<String> {
          */
         final ViewHolder holder;
 
+
+
         if (convertView == null) {
             convertView = mInflater.inflate(layoutResource, parent, false);
             holder = new ViewHolder();
@@ -58,11 +91,13 @@ public class GridImageStringAdapter extends ArrayAdapter<String> {
 
             // Storing the view im memory, not putting it on the page so the app will not slow down.
             convertView.setTag(holder);
+
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
         String imgURL = getItem(position).toString();
 
+        System.out.println("GridImageStringAdapter: - " + selectedPositions.toString());
         Glide.with(mContext)
                 .load(imgURL)
                 .placeholder(R.drawable.ic_android)
@@ -83,9 +118,14 @@ public class GridImageStringAdapter extends ArrayAdapter<String> {
                 })
                 .into(holder.image);
 
+        if (selectedPositions.contains(position)) {
+            holder.image.setBackgroundResource(R.color.link_blue);
+        } else {
+            holder.image.setBackgroundResource(android.R.color.transparent);
+        }
+
         return convertView;
     }
-
 
     @Override
     public int getCount() {

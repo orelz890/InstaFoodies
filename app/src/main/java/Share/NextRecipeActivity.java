@@ -475,7 +475,7 @@ public class NextRecipeActivity extends AppCompatActivity {
     }
 
     private String timeStamp() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd''HH:mm:ss''", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("Israel/Israel")); // Set the timezone to Israel
         return sdf.format(new Date());
     }
