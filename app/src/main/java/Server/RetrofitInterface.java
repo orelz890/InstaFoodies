@@ -70,7 +70,7 @@ public interface RetrofitInterface {
     Call<Void> uploadNewPost (@Path("uid") String uid, @Body HashMap<String, Object> map);
 
 
-    // Cart
+    // ================================ Cart ===============================
     @GET("/getCartPosts/{uid}") // need to Implement(14/8/2023)
     Call<RequestPosts> getCartPosts (@Path("uid") String uid);
 
@@ -79,6 +79,19 @@ public interface RetrofitInterface {
 
     @GET("/deleteProfilePosts/{uid}{Posts_id}") // need to Implement(14/8/2023)
     Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Path("Posts_id") List<String> Posts_id);
+
+    // ================================ Follow and Unfollow action ==============================
+    /*
+    uidCurrent: the user that want to follow or unfollow
+    uidToFolloeOrUnfollow: the user that the uidCurrent want to follow or unfollow
+    followOrUnfollow: true == "follow" or false == "unfollow"
+     */
+    @PATCH("/followUnfollow/{uidCurrent}{uidToFollowOrUnfollow}{followOrUnfollow}")// need to Implement(14/8/2023)
+    Call<Boolean> followUnfollow (@Path("uidCurrent") String uidCurrent, @Path("uidToFollowOrUnfollow") String uidToFollowOrUnfollow,
+                               @Path("followOrUnfollow") boolean followOrUnfollow);
+
+
+
 
 
     // =========================== Posts =============================
