@@ -99,7 +99,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             User user = requestUserFeed.getUser();
             UserAccountSettings userAccountSettings = requestUserFeed.getAccount();
             Post post = requestUserFeed.getPost(position);
-
+            
             // Set the user info & photo
             if (userAccountSettings != null) {
                 System.out.println("PostAdapter - onBindViewHolder - userAccountSettings != null\n Post(" + position + "): " + userAccountSettings.toString());
@@ -120,8 +120,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             // Set the post content
             if (post != null) {
                 System.out.println("PostAdapter - onBindViewHolder - post != null\n Post(" + position + "): " + post.toString());
-
-                // Set the post pictures
+                // Set the visibility of the add_to_cart ImageView based on whether the post is a recipe
+                if (post.getRecipe() != null) {
+                    holder.image_add_cart.setVisibility(View.VISIBLE);
+                } else {
+                    holder.image_add_cart.setVisibility(View.GONE);
+                }
+                // Set he post pictures
                 List<String> image_paths = post.getImage_paths();
                 if (image_paths != null && !image_paths.isEmpty()) {
                     holder.adapter = new StringImageAdapter(image_paths);

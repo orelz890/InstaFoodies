@@ -77,7 +77,7 @@ public interface RetrofitInterface {
     @GET("/getLikedPosts/{uid}") // need to Implement(14/8/2023)
     Call<RequestPosts> getLikedPosts (@Path("uid") String uid);
 
-    @GET("/deleteProfilePosts/{uid}{Posts_id}") // need to Implement(14/8/2023)
+    @PATCH("/deleteProfilePosts/{uid}{Posts_id}") // need to Implement(14/8/2023)
     Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Path("Posts_id") List<String> Posts_id);
 
     // ================================ Follow and Unfollow action ==============================

@@ -54,6 +54,17 @@ public class ProfileActivity extends AppCompatActivity implements ProfileFragmen
         init();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            // If there are more than 1 fragments in the back stack, pop the current fragment
+            getSupportFragmentManager().popBackStack();
+        } else {
+            // If there's only one fragment in the back stack, finish the activity
+            finish();
+        }
+    }
+
 
      private void init(){
         Log.d(TAG, "init: inflating " +"Profile");
@@ -112,6 +123,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileFragmen
         transaction.replace(R.id.container, fragment);
         transaction.addToBackStack(getString(R.string.view_post_fragment));
         transaction.commit();
+
 
     }
 
