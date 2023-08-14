@@ -81,6 +81,19 @@ public interface RetrofitInterface {
     Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Body List<String> PostsId);
 //    Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Body HashMap<Integer, String> PostsId);
 
+    // ================================ Follow and Unfollow action ==============================
+    /*
+    uidCurrent: the user that want to follow or unfollow
+    uidToFolloeOrUnfollow: the user that the uidCurrent want to follow or unfollow
+    followOrUnfollow: true == "follow" or false == "unfollow"
+     */
+    @PATCH("/followUnfollow/{uidCurrent}{uidToFollowOrUnfollow}{followOrUnfollow}")// need to Implement(14/8/2023)
+    Call<Boolean> followUnfollow (@Path("uidCurrent") String uidCurrent, @Path("uidToFollowOrUnfollow") String uidToFollowOrUnfollow,
+                               @Path("followOrUnfollow") boolean followOrUnfollow);
+
+
+
+
 
     // =========================== Posts =============================
     @PATCH("/addOrRemovePostLiked/{uid}/{postOwnerId}/{postId}")

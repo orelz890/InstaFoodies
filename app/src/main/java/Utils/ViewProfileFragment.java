@@ -34,31 +34,16 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-import Login.LoginActivity;
-import Profile.AccountSettingsActivity;
 import Profile.ProfileActivity;
 import Search.SearchActivity;
 import Server.RequestUserFeed;
-import Utils.BottomNavigationViewHelper;
-import Utils.FirebaseMethods;
-import Utils.GridImageAdapter;
-import Utils.GridImageStringAdapter;
-import Utils.ServerMethods;
-import Utils.UniversalImageLoader;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.User;
@@ -71,22 +56,10 @@ import retrofit2.Response;
 public class ViewProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
-//
-//    public interface OnGridImageSelectedListener{
-//        void onGridImageSelected(Photo photo, int activityNumber);
-//    }
-//    OnGridImageSelectedListener mOnGridImageSelectedListener;
-
-
-
-    public interface OnGridImageSelectedListener{
-        void onGridImageSelected(Post post, int activityNumber);
-    }
-
-    private OnGridImageSelectedListener mOnGridImageSelectedListener;
-    private View view; // Add this line to declare the view variable
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
+    private OnGridImageSelectedListener mOnGridImageSelectedListener;
+    private View view; // Add this line to declare the view variable
 
     //firebase
     private FirebaseAuth mAuth;
@@ -106,6 +79,8 @@ public class ViewProfileFragment extends Fragment {
     private ImageView profileMenu;
     private BottomNavigationViewEx bottomNavigationView;
     private Context mContext;
+    private AppCompatButton followButton;
+
 
 
     //vars
@@ -113,7 +88,11 @@ public class ViewProfileFragment extends Fragment {
     private int mFollowingCount = 0;
     private int mPostsCount = 0;
     private UserSettings mUser;
+    private UserSettings currentUser;
 
+    public interface OnGridImageSelectedListener{
+        void onGridImageSelected(Post post, int activityNumber);
+    }
 
     @Nullable
     @Override
@@ -132,10 +111,8 @@ public class ViewProfileFragment extends Fragment {
         toolbar = (Toolbar) view.findViewById(R.id.profileToolBarView);
         profileMenu = (ImageView) view.findViewById(R.id.profileMenu);
         bottomNavigationView = (BottomNavigationViewEx) view.findViewById(R.id.bottomNavViewBar);
+        followButton = (AppCompatButton) view.findViewById(R.id.follow);
         mContext = getActivity();
-
-        //need to be delete if works
-        //mFirebaseMethods = new FirebaseMethods(getActivity());
         serverMethods = new ServerMethods(mContext);
         Log.d(TAG, "onCreateView: stared.");
 
@@ -161,12 +138,20 @@ public class ViewProfileFragment extends Fragment {
             }
         });
 
-
-
-
+        ///////////SERVER FUNACTION WAS NOT BUILD YET/////////////////////
+//        followButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Log.d(TAG, "onClick: send follow or un follow " + mContext.getString(R.string.edit_profile_fragment));
+//                if(followButton.getText().equals("Follow")){followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),true);}
+//                else{followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),false);}
+//
+//            };
+//        });
 
         return view;
     }
+
 
 
     private void init(){
@@ -175,6 +160,57 @@ public class ViewProfileFragment extends Fragment {
         //get the users profile photos
         setupGridView(mUser);
     }
+
+    private void followUnfollowAction(String currentUid, User personTo, Boolean followOrUnfollow){
+        //true current wants to follow personTo
+        if (followOrUnfollow) {
+            Call<Boolean> call = serverMethods.retrofitInterface.followUnfollow
+                    (currentUid, personTo.getUser_id(), true);
+            call.enqueue(new Callback<Boolean>() {
+                @Override
+                public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                    if (response.code() == 200) {
+                        Toast.makeText(mContext, personTo.getUsername() + "followed seccessfully: " + response.message(), Toast.LENGTH_LONG).show();
+                        followButton.setText("Unfollow");
+                    } else {
+                        Toast.makeText(mContext, "failed following " + personTo.getUsername()
+                                + " response code was not valid: " + response.message(), Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                    Toast.makeText(mContext, "failed following " + personTo.getUsername()
+                            + " response failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+            //false current wants to unfollow personTo
+        }else{
+                Call<Boolean> call = serverMethods.retrofitInterface.followUnfollow
+                        (currentUid, personTo.getUser_id(), false);
+                call.enqueue(new Callback<Boolean>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                        if (response.code() == 200) {
+                            Toast.makeText(mContext, personTo.getUsername() +"UnFollowed seccessfully: "+response.message(), Toast.LENGTH_LONG).show();
+                            followButton.setText("Follow");
+                        } else {
+                            Toast.makeText(mContext, "failed UnFollowing  "+personTo.getUsername()
+                                    +" response code was not valid: "+ response.message(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    @Override
+                    public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                        Toast.makeText(mContext, "failed UnFollowing "+personTo.getUsername()
+                                +" response failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+        }
+
+    }
+
+
 
     private UserSettings getUserFromBundle(){
         Log.d(TAG, "getUserFromBundle: arguments: "+ getArguments());
@@ -322,6 +358,39 @@ public class ViewProfileFragment extends Fragment {
         mFollowing.setText(String.valueOf(userAccountSettings.getFollowing()));
         mFollowers.setText(String.valueOf(userAccountSettings.getFollowers()));
         mProgressBar.setVisibility(View.GONE);
+
+        //SERVER FUNACITONALITY WAS NOT BUILD YET//////////////
+
+
+//        Call<UserSettings> call = serverMethods.retrofitInterface.getUserSettings(mAuth.getCurrentUser().getUid());
+//        call.enqueue(new Callback<UserSettings>() {
+//            @Override
+//            public void onResponse(Call<UserSettings> call, Response<UserSettings> response) {
+//                if (response.code() == 200) {
+//                    currentUser  = response.body();
+//                    if (currentUser != null) {
+//                        if (currentUser.getSettings().getFollowing_ids().contains(user.getUser_id())) {
+//                            followButton.setText("Unfollow");
+//                        } else {
+//                            followButton.setText("Follow");
+//                        }
+//                    }
+//                }else {
+//                    Toast.makeText(mContext, "failed to get current user settings code was not valid: "
+//                            +response.message(), Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<UserSettings> call, Throwable t) {
+//                Toast.makeText(mContext, "failed to get current user settings response failed: "
+//                        + t.getMessage(), Toast.LENGTH_LONG).show();
+//
+//            }
+//        });
+//
+
+
     }
 
 

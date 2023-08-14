@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -414,7 +415,6 @@ public class ProfileFragment extends Fragment {
                                 System.out.println("Image (" + i + ") = " + userFeed.getPost(i).getImage_paths().get(0));
                             }
 
-
                             adapter = new GridImageSelection(getActivity(), R.layout.layout_grid_image_view,
                                     "", imgUrls, gridView);
                             gridView.setAdapter(adapter);
@@ -575,7 +575,6 @@ public class ProfileFragment extends Fragment {
                                 imgUrls.add(myLikedPosts.getPost(i).getImage_paths().get(0));
                                 System.out.println("Image (" + i + ") = " + myLikedPosts.getPost(i).getImage_paths().get(0));
                             }
-
                             // Set up the GridView
                             adapter = new GridImageSelection(getActivity(), R.layout.layout_grid_image_view,
                                     "", imgUrls, gridView);
@@ -834,6 +833,9 @@ public class ProfileFragment extends Fragment {
     }
 
 
+
+
+
     @Override
     public void onStart() {
         super.onStart();
@@ -848,6 +850,8 @@ public class ProfileFragment extends Fragment {
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+
+
     }
 
 

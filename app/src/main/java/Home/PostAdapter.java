@@ -128,8 +128,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             // Set the post content
             if (post != null) {
                 System.out.println("PostAdapter - onBindViewHolder - post != null\n Post(" + position + "): " + post.toString());
-
-                // Set the post pictures
+                // Set the visibility of the add_to_cart ImageView based on whether the post is a recipe
+                if (post.getRecipe() != null) {
+                    holder.imageAddCart.setVisibility(View.VISIBLE);
+                } else {
+                    holder.imageAddCart.setVisibility(View.GONE);
+                }
+                // Set he post pictures
                 List<String> image_paths = post.getImage_paths();
                 if (image_paths != null && !image_paths.isEmpty()) {
                     holder.adapter = new StringImageAdapter(image_paths);

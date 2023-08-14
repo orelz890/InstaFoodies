@@ -111,7 +111,7 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="10dp"
+                android:layout_margin="10dp"
                 android:layout_toEndOf="@+id/speech_bubble"
                 android:src="@drawable/added_to_cart"
                 android:visibility="invisible" />
