@@ -71,6 +71,12 @@ public class RequestUserFeed implements Serializable {
         this.posts.addAll(posts);
     }
 
+    public void patchPost(int pos, Post post){
+        if (this.posts != null){
+            this.posts.set(pos,post);
+        }
+    }
+
     public void setPosts(Post[] posts) {
         this.posts = new ArrayList<>();
         this.posts.addAll(Arrays.asList(posts));

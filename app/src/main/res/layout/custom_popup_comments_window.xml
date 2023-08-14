@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/circle_popup_comments_background"
-    >
+    android:background="@drawable/circle_popup_comments_background">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
+        android:layout_above="@id/rl_bottom_send_comment"
         >
 
         <ImageView
             android:id="@+id/upper_bound_line"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/bound_comments_window"
-            />
+            android:src="@drawable/bound_comments_window" />
 
         <TextView
             android:id="@+id/tv_comments"
-            android:layout_below="@+id/upper_bound_line"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_below="@+id/upper_bound_line"
             android:layout_marginTop="15dp"
+            android:gravity="center"
             android:text="@string/comments"
             android:textColor="@color/black"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold" />
 
         <View
             android:id="@+id/divider_view"
@@ -39,47 +36,45 @@
             android:layout_below="@+id/tv_comments"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
-            android:background="@android:color/darker_gray"/>
+            android:background="@android:color/darker_gray" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/commentsRecyclerView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            />
+            android:orientation="vertical" />
 
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/rl_bottom_send_comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
         >
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/user_profile_image"
             android:layout_width="45dp"
             android:layout_height="65dp"
-            android:src="@drawable/profile_image"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            />
+            android:src="@drawable/profile_image" />
 
         <EditText
             android:id="@+id/et_new_comment_text"
             android:layout_width="match_parent"
             android:layout_height="65dp"
-            android:hint="@string/add_a_comment"
-            android:layout_toEndOf="@+id/user_profile_image"
-            android:layout_toStartOf="@+id/iv_send"
             android:layout_margin="5dp"
-            android:maxLines="2"
+            android:layout_toStartOf="@+id/iv_send"
+            android:layout_toEndOf="@+id/user_profile_image"
+            android:hint="@string/add_a_comment"
             android:maxWidth="100dp"
             android:maxHeight="100dp"
             android:maxLength="60"
-            />
+            android:maxLines="2" />
 
         <ImageView
             android:id="@+id/iv_send"
@@ -91,14 +86,8 @@
             android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
-            android:src="@drawable/ic_send_message"
-            />
+            android:src="@drawable/ic_send_message" />
 
     </RelativeLayout>
-
-
-
-
-
 
 </RelativeLayout>

@@ -111,7 +111,7 @@ public interface RetrofitInterface {
     // ====================== Comments ================================
 
     @POST("/addCommentToPost/{postOwnerId}/{postId}/{uid}/{comment}/{name}/{photo}/{commentId}")
-    Call<Void> addCommentToPost (@Path("postOwnerId") String postOwnerId,
+    Call<Comment> addCommentToPost (@Path("postOwnerId") String postOwnerId,
                                  @Path("postId") String postId,
                                  @Path("uid") String uid,
                                  @Path("comment") String comment,

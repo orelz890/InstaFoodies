@@ -1,6 +1,7 @@
 package Home;
 
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -62,6 +63,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     private CommentsAdapter commentsAdapter;
     private RecyclerView commentsRecyclerView;
+    private Runnable refreshRunnable;
+    private PopupWindow popupWindow;
+    private Handler handler;
+    private int currentPosition;
+    private static final long REFRESH_INTERVAL = 3000; // 3 seconds
+
 
 
     public PostAdapter(RequestUserFeed requestUserFeed, Context context, RelativeLayout layout) {
@@ -125,7 +132,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 holder.post_caption.setText(post.getCaption());
 
                 // Set time
-                holder.post_time_posted.setText(post.getDate_created());
+                holder.post_time_posted.setText(CommentsAdapter.getTimeAgo(post.getDate_created()));
 
                 // Set how much likes the post has & the heart color
                 holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
@@ -157,7 +164,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     }
                 });
 
-
             } else {
                 System.out.println("PostAdapter - onBindViewHolder - post == null");
             }
@@ -167,8 +173,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     private void createPopupCommentsWindow(int position) {
+        currentPosition = position;
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View popupView = inflater.inflate(R.layout.custom_popup_comments_window, null);
+
 
         // Find views in the popupView
         EditText etNewComment = popupView.findViewById(R.id.et_new_comment_text);
@@ -187,7 +195,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         setupSendMessageButton(sendButton, etNewComment, position);
 
         // Setup main comment feed
-        setupCommentsMainFeed(commentsRecyclerView, position);
+        setupCommentsMainFeed(position);
 
 
         // Get the screen dimensions
@@ -203,17 +211,54 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 //        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
         boolean focusable = true;
-        PopupWindow popupWindow = new PopupWindow(popupView, screenWidth, screenHeight / 2, focusable);
+        popupWindow = new PopupWindow(popupView, screenWidth, screenHeight / 2, focusable);
         layout.post(new Runnable() {
             @Override
             public void run() {
                 popupWindow.showAtLocation(layout, Gravity.BOTTOM, 0, 0);
+
+                // Initialize the handler
+                handler = new Handler();
+
+                // Define the refresh runnable
+                refreshRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        // Perform your refresh logic here
+                        refreshPopupContent();
+                        // Schedule the runnable to run again after the refresh interval
+                        handler.postDelayed(this, REFRESH_INTERVAL);
+                    }
+                };
+
+                // Start the initial refresh
+                handler.post(refreshRunnable);
             }
         });
 
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                dismissPopupWindow();
+            }
+        });
     }
 
-    private void setupCommentsMainFeed(RecyclerView recyclerView, int position) {
+    private void dismissPopupWindow() {
+        // Dismiss the popupWindow
+        popupWindow.dismiss();
+        // Remove the runnable when the popupWindow is dismissed
+        handler.removeCallbacks(refreshRunnable);
+    }
+
+    private void refreshPopupContent() {
+        // Implement your refresh logic for the popup content here
+        // This method will be called every 3 seconds while the popup is displayed
+        setupCommentsMainFeed(currentPosition);
+
+    }
+
+    private void setupCommentsMainFeed(int position) {
         Post post = requestUserFeed.getPost(position);
         serverMethods.retrofitInterface.getPostComments(post.getUser_id(),post.getPost_id()).enqueue(new Callback<Comment[]>() {
             @Override
@@ -224,7 +269,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     if (comments != null && comments.length > 0) {
                         System.out.println("comment = " + comments[0].getComment());
                         commentsAdapter = new CommentsAdapter(comments, mContext, post.getUser_id(), post.getPost_id(), serverMethods);
-                        recyclerView.setAdapter(commentsAdapter);
+                        commentsRecyclerView.setAdapter(commentsAdapter);
+                        // Scroll to the last item in the list
+                        int lastPosition = comments.length - 1;
+                        if (lastPosition >= 0) {
+                            commentsRecyclerView.scrollToPosition(lastPosition);
+                        }
                     }
                 }
                 else {
@@ -246,6 +296,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             @Override
             public void onClick(View v) {
                 String commentText = etNewComment.getText().toString();
+                etNewComment.setText("");
 
                 if (TextUtils.isEmpty(commentText)) {
                     Toast.makeText(mContext, "first write your comment...", Toast.LENGTH_SHORT).show();
@@ -257,11 +308,31 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     String comment_id = createHash();
 
                     User user = requestUserFeed.getUser();
-                    serverMethods.retrofitInterface.addCommentToPost(post.getUser_id(), post.getPost_id(), uid, commentText, user.getFull_name() ,userAccountSettings.getProfile_photo(), comment_id).enqueue(new Callback<Void>() {
+
+                    serverMethods.retrofitInterface.addCommentToPost(post.getUser_id(),
+                            post.getPost_id(), uid, commentText, user.getFull_name(),
+                            userAccountSettings.getProfile_photo(),
+                            comment_id).enqueue(new Callback<Comment>() {
                         @Override
-                        public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                        public void onResponse(@NonNull Call<Comment> call, @NonNull Response<Comment> response) {
                             if (response.code() == 200) {
                                 System.out.println("PostAdapter - setupSendMessageButton - Success");
+
+                                Comment comment = response.body();
+                                if (comment != null) {
+                                    post.addComment(comment);
+//                                    requestUserFeed.patchPost(position, post);
+//                                    changeAdapter();
+                                    List<Comment> comments = post.getComments();
+                                    commentsAdapter = new CommentsAdapter(comments, mContext, post.getUser_id(), post.getPost_id(), serverMethods);
+                                    commentsRecyclerView.setAdapter(commentsAdapter);
+
+                                    // Scroll to the last item in the list
+                                    int lastPosition = comments.size() - 1;
+                                    if (lastPosition >= 0) {
+                                        commentsRecyclerView.scrollToPosition(lastPosition);
+                                    }
+                                }
                             }
                             else {
                                 System.out.println("PostAdapter - setupSendMessageButton - Failed");
@@ -269,7 +340,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                         }
 
                         @Override
-                        public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                        public void onFailure(@NonNull Call<Comment> call, @NonNull Throwable t) {
                             System.out.println("PostAdapter - setupSendMessageButton - onFailure");
 
                         }
@@ -278,6 +349,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             }
         });
     }
+
 
     private String createHash() {
         return "comment_" + UUID.randomUUID().toString();

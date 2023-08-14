@@ -217,6 +217,17 @@ public class Post implements Parcelable, Serializable {
         this.post_id = post_id;
     }
 
+    public void removeComment(Comment comment) {
+        this.comments.remove(comment);
+    }
+
+    public void addComment(Comment comment) {
+        if (this.comments == null){
+            this.comments = new ArrayList<>();
+        }
+        this.comments.add(comment);
+    }
+
     public String getUser_id() {
         return user_id;
     }

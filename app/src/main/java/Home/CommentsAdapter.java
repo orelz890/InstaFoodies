@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,6 +46,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private Context context;
     private String postOwner, postId;
     private List<Comment> comments;
+    private static DecimalFormat decimalFormat;
+
 
     public CommentsAdapter(Comment[] comments, Context context, String postOwner, String postId, ServerMethods serverMethods) {
         this.comments = new ArrayList<>();
@@ -53,6 +56,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         this.postOwner = postOwner;
         this.postId = postId;
         this.serverMethods = serverMethods;
+        this.decimalFormat = new DecimalFormat("#.0");
+    }
+
+    public CommentsAdapter(List<Comment> comments, Context context, String postOwner, String postId, ServerMethods serverMethods) {
+        this.comments = new ArrayList<>();
+        this.comments.addAll(comments);
+        this.context = context;
+        this.postOwner = postOwner;
+        this.postId = postId;
+        this.serverMethods = serverMethods;
+        this.decimalFormat = new DecimalFormat("#.0");
     }
 
     @NonNull
@@ -113,10 +127,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
 
             });
-
-
         }
-
     }
 
     private void updatePostLiked(CommentsViewHolder holder, String uid, int position) {
@@ -130,11 +141,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                     Comment comment = comments.get(position);
                     if (Boolean.TRUE.equals(like)){
                         comments.get(position).addLike(uid);
-                        holder.tvLikeCount.setText(getLikesCountString(comments.get(position).getLikeCount() + 1));
+                        holder.tvLikeCount.setText(getLikesCountString(comments.get(position).getLikeCount()));
                     }
                     else {
                         comments.get(position).removeLike(uid);
-                        holder.tvLikeCount.setText(getLikesCountString(comments.get(position).getLikeCount() - 1));
+                        holder.tvLikeCount.setText(getLikesCountString(comments.get(position).getLikeCount()));
                     }
                 }
                 else {
@@ -178,11 +189,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         try {
             Date pastDate = dateFormat.parse(pastDateText);
             long currentTimeMillis = System.currentTimeMillis(); // Current time in milliseconds
-            long timeDiffMillis = pastDate.getTime() - currentTimeMillis;
-            long seconds = TimeUnit.MILLISECONDS.toSeconds(timeDiffMillis);
-            long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDiffMillis);
-            long hours = TimeUnit.MILLISECONDS.toHours(timeDiffMillis);
-            long days = TimeUnit.MILLISECONDS.toDays(timeDiffMillis);
+            long timeDiffMillis = Math.abs(pastDate.getTime() - currentTimeMillis);
+            long seconds = Math.abs(TimeUnit.MILLISECONDS.toSeconds(timeDiffMillis));
+            long minutes = Math.abs(TimeUnit.MILLISECONDS.toMinutes(timeDiffMillis));
+            long hours = Math.abs(TimeUnit.MILLISECONDS.toHours(timeDiffMillis));
+            long days = Math.abs(TimeUnit.MILLISECONDS.toDays(timeDiffMillis));
 
             if (days > 365) {
                 return days + " Y";
@@ -206,12 +217,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public static String getLikesCountString(int likeCount) {
+
         if (likeCount >= 1000000000){
-            return likeCount/1000000000 + "B";
+            return decimalFormat.format(likeCount/1000000000) + "B";
         } else if(likeCount >= 1000000){
-            return likeCount/1000000 + "M";
+            return decimalFormat.format(likeCount/1000000) + "M";
         } else if(likeCount >= 1000){
-            return likeCount/1000 + "K";
+            return decimalFormat.format(likeCount/1000) + "K";
         } else {
             return likeCount + "";
         }
