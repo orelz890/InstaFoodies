@@ -71,21 +71,22 @@ public interface RetrofitInterface {
 
 
     // Cart
-    @GET("/getCartPosts/{uid}") // need to Implement(14/8/2023)
+    @GET("/getCartPosts/{uid}")
     Call<RequestPosts> getCartPosts (@Path("uid") String uid);
 
-    @GET("/getLikedPosts/{uid}") // need to Implement(14/8/2023)
+    @GET("/getLikedPosts/{uid}")
     Call<RequestPosts> getLikedPosts (@Path("uid") String uid);
 
-    @GET("/deleteProfilePosts/{uid}{Posts_id}") // need to Implement(14/8/2023)
-    Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Path("Posts_id") List<String> Posts_id);
+    @PATCH("/deleteProfilePosts/{uid}") // need to Implement(14/8/2023)
+    Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Body List<String> PostsId);
+//    Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Body HashMap<Integer, String> PostsId);
 
 
     // =========================== Posts =============================
-    @PATCH("/addOrRemovePostLiked/{uid}/{postOwnerId}/{postId}") // need to finish
+    @PATCH("/addOrRemovePostLiked/{uid}/{postOwnerId}/{postId}")
     Call<Boolean> addOrRemovePostLiked (@Path("uid") String uid, @Path("postOwnerId") String postOwnerId, @Path("postId") String postId);
 
-    @PATCH("/addOrRemoveCartPost/{uid}/{postOwnerId}/{postId}") // need to Implement(14/8/2023)
+    @PATCH("/addOrRemoveCartPost/{uid}/{postOwnerId}/{postId}")
     Call<Boolean> addOrRemoveCartPost (@Path("uid") String uid, @Path("postOwnerId") String postOwnerId, @Path("postId") String postId);
 
     @GET("/getUserFeedPosts/{uid}")
@@ -94,7 +95,7 @@ public interface RetrofitInterface {
     @GET("/getProfileFeedPosts/{uid}")
     Call<RequestUserFeed> getProfileFeedPosts (@Path("uid") String uid);
 
-    @POST("/addOrRemoveLikeToPostComment/{postOwner}/{postId}/{uid}/{position}") // Working!
+    @POST("/addOrRemoveLikeToPostComment/{postOwner}/{postId}/{uid}/{position}")
     Call<Boolean> addOrRemoveLikeToPostComment (@Path("postOwner") String postOwner,
                                              @Path("postId") String postId,
                                              @Path("uid") String uid,

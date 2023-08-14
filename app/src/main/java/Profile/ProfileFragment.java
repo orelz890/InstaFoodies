@@ -43,7 +43,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import Server.RequestPosts;
@@ -282,10 +284,22 @@ public class ProfileFragment extends Fragment {
             for (int index : adapter.getSelectedIndexes()) {
                 String selectedPost_ids = myPosts.getPost(index).getPost_id();
                 selectedToDelete.add(selectedPost_ids);
+
             }
         }
+//        String[] temp = new String[selectedToDelete.size()];
+//        int i = 0;
+//        for (String id: selectedToDelete) {
+//            temp[i++] = id;
+//        }
+//        HashMap<Integer, String> indexPostIdMap = new HashMap<>();
+//        for (int i = 0; i < selectedToDelete.size(); i++) {
+//            indexPostIdMap.put(i, selectedToDelete.get(i));
+//        }
+
         if (uid != null) {
             serverMethods.retrofitInterface.deleteProfilePosts(uid, selectedToDelete).enqueue(new Callback<Boolean>() {
+//            serverMethods.retrofitInterface.deleteProfilePosts(uid, indexPostIdMap).enqueue(new Callback<Boolean>() {
                 @Override
                 public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
                     if (response.isSuccessful()) {

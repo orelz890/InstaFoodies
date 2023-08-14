@@ -27,7 +27,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import Chat.MessageAdapter;
@@ -100,15 +104,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             UserAccountSettings userAccountSettings = requestUserFeed.getAccount();
             Post post = requestUserFeed.getPost(position);
 
+            if (post.getRecipe() == null){
+                holder.imageAddCart.setVisibility(View.INVISIBLE);
+            }
+
             // Set the user info & photo
             if (userAccountSettings != null) {
                 System.out.println("PostAdapter - onBindViewHolder - userAccountSettings != null\n Post(" + position + "): " + userAccountSettings.toString());
                 // Set photo
                 String profile_photo = userAccountSettings.getProfile_photo();
                 if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
-                    Picasso.get().load(profile_photo).into(holder.profile_photo);
+                    Picasso.get().load(profile_photo).into(holder.profilePhoto);
                 } else {
-                    holder.profile_photo.setImageResource(R.drawable.profile_image);
+                    holder.profilePhoto.setImageResource(R.drawable.profile_image);
                 }
 
                 // Set username
@@ -125,52 +133,62 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 List<String> image_paths = post.getImage_paths();
                 if (image_paths != null && !image_paths.isEmpty()) {
                     holder.adapter = new StringImageAdapter(image_paths);
-                    holder.post_images.setAdapter(holder.adapter);
+                    holder.postImages.setAdapter(holder.adapter);
                 }
 
                 // Set the post caption
-                holder.post_caption.setText(post.getCaption());
+                holder.postCaption.setText(post.getCaption());
 
                 // Set time
-                holder.post_time_posted.setText(CommentsAdapter.getTimeAgo(post.getDate_created()));
+                SimpleDateFormat inputDateFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT'Z", Locale.ENGLISH);
+                SimpleDateFormat outputDateFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm", Locale.ENGLISH);
+                try {
+                    String  inputDateString = post.getDate_created();
+                    Date date = inputDateFormat.parse(inputDateString);
+                    String formattedDate = outputDateFormat.format(date);
 
-                // Set how much likes the post has & the heart color
-                holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
-
-                List<String> liked = post.getLiked();
-                if (liked != null && liked.contains(uid)) {
-                    holder.image_heart.setImageResource(R.drawable.heart_red);
-                } else {
-                    holder.image_heart.setImageResource(R.drawable.heart);
+                    holder.postTimePosted.setText(formattedDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
 
-                holder.image_heart.setOnClickListener(new View.OnClickListener() {
+                // Set how much likes the post has & the heart color
+                holder.imageLikes.setText(String.format("%s Likes", post.getLikesCount()));
+
+                List<String> liked = post.getLiked_list();
+                if (liked != null && liked.contains(uid)) {
+                    holder.imageHeart.setImageResource(R.drawable.heart_red);
+                } else {
+                    holder.imageHeart.setImageResource(R.drawable.heart);
+                }
+
+                holder.imageHeart.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        if (holder.image_heart.getDrawable().getConstantState().equals(mContext.getResources().getDrawable(R.drawable.heart).getConstantState())) {
-                            holder.image_heart.setImageResource(R.drawable.heart_red);
+                        if (holder.imageHeart.getDrawable().getConstantState().equals(mContext.getResources().getDrawable(R.drawable.heart).getConstantState())) {
+                            holder.imageHeart.setImageResource(R.drawable.heart_red);
                         } else {
-                            holder.image_heart.setImageResource(R.drawable.heart);
+                            holder.imageHeart.setImageResource(R.drawable.heart);
                         }
                         updatePostLiked(holder, uid, post);
                     }
                 });
 
-                holder.image_add_cart.setOnClickListener(new View.OnClickListener() {
+                holder.imageAddCart.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        if (holder.image_add_cart.getDrawable().getConstantState().equals(mContext.getResources().getDrawable(R.drawable.add_to_cart).getConstantState())) {
-                            holder.image_add_cart.setImageResource(R.drawable.added_to_cart);
+                        if (holder.imageAddCart.getDrawable().getConstantState().equals(mContext.getResources().getDrawable(R.drawable.add_to_cart).getConstantState())) {
+                            holder.imageAddCart.setImageResource(R.drawable.added_to_cart);
                         } else {
-                            holder.image_add_cart.setImageResource(R.drawable.add_to_cart);
+                            holder.imageAddCart.setImageResource(R.drawable.add_to_cart);
                         }
                         updateCartPost(uid, post);
                     }
                 });
 
-                holder.speech_bubble.setOnClickListener(new View.OnClickListener() {
+                holder.commentsBubble.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         createPopupCommentsWindow(position);
@@ -336,7 +354,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                                     post.addComment(comment);
 //                                    requestUserFeed.patchPost(position, post);
 //                                    changeAdapter();
-                                    List<Comment> comments = post.getComments();
+                                    List<Comment> comments = post.getComments_list();
                                     commentsAdapter = new CommentsAdapter(comments, mContext, post.getUser_id(), post.getPost_id(), serverMethods);
                                     commentsRecyclerView.setAdapter(commentsAdapter);
 
@@ -376,10 +394,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView username, image_likes, post_caption, image_comments_link, post_time_posted;
-        public CircleImageView profile_photo;
-        public ImageView ivEllipses, image_heart_red, image_heart, speech_bubble,image_add_cart,image_add_to_cart_fill;
-        public ViewPager2 post_images;
+        public TextView username, imageLikes, postCaption, imageCommentsLink, postTimePosted;
+        public CircleImageView profilePhoto;
+        public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble,imageAddCart,imageAddToCartFill;
+        public ViewPager2 postImages;
         public StringImageAdapter adapter;
         public View view;
 
@@ -388,18 +406,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
             view = itemView;
             username = (TextView) itemView.findViewById(R.id.username); // <<<
-            profile_photo = (CircleImageView) itemView.findViewById(R.id.profile_photo); // <<<
+            profilePhoto = (CircleImageView) itemView.findViewById(R.id.profile_photo); // <<<
             ivEllipses = (ImageView) itemView.findViewById(R.id.ivEllipses);
-            post_images = (ViewPager2) itemView.findViewById(R.id.post_images); // <<<< ///
-            image_heart_red = (ImageView) itemView.findViewById(R.id.image_heart_red);
-            image_heart = (ImageView) itemView.findViewById(R.id.image_heart);
-            speech_bubble = (ImageView) itemView.findViewById(R.id.speech_bubble);
-            image_likes = (TextView) itemView.findViewById(R.id.image_likes);
-            post_caption = (TextView) itemView.findViewById(R.id.post_caption); // <<<<
-            image_comments_link = (TextView) itemView.findViewById(R.id.image_comments_link);
-            post_time_posted = (TextView) itemView.findViewById(R.id.post_time_posted); // <<<<
-            image_add_cart = itemView.findViewById(R.id.add_cart);
-            image_add_to_cart_fill = itemView.findViewById(R.id.add_to_cart_fill);
+            postImages = (ViewPager2) itemView.findViewById(R.id.post_images); // <<<< ///
+            imageHeartRed = (ImageView) itemView.findViewById(R.id.image_heart_red);
+            imageHeart = (ImageView) itemView.findViewById(R.id.image_heart);
+            commentsBubble = (ImageView) itemView.findViewById(R.id.speech_bubble);
+            imageLikes = (TextView) itemView.findViewById(R.id.image_likes);
+            postCaption = (TextView) itemView.findViewById(R.id.post_caption); // <<<<
+            imageCommentsLink = (TextView) itemView.findViewById(R.id.image_comments_link);
+            postTimePosted = (TextView) itemView.findViewById(R.id.post_time_posted); // <<<<
+            imageAddCart = itemView.findViewById(R.id.add_cart);
+            imageAddToCartFill = itemView.findViewById(R.id.add_to_cart_fill);
         }
     }
 
@@ -414,10 +432,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                         System.out.println("likesCount = " + like);
                         if (like) {
                             post.addLike(uid);
-                            holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+                            holder.imageLikes.setText(String.format("%s Likes", post.getLikesCount()));
                         } else {
                             post.removeLike(uid);
-                            holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+                            holder.imageLikes.setText(String.format("%s Likes", post.getLikesCount()));
                         }
                     }
                 }

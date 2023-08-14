@@ -21,6 +21,7 @@ public class RequestPosts {
     }
 
     public RequestPosts(){
+        posts = new ArrayList<>();
 
     }
 

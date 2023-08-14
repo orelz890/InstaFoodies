@@ -210,12 +210,15 @@ public class HomeActivity extends AppCompatActivity {
     private void setupMainFeed() {
         System.out.println("im in onStart setupMainFeed()");
 
+        uid = mAuth.getCurrentUser().getUid();
         serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
             @Override
             public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
                 if (response.isSuccessful()){
                     System.out.println(TAG + " - setupMainFeed - response.isSuccessful()");
                     requestUserFeed = response.body();
+
+                    System.out.println(requestUserFeed);
 //                    setProfileIconInNevigation();
 
                     if (requestUserFeed != null){

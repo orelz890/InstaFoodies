@@ -180,6 +180,22 @@ public class  User implements Serializable {
         this.time = time;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "passwordHash='" + passwordHash + '\'' +
+                ", user_id='" + user_id + '\'' +
+                ", email='" + email + '\'' +
+                ", phone_number='" + phone_number + '\'' +
+                ", username='" + username + '\'' +
+                ", full_name='" + full_name + '\'' +
+                ", state='" + state + '\'' +
+                ", date='" + date + '\'' +
+                ", time='" + time + '\'' +
+                ", token='" + token + '\'' +
+                '}';
+    }
+
     public String getToken() {
         return token;
     }

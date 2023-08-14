@@ -84,4 +84,12 @@ public class RequestUserFeed implements Serializable {
         return this.posts.size();
     }
 
+    @Override
+    public String toString() {
+        return "RequestUserFeed{" +
+                "user=" + user +
+                ", account=" + account +
+                ", posts=" + posts +
+                '}';
+    }
 }

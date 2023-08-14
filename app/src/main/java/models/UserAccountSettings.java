@@ -179,6 +179,21 @@ public class UserAccountSettings implements Serializable {
         return followers_ids;
     }
 
+    @Override
+    public String toString() {
+        return "UserAccountSettings{" +
+                "description='" + description + '\'' +
+                ", profile_photo='" + profile_photo + '\'' +
+                ", isBusiness=" + isBusiness +
+                ", followers=" + followers +
+                ", following=" + following +
+                ", posts=" + posts +
+                ", website='" + website + '\'' +
+                ", following_ids=" + following_ids +
+                ", followers_ids=" + followers_ids +
+                '}';
+    }
+
     public void setFollowers_ids(List<String> followers_ids) {
         this.followers_ids = new ArrayList<>();
         this.followers_ids.addAll(followers_ids);
