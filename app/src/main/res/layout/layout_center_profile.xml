@@ -182,6 +182,14 @@
                         android:stretchMode="columnWidth"
                         android:verticalSpacing="1dp"/>
 
+                    <ProgressBar
+                        android:id="@+id/gridLoadingProgressBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        />
+
 
                     <TextView
                         android:id="@+id/emptyGrid"

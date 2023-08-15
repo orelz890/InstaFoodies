@@ -108,6 +108,7 @@ public class ProfileFragment extends Fragment {
     private TextView myLikedPosts;
     private BottomNavigationViewEx bottomNavigationView;
     private Context mContext;
+    private ProgressBar gridLoadingProgressBar;
     private List<Integer> selectedIndexes = new ArrayList<>();
     private ImageView delete;
     private ImageView exportCart;
@@ -149,6 +150,8 @@ public class ProfileFragment extends Fragment {
         serverMethods = new ServerMethods(mContext);
         delete = view.findViewById(R.id.deleteButton);
         exportCart = view.findViewById(R.id.exportButton);
+        gridLoadingProgressBar = view.findViewById(R.id.gridLoadingProgressBar);
+
         Log.d(TAG, "onCreateView: stared.");
 
 
@@ -181,6 +184,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 setupGridViewByOption("myPosts");
+                adapter.clearImgURLs();
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -188,6 +193,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 setupGridViewByOption("myCart");
+                adapter.clearImgURLs();
+                adapter.notifyDataSetChanged();
 
             }
         });
@@ -196,6 +203,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 setupGridViewByOption("myLikedPosts");
+                adapter.clearImgURLs();
+                adapter.notifyDataSetChanged();
 
             }
         });
@@ -353,12 +362,14 @@ public class ProfileFragment extends Fragment {
                 emptyGrid.setVisibility(View.INVISIBLE);
                 gridView.setVisibility(View.VISIBLE);
                 exportCart.setVisibility(View.GONE);
+                gridLoadingProgressBar.setVisibility(View.VISIBLE);
                 GridViewByPosts();
                 break;
             case "myCart":
                 emptyGrid.setVisibility(View.INVISIBLE);
                 gridView.setVisibility(View.VISIBLE);
                 delete.setVisibility(View.GONE);
+                gridLoadingProgressBar.setVisibility(View.VISIBLE);
                 GridViewByCart();
                 break;
             case "myLikedPosts":
@@ -366,6 +377,7 @@ public class ProfileFragment extends Fragment {
                 gridView.setVisibility(View.VISIBLE);
                 delete.setVisibility(View.GONE);
                 exportCart.setVisibility(View.GONE);
+                gridLoadingProgressBar.setVisibility(View.VISIBLE);
                 GridViewByLiked();
                 break;
         }
@@ -405,6 +417,7 @@ public class ProfileFragment extends Fragment {
                         if (userFeed != null && userFeed.size() > 0) {
                             System.out.println("userFeed: userFeed.size() =  " + userFeed.size());
                             //setup our image grid
+                            gridLoadingProgressBar.setVisibility(View.GONE);
                             int gridWidth = getResources().getDisplayMetrics().widthPixels;
                             int imageWidth = gridWidth / NUM_GRID_COLUMNS;
                             gridView.setColumnWidth(imageWidth);
@@ -449,6 +462,7 @@ public class ProfileFragment extends Fragment {
                                 }
                             });
                         } else {
+                            gridLoadingProgressBar.setVisibility(View.GONE);
                             showEmptyGridMessage();
                             Log.d(TAG, "setupGridView: userFeed == null");
                             System.out.println("setupGridView: userFeed == null");
@@ -486,12 +500,13 @@ public class ProfileFragment extends Fragment {
                         if (myCart != null && myCart.size() > 0) {
                             System.out.println("myCart: myCart.size() =  " + myCart.size());
                             //setup our image grid
+                            gridLoadingProgressBar.setVisibility(View.GONE);
                             int gridWidth = getResources().getDisplayMetrics().widthPixels;
                             int imageWidth = gridWidth / NUM_GRID_COLUMNS;
                             gridView.setColumnWidth(imageWidth);
 
                             ArrayList<String> imgUrls = new ArrayList<String>();
-                            for (int i = 0; i < myCart.size(); i++) {
+                            for (int i = myCart.size() -1; i >= 0; i--) {
                                 imgUrls.add(myCart.getPost(i).getImage_paths().get(0));
                                 System.out.println("Image (" + i + ") = " + myCart.getPost(i).getImage_paths().get(0));
                             }
@@ -531,6 +546,7 @@ public class ProfileFragment extends Fragment {
                                 }
                             });
                         } else {
+                            gridLoadingProgressBar.setVisibility(View.GONE);
                             showEmptyGridMessage();
                             Log.d(TAG, "setupGridView: myCart == null");
                             System.out.println("setupGridView: myCart == null");
@@ -565,13 +581,14 @@ public class ProfileFragment extends Fragment {
                         RequestPosts myLikedPosts = response.body();
                         if (myLikedPosts != null && myLikedPosts.size() > 0) {
                             System.out.println("myLikedPosts: myLikedPosts.size() =  " + myLikedPosts.size());
+                            gridLoadingProgressBar.setVisibility(View.GONE);
                             //setup our image grid
                             int gridWidth = getResources().getDisplayMetrics().widthPixels;
                             int imageWidth = gridWidth / NUM_GRID_COLUMNS;
                             gridView.setColumnWidth(imageWidth);
 
                             ArrayList<String> imgUrls = new ArrayList<String>();
-                            for (int i = 0; i < myLikedPosts.size(); i++) {
+                            for (int i = myLikedPosts.size() -1; i >=0; i--) {
                                 imgUrls.add(myLikedPosts.getPost(i).getImage_paths().get(0));
                                 System.out.println("Image (" + i + ") = " + myLikedPosts.getPost(i).getImage_paths().get(0));
                             }
@@ -598,6 +615,7 @@ public class ProfileFragment extends Fragment {
                                 }
                             });
                         } else {
+                            gridLoadingProgressBar.setVisibility(View.GONE);
                             showEmptyGridMessage();
                             Log.d(TAG, "setupGridView: Error: " + response.message());
                             System.out.println("setupGridView: Error: " + response.message());

@@ -259,6 +259,11 @@ public class GridImageSelection extends ArrayAdapter<String> {
         notifyDataSetChanged();
     }
 
+    public void clearImgURLs() {
+        imgURLs.clear();
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return imgURLs.size();
