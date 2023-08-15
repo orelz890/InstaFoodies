@@ -79,7 +79,6 @@ import retrofit2.Response;
 public class NextRecipeActivity extends AppCompatActivity {
 
 
-
     private List<Uri> imageUris;
     FirebaseAuth mAuth;
     private ProgressDialog loadingBar;
@@ -88,8 +87,6 @@ public class NextRecipeActivity extends AppCompatActivity {
     private ViewPager2 viewPagerImages;
     private TextView imageCounterTextView;
     private ServerMethods serverMethods;
-
-
 
 
     // Text inputs from the user
@@ -136,7 +133,6 @@ public class NextRecipeActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         serverMethods = new ServerMethods(NextRecipeActivity.this);
         loadingBar = new ProgressDialog(NextRecipeActivity.this);
-
 
 
         // Initialize the list of image URIs
@@ -326,20 +322,20 @@ public class NextRecipeActivity extends AppCompatActivity {
                     calcTime(npCookingTime.getValue()) + "",
                     npServings.getValue() + "", npProtein.getValue() + "",
                     npCalories.getValue() + "", npFat.getValue() + "",
-                    npCarbs.getValue() + "",  "");
+                    npCarbs.getValue() + "", "");
             r.setIngredients(ingredientsArray);
             FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser != null) {
                 r.setCopy_rights(currentUser.getUid());
             }
 
-            uploadImageToStorageAndUploadPost(imageUris,r);
+            uploadImageToStorageAndUploadPost(imageUris, r);
             //            ServerTry(imageUris,r);
 
         }
     }
 
-    private void uploadImageToStorageAndUploadPost(List<Uri> imageUris,Recipe r) {
+    private void uploadImageToStorageAndUploadPost(List<Uri> imageUris, Recipe r) {
         loadingBar.setTitle("Upload Post");
         loadingBar.setMessage("Uploading....");
         loadingBar.setCanceledOnTouchOutside(false);
@@ -382,7 +378,7 @@ public class NextRecipeActivity extends AppCompatActivity {
 
                     if (!downloadUrls.isEmpty()) {
                         // All images uploaded successfully
-                        HashMap<String, Object> uploadPost = createPost(r,uuid_post,downloadUrls);
+                        HashMap<String, Object> uploadPost = createPost(r, uuid_post, downloadUrls);
                         Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
                         call.enqueue(new Callback<Void>() {
                             @Override
@@ -439,20 +435,18 @@ public class NextRecipeActivity extends AppCompatActivity {
 //    }
 
 
-
-
-    private HashMap<String, Object> createPost(Recipe r,String post_uid, List<String>post_photos) {
+    private HashMap<String, Object> createPost(Recipe r, String post_uid, List<String> post_photos) {
         Post post = new Post();
-        return post.PostMapForServer(r,etPostDescription.getText().toString(), timeStamp(), post_photos, null, null,null, post_uid, mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
+        return post.PostMapForServer(r, etPostDescription.getText().toString(), timeStamp(), post_photos, null, null, null, post_uid, mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
     }
 
     private String getTags(String caption) {
-        if (caption.indexOf("#") > 0) {
+        if (caption.indexOf("@") > 0) {
             StringBuilder sb = new StringBuilder();
             char[] charArray = caption.toCharArray();
             boolean foundWord = false;
             for (char c : charArray) {
-                if (c == '#') {
+                if (c == '@') {
                     foundWord = true;
                     sb.append(c);
                 } else {
@@ -464,7 +458,7 @@ public class NextRecipeActivity extends AppCompatActivity {
                     foundWord = false;
                 }
             }
-            String s = sb.toString().replace(" ", "").replace("#", ",#");
+            String s = sb.toString().replace(" ", "").replace("@", ",@");
             return s.substring(1, s.length());
         }
         return caption;
@@ -475,10 +469,10 @@ public class NextRecipeActivity extends AppCompatActivity {
     }
 
     private String timeStamp() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd''HH:mm:ss''", Locale.ENGLISH);
-        sdf.setTimeZone(TimeZone.getTimeZone("Israel/Israel")); // Set the timezone to Israel
-        return sdf.format(new Date());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy, hh:mm a", Locale.ENGLISH);
+        return dateFormat.format(new Date());
     }
+
 
     private void moveToActivity(String title) {
         Toast.makeText(getApplicationContext(), title + "> was uploaded!", Toast.LENGTH_LONG).show();
@@ -620,7 +614,6 @@ public class NextRecipeActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
     private void addIngredientAmountDialog(String ingredient, Dialog d) {
