@@ -139,15 +139,15 @@ public class ViewProfileFragment extends Fragment {
         });
 
         ///////////SERVER FUNACTION WAS NOT BUILD YET/////////////////////
-//        followButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.d(TAG, "onClick: send follow or un follow " + mContext.getString(R.string.edit_profile_fragment));
-//                if(followButton.getText().equals("Follow")){followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),true);}
-//                else{followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),false);}
-//
-//            };
-//        });
+        followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: send follow or un follow " + mContext.getString(R.string.edit_profile_fragment));
+                if(followButton.getText().equals("Follow")){followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),true);}
+                else{followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),false);}
+
+            };
+        });
 
         return view;
     }
@@ -362,33 +362,33 @@ public class ViewProfileFragment extends Fragment {
         //SERVER FUNACITONALITY WAS NOT BUILD YET//////////////
 
 
-//        Call<UserSettings> call = serverMethods.retrofitInterface.getUserSettings(mAuth.getCurrentUser().getUid());
-//        call.enqueue(new Callback<UserSettings>() {
-//            @Override
-//            public void onResponse(Call<UserSettings> call, Response<UserSettings> response) {
-//                if (response.code() == 200) {
-//                    currentUser  = response.body();
-//                    if (currentUser != null) {
-//                        if (currentUser.getSettings().getFollowing_ids().contains(user.getUser_id())) {
-//                            followButton.setText("Unfollow");
-//                        } else {
-//                            followButton.setText("Follow");
-//                        }
-//                    }
-//                }else {
-//                    Toast.makeText(mContext, "failed to get current user settings code was not valid: "
-//                            +response.message(), Toast.LENGTH_LONG).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<UserSettings> call, Throwable t) {
-//                Toast.makeText(mContext, "failed to get current user settings response failed: "
-//                        + t.getMessage(), Toast.LENGTH_LONG).show();
-//
-//            }
-//        });
-//
+        Call<UserSettings> call = serverMethods.retrofitInterface.getUserSettings(mAuth.getCurrentUser().getUid());
+        call.enqueue(new Callback<UserSettings>() {
+            @Override
+            public void onResponse(Call<UserSettings> call, Response<UserSettings> response) {
+                if (response.code() == 200) {
+                    currentUser  = response.body();
+                    if (currentUser != null) {
+                        if (currentUser.getSettings().getFollowing_ids().contains(user.getUser_id())) {
+                            followButton.setText("Unfollow");
+                        } else {
+                            followButton.setText("Follow");
+                        }
+                    }
+                }else {
+                    Toast.makeText(mContext, "failed to get current user settings code was not valid: "
+                            +response.message(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserSettings> call, Throwable t) {
+                Toast.makeText(mContext, "failed to get current user settings response failed: "
+                        + t.getMessage(), Toast.LENGTH_LONG).show();
+
+            }
+        });
+
 
 
     }

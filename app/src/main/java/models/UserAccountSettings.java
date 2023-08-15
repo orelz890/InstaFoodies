@@ -135,6 +135,10 @@ public class UserAccountSettings implements Serializable {
     }
 
     public int getFollowers() {
+//        if (following_ids != null){
+//            return following_ids.size();
+//        }
+//        return 0;
         return followers;
     }
 
@@ -143,6 +147,10 @@ public class UserAccountSettings implements Serializable {
     }
 
     public int getFollowing() {
+//        if (following_ids != null){
+//            return following_ids.size();
+//        }
+//        return 0;
         return following;
     }
 
