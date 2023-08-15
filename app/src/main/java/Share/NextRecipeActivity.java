@@ -468,16 +468,15 @@ public class NextRecipeActivity extends AppCompatActivity {
         return "post_" + UUID.randomUUID().toString();
     }
 
-    private String timeStamp() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy, hh:mm a", Locale.ENGLISH);
-        return dateFormat.format(new Date());
-    }
-
-
     private void moveToActivity(String title) {
         Toast.makeText(getApplicationContext(), title + "> was uploaded!", Toast.LENGTH_LONG).show();
         selectedIngredients.clear();
         startActivity(new Intent(NextRecipeActivity.this, SearchActivity.class));
+    }
+    private String timeStamp() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT'Z", Locale.ENGLISH);
+
+        return dateFormat.format(new Date());
     }
 
 

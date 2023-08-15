@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -41,6 +42,7 @@ import Utils.StringImageAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.Post;
+import models.Recipe;
 import models.User;
 import models.UserAccountSettings;
 import models.UserSettings;
@@ -72,6 +74,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private Handler handler;
     private int currentPosition;
     private static final long REFRESH_INTERVAL = 3000; // 3 seconds
+    private int postMaxLine = 5;
+
 
 
 
@@ -103,6 +107,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             User user = requestUserFeed.getUser();
             UserAccountSettings userAccountSettings = requestUserFeed.getAccount();
             Post post = requestUserFeed.getPost(position);
+            ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
             if (post.getRecipe() == null){
                 holder.imageAddCart.setVisibility(View.INVISIBLE);
@@ -142,7 +148,30 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
 
                 // Set the post caption
-                holder.postCaption.setText(post.getCaption());
+                holder.postCaption.setText(getTruncatedCaption(captionsForPostOrRecipe(post)));
+                holder.postCaption.setOnClickListener(new View.OnClickListener() {
+                    boolean expanded = false; // Track if content is expanded
+                    @Override
+                    public void onClick(View v) {
+                        if (expanded) {
+                            holder.postCaption.setText(getTruncatedCaption(captionsForPostOrRecipe(post))); // Set truncated caption
+                        } else {
+                            String[] spilt = captionsForPostOrRecipe(post).split("\n");
+                            System.out.println("in post adapter: " + spilt.length);
+                            if (spilt.length > postMaxLine){
+                                String tempSetText = captionsForPostOrRecipe(post)+"\n See less";
+                                holder.postCaption.setText(tempSetText); // Set full caption with see less
+                            }
+                            else {
+                                holder.postCaption.setText(captionsForPostOrRecipe(post)); // Set full caption
+                            }
+                            holder.postCaption.setText(captionsForPostOrRecipe(post)); // Set full caption
+                        }
+                        expanded = !expanded; // Toggle expanded state
+                    }
+                });
+
+
 
                 // Set time
                 SimpleDateFormat inputDateFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT'Z", Locale.ENGLISH);
@@ -158,7 +187,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
 
                 // Set how much likes the post has & the heart color
-                holder.imageLikes.setText(String.format("%s Likes", post.getLikesCount()));
+                if (post.getRecipe()==null){holder.imageLikes.setText(String.format("%s Likes", post.getLikesCount()));}
+                else{holder.imageLikes.setText(String.format("Recipe: "+post.getRecipe().getTitle()+" has %s Likes", post.getLikesCount()));}
 
                 List<String> liked = post.getLiked_list();
                 if (liked != null && liked.contains(uid)) {
@@ -193,6 +223,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
                         if (holder.imageAddCart.getDrawable().getConstantState().equals(mContext.getResources().getDrawable(R.drawable.add_to_cart).getConstantState())) {
                             holder.imageAddCart.setImageResource(R.drawable.added_to_cart);
+
+
                         } else {
                             holder.imageAddCart.setImageResource(R.drawable.add_to_cart);
                         }
@@ -250,8 +282,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         int screenHeight = displayMetrics.heightPixels;
         int screenWidth = displayMetrics.widthPixels;
-//        int width = ViewGroup.LayoutParams.MATCH_PARENT;
-//        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
 
         boolean focusable = true;
         popupWindow = new PopupWindow(popupView, screenWidth, screenHeight / 2, focusable);
@@ -334,6 +365,124 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     }
 
+    private String captionsForPostOrRecipe(Post post){
+        String ans="";
+        if (post.getRecipe() == null){ans = post.getCaption();}
+        else {
+            Recipe recipe = post.getRecipe();
+            ans=post.getCaption() + "\n\nRECIPE: ";
+            ans += recipe.getTitle() + "\n";
+
+            ans+= "Category: " + recipe.getMain_category() + "-" +recipe.getCategory()+"\n";
+
+            ans += "\nNutrition Facts -  \n";
+            ans += "    Calories: " + recipe.getCalories() + "  \n";
+            ans += "    Fat: " + recipe.getFat() + "  \n";
+            ans += "    Carbs: " + recipe.getCarbs() + "  \n";
+            ans += "    Protein: " + recipe.getProtein() + "\n";
+
+            ans += "\nServings: " + recipe.getServings() + "\n";
+
+            ans += "\nTimes -  \n";
+            ans += "    Prep: " + recipe.getPrepTime() + "  \n";
+            ans += "    Cooking: " + recipe.getCookingTime() + "  \n";
+
+            int readyIn = Proper_time_int(recipe.getCookingTime())+Proper_time_int(recipe.getPrepTime());
+            String ansTotal = "";
+            if (readyIn/60 == 0){
+                ansTotal = readyIn + " mins";
+            }else{
+                if (readyIn%60 == 0){
+                    ansTotal = readyIn/60 + " hrs";}
+                else{
+                    ansTotal = readyIn/60 + " hrs and "+ readyIn%60 + " mins";
+                }
+            }
+            ans += "    Ready in: " + ansTotal +  "\n";
+
+            System.out.println("    Prep: " + recipe.getPrepTime() + "  \n"
+             + "    Cooking: " + recipe.getCookingTime() + "  \n"
+             + "    Ready in: " + recipe.getTotalTime() + "\n");
+
+            ans += "\nIngredients - \n";
+            for (int i = 0; i < recipe.getIngredients().size(); i++) {
+                String[] split = recipe.getIngredients().get(i).split(":");
+                Double weight = Double.parseDouble(split[0]);
+                if (weight < 1000){
+                    split[0] = Math.round(weight) + "g";
+                }
+                else {
+                    weight = weight/1000;
+                    split[0] = String.format("%.0f",weight) + " kg";
+                }
+                ans += "    " + split[0] +" "+split[1] + "\n";
+            }
+
+            ans += "\nInstructions - \n";
+            for (int i =0 ; i < recipe.getDirections().size(); i++) {
+                ans += "    Step "+(i+1) + ": " + recipe.getDirections().get(i) + "\n";
+            }
+
+
+        }
+        if (ans.split("\n").length > postMaxLine) {ans +="\n See less...";}
+        return ans;
+    }
+
+    private String getTruncatedCaption(String post) {
+        String fullCaption = post; // Get the full caption
+
+        // Split the caption into lines
+        String[] lines = fullCaption.split("\n");
+
+        StringBuilder truncatedCaption = new StringBuilder();
+        for (int i = 0; i < Math.min(lines.length, postMaxLine); i++) {
+            truncatedCaption.append(lines[i]).append("\n");
+        }
+
+        // If there are more than 6 lines, add an ellipsis
+        if (lines.length > postMaxLine) {
+            truncatedCaption.append("See more..."); // Add ellipsis
+        }
+
+        return truncatedCaption.toString();
+    }
+
+    public static int Proper_time_int(String time) {
+        if (time != null) {
+            try {
+                String[] temp = time.split(" ");
+                if (temp.length < 3) {
+                    if (temp[1].equals("hrs")) {
+                        return ((Integer.parseInt(temp[0])) * 60);
+                    }
+                    return Integer.parseInt(temp[0]);
+                }
+                else {
+                    if (!isNumeric(temp[0])){
+                        return ((Integer.parseInt(temp[1]) * 60) + Integer.parseInt(temp[3]));}
+                    else{
+                        return ((Integer.parseInt(temp[0]) * 60) + Integer.parseInt(temp[2]));}
+
+                }
+            } catch (Exception e) {
+                System.out.println("error:could not convert- " + time);
+            }
+        }
+        return -1;
+    }
+    public static boolean isNumeric(String s){
+        if (s == null)
+            return false;
+        try{
+            double d = Double.parseDouble(s);
+        }
+        catch (NumberFormatException e){
+            return false;
+        }
+        return true;
+    }
+
     private void setupSendMessageButton(ImageView sendButton, EditText etNewComment, int position) {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -407,6 +556,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public static class PostViewHolder extends RecyclerView.ViewHolder {
 
         public TextView username, imageLikes, postCaption, imageCommentsLink, postTimePosted;
+        public Button seeMoreButton;
         public CircleImageView profilePhoto;
         public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble,imageAddCart,imageAddToCartFill;
         public ViewPager2 postImages;
@@ -430,6 +580,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             postTimePosted = (TextView) itemView.findViewById(R.id.post_time_posted); // <<<<
             imageAddCart = itemView.findViewById(R.id.add_cart);
             imageAddToCartFill = itemView.findViewById(R.id.add_to_cart_fill);
+//            seeMoreButton = (Button) itemView.findViewById(R.id.see_more_button);
         }
     }
 
