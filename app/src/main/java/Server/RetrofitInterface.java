@@ -77,7 +77,7 @@ public interface RetrofitInterface {
     @GET("/getLikedPosts/{uid}")
     Call<RequestPosts> getLikedPosts (@Path("uid") String uid);
 
-    @PATCH("/deleteProfilePosts/{uid}") // need to Implement(14/8/2023)
+    @PATCH("/deleteProfilePosts/{uid}")
     Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Body List<String> PostsId);
 //    Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Body HashMap<Integer, String> PostsId);
 
@@ -90,9 +90,6 @@ public interface RetrofitInterface {
     @PATCH("/followUnfollow/{uidCurrent}{uidToFollowOrUnfollow}{followOrUnfollow}")// need to Implement(14/8/2023)
     Call<Boolean> followUnfollow (@Path("uidCurrent") String uidCurrent, @Path("uidToFollowOrUnfollow") String uidToFollowOrUnfollow,
                                @Path("followOrUnfollow") boolean followOrUnfollow);
-
-
-
 
 
     // =========================== Posts =============================

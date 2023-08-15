@@ -180,6 +180,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     }
                 });
 
+                List<String> cart_list = post.getCart_list();
+                if (cart_list != null && cart_list.contains(uid)) {
+                    holder.imageAddCart.setImageResource(R.drawable.added_to_cart);
+                } else {
+                    holder.imageAddCart.setImageResource(R.drawable.add_to_cart);
+                }
+
                 holder.imageAddCart.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

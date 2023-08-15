@@ -39,6 +39,9 @@ public class Post implements Parcelable, Serializable {
     @SerializedName("liked_list")
     private List<String> liked_list;
 
+    @SerializedName("cart_list")
+    private List<String> cart_list;
+
     @SerializedName("comments_list")
     private List<Comment> comments_list;
 
@@ -57,7 +60,11 @@ public class Post implements Parcelable, Serializable {
     }
 
 
-    public HashMap<String, Object> PostMapForServer(Recipe recipe, String caption, String date_created, List<String> image_paths, List<String> liked_list, List<Comment> comments_list, String photo_id, String user_id, String tags){
+    public HashMap<String, Object> PostMapForServer(Recipe recipe, String caption,
+                                                    String date_created, List<String> image_paths,
+                                                    List<String> liked_list, List<String> cart_list,
+                                                    List<Comment> comments_list, String photo_id,
+                                                    String user_id, String tags){
         HashMap<String, Object> ans = new HashMap<>();
         if(recipe != null) {
             ans.put("recipe", recipe);
@@ -65,6 +72,7 @@ public class Post implements Parcelable, Serializable {
             ans.put("date_created", date_created);
             ans.put("image_paths", image_paths);
             ans.put("liked_list", liked_list);
+            ans.put("cart_list", cart_list);
             ans.put("comments_list", comments_list);
             ans.put("post_id", photo_id);
             ans.put("user_id", user_id);
@@ -74,6 +82,7 @@ public class Post implements Parcelable, Serializable {
             ans.put("date_created", date_created);
             ans.put("image_paths", image_paths);
             ans.put("liked_list", liked_list);
+            ans.put("cart_list", cart_list);
             ans.put("comments_list", comments_list);
             ans.put("post_id", photo_id);
             ans.put("user_id", user_id);
@@ -82,6 +91,9 @@ public class Post implements Parcelable, Serializable {
         return ans;
     }
 
+    public Post(List<String> cart_list) {
+        this.cart_list = cart_list;
+    }
 
     public List<Comment> getComments_list() {
         return comments_list;
@@ -95,7 +107,7 @@ public class Post implements Parcelable, Serializable {
 
 
     public Post(Recipe recipe, String caption, String date_created, List<String> image_paths,
-                List<String> liked_list, List<Comment> comments_list, String post_id,
+                List<String> liked_list, List<String> cart_list, List<Comment> comments_list, String post_id,
                 String user_id, String tags) {
         this.recipe = recipe;
         this.caption = caption;
@@ -106,6 +118,12 @@ public class Post implements Parcelable, Serializable {
         }
         else {
             this.liked_list = new ArrayList<>();
+        }
+        if (cart_list != null){
+            this.cart_list = cart_list;
+        }
+        else {
+            this.cart_list = new ArrayList<>();
         }
         if (comments_list != null){
             this.comments_list = comments_list;
@@ -123,6 +141,7 @@ public class Post implements Parcelable, Serializable {
         date_created = in.readString();
         image_paths = in.createStringArrayList();
         liked_list = in.createStringArrayList();
+        cart_list = in.createStringArrayList();
         comments_list = in.createTypedArrayList(Comment.CREATOR); // Read comments using createTypedArrayList
         post_id = in.readString();
         user_id = in.readString();
@@ -187,6 +206,14 @@ public class Post implements Parcelable, Serializable {
         this.liked_list.addAll(liked_list);
     }
 
+    public List<String> getCart_list() {
+        return cart_list;
+    }
+
+    public void setCart_list(List<String> cart_list) {
+        this.cart_list.clear();
+        this.cart_list.addAll(cart_list);
+    }
 
     public void addLike(String uid) {
         if (this.liked_list == null) {
@@ -251,29 +278,18 @@ public class Post implements Parcelable, Serializable {
 
     @Override
     public String toString() {
-        if (recipe != null) {
-            return "Post{" +
-                    ",recipe=" + recipe.toString() + '\'' +
-                    "caption='" + caption + '\'' +
-                    ", date_created='" + date_created + '\'' +
-                    ", image_paths='" + image_paths + '\'' +
-                    ", image_paths='" + liked_list + '\'' +
-                    ", post_id='" + post_id + '\'' +
-                    ", user_id='" + user_id + '\'' +
-                    ", tags='" + tags + '\'' +
-                    '}';
-        }
-        else{
-            return "Post{" +
-                    "caption='" + caption + '\'' +
-                    ", date_created='" + date_created + '\'' +
-                    ", image_paths='" + image_paths + '\'' +
-                    ", image_paths='" + liked_list + '\'' +
-                    ", post_id='" + post_id + '\'' +
-                    ", user_id='" + user_id + '\'' +
-                    ", tags='" + tags + '\'' +
-                    '}';
-        }
+        return "Post{" +
+                "caption='" + caption + '\'' +
+                ", recipe=" + recipe +
+                ", date_created='" + date_created + '\'' +
+                ", image_paths=" + image_paths +
+                ", post_id='" + post_id + '\'' +
+                ", user_id='" + user_id + '\'' +
+                ", tags='" + tags + '\'' +
+                ", liked_list=" + liked_list +
+                ", cart_list=" + cart_list +
+                ", comments_list=" + comments_list +
+                '}';
     }
 
     @Override
@@ -287,6 +303,8 @@ public class Post implements Parcelable, Serializable {
         dest.writeString(date_created);
         dest.writeStringList(image_paths);
         dest.writeStringList(liked_list);
+        dest.writeStringList(cart_list);
+        dest.writeTypedList(comments_list);
         dest.writeString(post_id);
         dest.writeString(user_id);
         dest.writeString(tags);
