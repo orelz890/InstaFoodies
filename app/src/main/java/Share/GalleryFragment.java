@@ -112,12 +112,12 @@ public class GalleryFragment extends Fragment {
                     // Proceed to the next screen
                     if (isRootTask()) {
                         Intent intent = new Intent(getActivity(), NextActivity.class);
-                        // Pass the selected images to the next activity
+                        // Pass the selected images to the NextActivity
                         intent.putParcelableArrayListExtra(getString(R.string.selected_images), new ArrayList<>(selectedImages));
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent(getActivity(), NextRecipeActivity.class);
-                        // Pass the selected images to the account settings activity
+                        // Pass the selected images to the NextRecipeActivity
                         intent.putParcelableArrayListExtra(getString(R.string.selected_images), new ArrayList<>(selectedImages));
                         startActivity(intent);
                     }
