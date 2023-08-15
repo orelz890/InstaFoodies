@@ -98,7 +98,7 @@ public class HomeActivity extends AppCompatActivity {
         setupFirebaseAuth();
         setupImageViews();
 
-        setupMainFeed();
+//        setupMainFeed();
 
         setupBottomNavigationView();
 
@@ -196,7 +196,9 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 if (postAdapter != null) {
-                    setupMainFeed();
+                    if (uid != null &&!uid.isEmpty()){
+                        setupMainFeed();
+                    }
                     swipeRefreshLayout.setRefreshing(false);
                 }
             }
@@ -210,7 +212,8 @@ public class HomeActivity extends AppCompatActivity {
     private void setupMainFeed() {
         System.out.println("im in onStart setupMainFeed()");
 
-        uid = mAuth.getCurrentUser().getUid();
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
         serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
             @Override
             public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
@@ -338,6 +341,7 @@ public class HomeActivity extends AppCompatActivity {
                 updateToken();
                 // User is signed in
                 this.uid = mAuth.getCurrentUser().getUid();
+                setupMainFeed();
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
             } else {
                 // User is signed out
@@ -356,7 +360,9 @@ public class HomeActivity extends AppCompatActivity {
         mAuth.addAuthStateListener(mAuthListener);
         checkCurrentUser(mAuth.getCurrentUser());
 
-        setupMainFeed();
+        if (uid != null && !uid.isEmpty()){
+            setupMainFeed();
+        }
     }
 
     private void setProfileIconInNevigation() {
