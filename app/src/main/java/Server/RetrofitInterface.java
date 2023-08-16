@@ -100,9 +100,17 @@ public interface RetrofitInterface {
                                              @Path("uid") String uid,
                                              @Path("position") int position);
 
+
+    // =============================== ML KIT =================================
+
+    @PATCH("/reportIllegalPost/{uid}/{post_id}")
+    Call<Void> reportIllegalPost (@Path("uid") String uid, @Path("post_id") String post_id);
+
+
     // ===============================
     @PATCH("/uploadProfilePhoto/{uid}/{image_uri}")
     Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_uri") Uri image_uri);
+
     @PATCH("/uploadProfilePhoto/{uid}/{image_string}") //need to Implement
     Call<Void> uploadProfilePhoto (@Path("uid") String uid, @Path("image_string") String image_string);
 

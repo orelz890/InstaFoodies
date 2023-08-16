@@ -64,6 +64,8 @@ public class NextActivity extends AppCompatActivity {
 
     private ProgressDialog loadingBar;
     private StorageTask uploadTask;
+    private boolean illegalUserActionPerformed;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +84,9 @@ public class NextActivity extends AppCompatActivity {
 
         // Initialize the list of image URIs
         imageUris = new ArrayList<>();
-        imageUris = getIntent().getParcelableArrayListExtra(getString(R.string.selected_images));
+        Intent intent = getIntent();
+        imageUris = intent.getParcelableArrayListExtra(getString(R.string.selected_images));
+        illegalUserActionPerformed = intent.getExtras().getBoolean("illegalUserActionPerformedFlag");
 
         // Initialize the image counter
         imageCounterTextView = findViewById(R.id.imageCounterTextView);
@@ -180,15 +184,24 @@ public class NextActivity extends AppCompatActivity {
                     if (!downloadUrls.isEmpty()) {
                         // All images uploaded successfully
                         HashMap<String, Object> uploadPost = createPost(uuid_post, downloadUrls);
-                        Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
+                        String uid = mAuth.getCurrentUser().getUid();
+                        Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(uid, uploadPost);
                         call.enqueue(new Callback<Void>() {
                             @Override
                             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                                 if (response.isSuccessful()) {
-                                    Toast.makeText(NextActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
-                                    startActivity(new Intent(NextActivity.this, HomeActivity.class));
-
-                                } else {
+                                    if (illegalUserActionPerformed){
+                                        // Report him
+                                        reportIllegalAction(uid, uuid_post);
+                                        Toast.makeText(NextActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        System.out.println("\n\n=============== Don't Report him - legal action ================\n\n");
+                                        Toast.makeText(NextActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                                        startActivity(new Intent(NextActivity.this, HomeActivity.class));
+                                    }
+                                }
+                                else {
                                     Toast.makeText(NextActivity.this, "Upload Post failed" + response.message(), Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -198,12 +211,34 @@ public class NextActivity extends AppCompatActivity {
                                 Toast.makeText(NextActivity.this, "onFailure: " + t.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
+
                     }
                 } else {
                     // Handle task completion failure
                     Toast.makeText(NextActivity.this, "Failed to upload images: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 loadingBar.dismiss();
+            }
+        });
+    }
+
+    private void reportIllegalAction(String uid, String uuid_post) {
+        serverMethods.retrofitInterface.reportIllegalPost(uid, uuid_post).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    System.out.println("\n\nreportIllegalAction - =============== Reported him ================\n\n");
+                    startActivity(new Intent(NextActivity.this, HomeActivity.class));
+
+                }
+                else {
+                    System.out.println("\n\nreportIllegalAction - =============== Failed to Reported him ================\n\n");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                System.out.println("\n\nreportIllegalAction - onFailure - =============== Failed to Reported him ================\n\n");
             }
         });
     }
