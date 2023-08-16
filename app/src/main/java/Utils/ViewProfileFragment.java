@@ -98,6 +98,7 @@ public class ViewProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_view_profile, container, false);
+        mAuth= FirebaseAuth.getInstance();
         mDisplayName = (TextView) view.findViewById(R.id.display_name);
         mUsername = (TextView) view.findViewById(R.id.username);
         mWebsite = (TextView) view.findViewById(R.id.website);
@@ -138,7 +139,7 @@ public class ViewProfileFragment extends Fragment {
             }
         });
 
-        ///////////SERVER FUNACTION WAS NOT BUILD YET/////////////////////
+        /////////SERVER FUNACTION WAS NOT BUILD YET/////////////////////
         followButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,6 +173,9 @@ public class ViewProfileFragment extends Fragment {
                     if (response.code() == 200) {
                         Toast.makeText(mContext, personTo.getUsername() + "followed seccessfully: " + response.message(), Toast.LENGTH_LONG).show();
                         followButton.setText("Unfollow");
+                        mFollowersCount  += 1 ;
+                        mFollowers.setText(String.valueOf(mFollowersCount));
+
                     } else {
                         Toast.makeText(mContext, "failed following " + personTo.getUsername()
                                 + " response code was not valid: " + response.message(), Toast.LENGTH_LONG).show();
@@ -195,6 +199,8 @@ public class ViewProfileFragment extends Fragment {
                         if (response.code() == 200) {
                             Toast.makeText(mContext, personTo.getUsername() +"UnFollowed seccessfully: "+response.message(), Toast.LENGTH_LONG).show();
                             followButton.setText("Follow");
+                            mFollowersCount -= 1 ;
+                            mFollowers.setText(String.valueOf(mFollowersCount));
                         } else {
                             Toast.makeText(mContext, "failed UnFollowing  "+personTo.getUsername()
                                     +" response code was not valid: "+ response.message(), Toast.LENGTH_LONG).show();
@@ -226,21 +232,6 @@ public class ViewProfileFragment extends Fragment {
 
     }
 
-//    private UserSettings getUserFromBundle() {
-//        Log.d(TAG, "getUserFromBundle: arguments: " + getArguments());
-//        Bundle bundle = this.getArguments();
-//        System.out.println("IN VIEW PROFILE FRAGMENT THE BUNDLE IS " + bundle.toString() + bundle.getString("intent_user_json"));
-//
-//        if (bundle != null) {
-//            Gson gson = new Gson();
-//            String userJson = bundle.getString(getString(R.string.intent_user));
-//            if (userJson != null) {
-//                return gson.fromJson(userJson, UserSettings.class);
-//            }
-//        }
-//
-//        return null;
-//    }
 
 
     @Override
@@ -356,13 +347,15 @@ public class ViewProfileFragment extends Fragment {
         mDescription.setText(userAccountSettings.getDescription());
         mPosts.setText(String.valueOf(userAccountSettings.getPosts()));
         mFollowing.setText(String.valueOf(userAccountSettings.getFollowing()));
+        mFollowingCount = userAccountSettings.getFollowing();
         mFollowers.setText(String.valueOf(userAccountSettings.getFollowers()));
+        mFollowersCount = userAccountSettings.getFollowers();
         mProgressBar.setVisibility(View.GONE);
 
         //SERVER FUNACITONALITY WAS NOT BUILD YET//////////////
 
 
-        Call<UserSettings> call = serverMethods.retrofitInterface.getUserSettings(mAuth.getCurrentUser().getUid());
+        Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(mAuth.getCurrentUser().getUid());
         call.enqueue(new Callback<UserSettings>() {
             @Override
             public void onResponse(Call<UserSettings> call, Response<UserSettings> response) {

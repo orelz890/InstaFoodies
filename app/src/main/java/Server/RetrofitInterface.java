@@ -87,7 +87,7 @@ public interface RetrofitInterface {
     uidToFolloeOrUnfollow: the user that the uidCurrent want to follow or unfollow
     followOrUnfollow: true == "follow" or false == "unfollow"
      */
-    @PATCH("/followUnfollow/{uid}{friendUid}{followOrNot}")// need to Implement(14/8/2023)
+    @PATCH("/followUnfollow/{uid}/{friendUid}/{followOrNot}")// need to Implement(14/8/2023)
     Call<Boolean> followUnfollow (@Path("uid") String uid, @Path("friendUid") String friendUid,
                                @Path("followOrNot") boolean followOrNot);
 
