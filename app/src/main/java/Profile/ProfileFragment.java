@@ -128,6 +128,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_profile, container, false);
+        mAuth= FirebaseAuth.getInstance();
         mDisplayName = (TextView) view.findViewById(R.id.tv_display_name);
         mUsername = (TextView) view.findViewById(R.id.profileName);
         mWebsite = (TextView) view.findViewById(R.id.tv_website);
