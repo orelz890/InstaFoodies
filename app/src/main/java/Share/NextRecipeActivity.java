@@ -76,18 +76,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NextRecipeActivity extends AppCompatActivity {
 
+public class NextRecipeActivity extends AppCompatActivity {
 
     private List<Uri> imageUris;
     FirebaseAuth mAuth;
     private ProgressDialog loadingBar;
-
     private ImageAdapter adapter;
     private ViewPager2 viewPagerImages;
     private TextView imageCounterTextView;
     private ServerMethods serverMethods;
-
 
     // Text inputs from the user
     TextInputEditText etTitle;
@@ -99,6 +97,7 @@ public class NextRecipeActivity extends AppCompatActivity {
     // Main & sub categories as the user wish
     TextInputEditText category;
     TextInputEditText subCategory;
+
     // Number inputs from the user
     NumberPicker npCookingTime;
     NumberPicker npPrepTime;
@@ -107,9 +106,9 @@ public class NextRecipeActivity extends AppCompatActivity {
     NumberPicker npProtein;
     NumberPicker npFat;
     NumberPicker npCalories;
+
     // Submit recipe button
     Button btnSubmit;
-
     FloatingActionButton fab;
     List<String> uploadedImages;
     List<ImageView> imageViews;
@@ -124,6 +123,8 @@ public class NextRecipeActivity extends AppCompatActivity {
     static ListView listView;
     static ListIngredientsAdapter adapterIngredients;
 
+    private boolean illegalUserActionPerformed;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,10 +135,11 @@ public class NextRecipeActivity extends AppCompatActivity {
         serverMethods = new ServerMethods(NextRecipeActivity.this);
         loadingBar = new ProgressDialog(NextRecipeActivity.this);
 
-
         // Initialize the list of image URIs
         imageUris = new ArrayList<>();
-        imageUris = getIntent().getParcelableArrayListExtra(getString(R.string.selected_images));
+        Intent intent = getIntent();
+        imageUris = intent.getParcelableArrayListExtra(getString(R.string.selected_images));
+        illegalUserActionPerformed = intent.getExtras().getBoolean("illegalUserActionPerformedFlag");
 
         // Initialize the image counter
         imageCounterTextView = findViewById(R.id.imageCounterNextRecipe);
@@ -159,8 +161,6 @@ public class NextRecipeActivity extends AppCompatActivity {
 
         etIngredients = findViewById(R.id.etIngredients);
         addIngredients = findViewById(R.id.ib_add_ingredient);
-
-
         imageViews = new ArrayList<>();
         deleteImageButtons = new ArrayList<>();
         //    ========================= Get data from user =============================================
@@ -174,12 +174,14 @@ public class NextRecipeActivity extends AppCompatActivity {
         });
     }
 
+
     private void updateImageCounter(int position) {
         int totalImages = imageUris.size();
         int currentImageIndex = position + 1;
         String counterText = currentImageIndex + "/" + totalImages;
         imageCounterTextView.setText(counterText);
     }
+
 
     public static String ingredients(ArrayList<String> ingredients) {
         String ingredient = "";
@@ -201,6 +203,7 @@ public class NextRecipeActivity extends AppCompatActivity {
             System.out.println("============================");
         });
     }
+
 
     private void createAllNumberPickers() {
         category = findViewById(R.id.category);
@@ -280,6 +283,7 @@ public class NextRecipeActivity extends AppCompatActivity {
         });
     }
 
+
     private void submitRecipe() {
         String title = etTitle.getText().toString();
         if (TextUtils.isEmpty(title)) {
@@ -331,9 +335,9 @@ public class NextRecipeActivity extends AppCompatActivity {
 
             uploadImageToStorageAndUploadPost(imageUris, r);
             //            ServerTry(imageUris,r);
-
         }
     }
+
 
     private void uploadImageToStorageAndUploadPost(List<Uri> imageUris, Recipe r) {
         loadingBar.setTitle("Upload Post");
@@ -343,6 +347,7 @@ public class NextRecipeActivity extends AppCompatActivity {
         String uuid_post = createHash();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("photos_posts");
         List<Task<Uri>> uploadTasks = new ArrayList<>();
+
 
         for (int i = 0; i < imageUris.size(); i++) {
             Uri imageUri = imageUris.get(i);
@@ -358,6 +363,7 @@ public class NextRecipeActivity extends AppCompatActivity {
                 }
             }));
         }
+
 
         Tasks.whenAllComplete(uploadTasks).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
             @Override
@@ -379,14 +385,25 @@ public class NextRecipeActivity extends AppCompatActivity {
                     if (!downloadUrls.isEmpty()) {
                         // All images uploaded successfully
                         HashMap<String, Object> uploadPost = createPost(r, uuid_post, downloadUrls);
-                        Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(mAuth.getCurrentUser().getUid(), uploadPost);
+                        String uid = mAuth.getCurrentUser().getUid();
+                        Call<Void> call = serverMethods.retrofitInterface.uploadNewPost(uid, uploadPost);
                         call.enqueue(new Callback<Void>() {
                             @Override
                             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                                 if (response.isSuccessful()) {
-                                    Toast.makeText(NextRecipeActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                                    if (illegalUserActionPerformed) {
+                                        // Report him
+                                        reportIllegalAction(uid, uuid_post);
+                                        Toast.makeText(NextRecipeActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        System.out.println("\n\n=============== Don't Report him - legal action ================\n\n");
+                                        Toast.makeText(NextRecipeActivity.this, "Post Uploaded: " + mAuth.getCurrentUser().getEmail(), Toast.LENGTH_LONG).show();
+                                        startActivity(new Intent(NextRecipeActivity.this, HomeActivity.class));
+                                    }
+
                                     selectedIngredients.clear();
-                                    startActivity(new Intent(NextRecipeActivity.this, HomeActivity.class));
+//                                    startActivity(new Intent(NextRecipeActivity.this, HomeActivity.class));
                                 } else {
                                     Toast.makeText(NextRecipeActivity.this, "Upload Post failed" + response.message(), Toast.LENGTH_LONG).show();
                                 }
@@ -398,7 +415,8 @@ public class NextRecipeActivity extends AppCompatActivity {
                             }
                         });
                     }
-                } else {
+                }
+                else {
                     // Handle task completion failure
                     Toast.makeText(NextRecipeActivity.this, "Failed to upload images: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -407,7 +425,26 @@ public class NextRecipeActivity extends AppCompatActivity {
         });
     }
 
-//
+    private void reportIllegalAction(String uid, String uuid_post) {
+        serverMethods.retrofitInterface.reportIllegalPost(uid, uuid_post).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    System.out.println("\n\nreportIllegalAction - =============== Reported him ================\n\n");
+                    startActivity(new Intent(NextRecipeActivity.this, HomeActivity.class));
+                }
+                else {
+                    System.out.println("\n\nreportIllegalAction - =============== Failed to Reported him ================\n\n");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                System.out.println("\n\nreportIllegalAction - onFailure - =============== Failed to Reported him ================\n\n");
+            }
+        });
+    }
+
 //    private void ServerTry(List<Uri> imageUris,Recipe r){
 //        String uuid_post = createHash();
 //        List<String> avi = new ArrayList<>();
@@ -440,6 +477,7 @@ public class NextRecipeActivity extends AppCompatActivity {
         return post.PostMapForServer(r, etPostDescription.getText().toString(), timeStamp(), post_photos, null, null, null, post_uid, mAuth.getCurrentUser().getUid(), getTags(etPostDescription.getText().toString()));
     }
 
+
     private String getTags(String caption) {
         if (caption.indexOf("@") > 0) {
             StringBuilder sb = new StringBuilder();
@@ -464,15 +502,19 @@ public class NextRecipeActivity extends AppCompatActivity {
         return caption;
     }
 
+
     private String createHash() {
         return "post_" + UUID.randomUUID().toString();
     }
+
 
     private void moveToActivity(String title) {
         Toast.makeText(getApplicationContext(), title + "> was uploaded!", Toast.LENGTH_LONG).show();
         selectedIngredients.clear();
         startActivity(new Intent(NextRecipeActivity.this, SearchActivity.class));
     }
+
+
     private String timeStamp() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT'Z", Locale.ENGLISH);
 
@@ -518,7 +560,7 @@ public class NextRecipeActivity extends AppCompatActivity {
 
     }
 
-    // Set the filter names list + set adapter for the autoCompleteSearchView - Ingredients
+//    // Set the filter names list + set adapter for the autoCompleteSearchView - Ingredients
 //    private void InitAutoCompleteSearchView(Dialog d) {
 //
 //        Call<String[]> call = serverMethods.retrofitInterface.getIngredients();
@@ -646,10 +688,12 @@ public class NextRecipeActivity extends AppCompatActivity {
         dialog.show();
     }
 
+
     public static void removeItem(int i) {
         selectedIngredients.remove(i);
         listView.setAdapter(adapterIngredients);
     }
+
 
     private static void addItem(String amount, String ingredient) {
         selectedIngredients.add(amount + ":" + ingredient);

@@ -106,6 +106,7 @@ public class NextActivity extends AppCompatActivity {
             }
         });
 
+
         ImageView backArrow = findViewById(R.id.ivBackArrow);
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,6 +115,7 @@ public class NextActivity extends AppCompatActivity {
                 finish();
             }
         });
+
 
         //Upload Post
         TextView share = findViewById(R.id.tvShare);
@@ -129,8 +131,8 @@ public class NextActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
+
 
     private void updateImageCounter(int position) {
         int totalImages = imageUris.size();
@@ -163,6 +165,7 @@ public class NextActivity extends AppCompatActivity {
                 }
             }));
         }
+
 
         Tasks.whenAllComplete(uploadTasks).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
             @Override
@@ -211,9 +214,9 @@ public class NextActivity extends AppCompatActivity {
                                 Toast.makeText(NextActivity.this, "onFailure: " + t.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
-
                     }
-                } else {
+                }
+                else {
                     // Handle task completion failure
                     Toast.makeText(NextActivity.this, "Failed to upload images: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
