@@ -25,11 +25,6 @@ public interface RetrofitInterface {
 
     @POST("/login") // Working!
     Call<User> executeLogin(@Body HashMap<String, String> map);
-//    @POST("/login") // Working!
-//    Call<User> executeLogin(@Header("X-Forwarded-For") String ipAddress, @Header("If-Modified-Since") String ifModifiedSince, @Body HashMap<String, String> map);
-
-//    @POST("/signup") // Working!
-//    Call<User> executeSignup (@Body HashMap<String, String> map);
 
     @POST("/signup") // Working!
     Call<User> executeSignup (@Body HashMap<String, Object> map);
@@ -43,13 +38,6 @@ public interface RetrofitInterface {
 
     @GET("/getUserAccountSettings/{uid}") // Working!
     Call<UserAccountSettings> getUserAccountSettings (@Path("uid") String uid);
-
-//for both user and user setting
-    @GET("/getUserSettings/{uid}") // Working!
-    Call<UserSettings> getUserSettings (@Path("uid") String uid);
-
-//    @PUT("/setUser/{email}")
-//    Call<User> overwriteUser (@Path("email") String email, @Body HashMap<String, String> map);
 
     @PATCH("/patchUser/{uid}") // Working!
     Call<Void> executePatchUser (@Path("uid") String uid, @Body HashMap<String, Object> map);
@@ -79,7 +67,8 @@ public interface RetrofitInterface {
 
     @PATCH("/deleteProfilePosts/{uid}")
     Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Body List<String> PostsId);
-//    Call<Boolean> deleteProfilePosts (@Path("uid") String uid, @Body HashMap<Integer, String> PostsId);
+
+
 
     // ================================ Follow and Unfollow action ==============================
     /*
@@ -87,7 +76,7 @@ public interface RetrofitInterface {
     uidToFolloeOrUnfollow: the user that the uidCurrent want to follow or unfollow
     followOrUnfollow: true == "follow" or false == "unfollow"
      */
-    @PATCH("/followUnfollow/{uid}{friendUid}{followOrNot}")// need to Implement(14/8/2023)
+    @PATCH("/followUnfollow/{uid}/{friendUid}/{followOrNot}")// need to Implement(14/8/2023)
     Call<Boolean> followUnfollow (@Path("uid") String uid, @Path("friendUid") String friendUid,
                                @Path("followOrNot") boolean followOrNot);
 

@@ -113,6 +113,7 @@ public class ViewProfileFragment extends Fragment {
         bottomNavigationView = (BottomNavigationViewEx) view.findViewById(R.id.bottomNavViewBar);
         followButton = (AppCompatButton) view.findViewById(R.id.follow);
         mContext = getActivity();
+        mAuth = FirebaseAuth.getInstance();
         serverMethods = new ServerMethods(mContext);
         Log.d(TAG, "onCreateView: stared.");
 
@@ -362,7 +363,7 @@ public class ViewProfileFragment extends Fragment {
         //SERVER FUNACITONALITY WAS NOT BUILD YET//////////////
 
 
-        Call<UserSettings> call = serverMethods.retrofitInterface.getUserSettings(mAuth.getCurrentUser().getUid());
+        Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(mAuth.getCurrentUser().getUid());
         call.enqueue(new Callback<UserSettings>() {
             @Override
             public void onResponse(Call<UserSettings> call, Response<UserSettings> response) {

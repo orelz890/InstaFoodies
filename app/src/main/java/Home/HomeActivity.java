@@ -214,7 +214,7 @@ public class HomeActivity extends AppCompatActivity {
 
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 //        serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
-        serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
+        serverMethods.retrofitInterface.getUserFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
             @Override
             public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
                 if (response.isSuccessful()){

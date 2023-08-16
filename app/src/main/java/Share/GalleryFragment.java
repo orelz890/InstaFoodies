@@ -32,6 +32,13 @@ import com.bumptech.glide.Glide;
 import com.example.instafoodies.R;
 import com.github.drjacky.imagepicker.ImagePicker;
 import com.github.drjacky.imagepicker.constant.ImageProvider;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.label.ImageLabel;
+import com.google.mlkit.vision.label.ImageLabeler;
+import com.google.mlkit.vision.label.ImageLabeling;
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -71,6 +78,11 @@ public class GalleryFragment extends Fragment {
     private GridImageAdapter adapter;
     private ActivityResultLauncher<Intent> launcher;
 
+    private ImageLabeler imageLabeler;
+
+    private List<Bitmap> imageUris;
+
+
 
     @Nullable
     @Override
@@ -80,10 +92,16 @@ public class GalleryFragment extends Fragment {
         gridView = view.findViewById(R.id.gridView);
         mProgressBar = view.findViewById(R.id.progressBar);
 
+        imageUris = new ArrayList<>();
+
         mProgressBar.setVisibility(View.GONE);
         directories = new ArrayList<>();
         selectedImages = new ArrayList<>();
         Log.d(TAG, "onCreateView: started.");
+
+        imageLabeler = ImageLabeling.getClient(new ImageLabelerOptions.Builder()
+                .setConfidenceThreshold(0.7f)
+                .build());
 
         ImageView shareClose = view.findViewById(R.id.ivCloseShare);
         shareClose.setOnClickListener(new View.OnClickListener() {
@@ -109,6 +127,12 @@ public class GalleryFragment extends Fragment {
 
 
                 if (selectedImages.size() >= 1) {
+                    if (!imageUris.isEmpty()){
+                        for (int i = 0; i < imageUris.size() -1 ; i++){
+                            runClassification(imageUris.get(i));
+
+                        }
+                    }
                     // Proceed to the next screen
                     if (isRootTask()) {
                         Intent intent = new Intent(getActivity(), NextActivity.class);
@@ -165,6 +189,48 @@ public class GalleryFragment extends Fragment {
         return view;
     }
 
+    protected void runClassification(Bitmap bitmap) {
+        System.out.println("im in runClassification");
+        InputImage inputImage = InputImage.fromBitmap(bitmap,0);
+        imageLabeler.process(inputImage).addOnSuccessListener(new OnSuccessListener<List<ImageLabel>>() {
+            @Override
+            public void onSuccess(List<ImageLabel> imageLabels) {
+                if (imageLabels.size() > 0) {
+                    StringBuilder builder = new StringBuilder();
+                    for (ImageLabel label : imageLabels) {
+                        assert true;
+                        assert false;
+                        if (!label.getText().equals("Food")){
+                            System.out.println("\n\n\nProblem - " + label.getText() +" not food\\n\\n\\n");
+                        }
+                        else {
+                            System.out.println("\n\n\nAmazing its a " + label.getText() + "\\n\\n\\n");
+                        }
+
+                        builder.append(label.getText())
+                                .append(" : ")
+                                .append(label.getConfidence())
+                                .append("\n");
+                    }
+//                    getOutputTextView().setText(builder.toString());
+                    System.out.println("\n\n\nFinished classification\\n\\n\\n");
+
+                } else {
+                    System.out.println("\n\n\nProblem - could not classify\\n\\n\\n");
+
+//                    getOutputTextView().setText("Could not classify");
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+        System.out.println("im out of runClassification");
+
+    }
+
     private boolean isRootTask() {
         return ((ShareActivity) requireActivity()).getTask() == 0;
     }
@@ -188,8 +254,25 @@ public class GalleryFragment extends Fragment {
                 if (data != null) {
                     if (data.getClipData() != null) {
                         int count = data.getClipData().getItemCount();
+                        imageUris.clear();
                         for (int i = 0; i < count; i++) {
                             Uri imageUri = data.getClipData().getItemAt(i).getUri();
+
+                            // Run image classification
+                            String path = imageUri.getPath();
+                            // Convert image to base64-encoded string
+                            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                            Bitmap bitmap = BitmapFactory.decodeFile(path);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+                            System.out.println("\n\n\nim here see me!!!\\n\\n\\n");
+                            imageUris.add(bitmap);
+
+                            runClassification(bitmap);
+
+                            System.out.println("\n\n\nim here see me22!!!\\n\\n\\n");
+
+                            // Set image in the grid
                             setImage(imageUri, galleryImage, mAppend);
                             selectedImages.add(imageUri);  // Add the imageUri to the list
                         }
