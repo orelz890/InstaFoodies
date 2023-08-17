@@ -3,14 +3,19 @@ package models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.Locale;
+import java.util.UUID;
 
 
 public class Post implements Parcelable, Serializable {
@@ -45,6 +50,27 @@ public class Post implements Parcelable, Serializable {
     @SerializedName("comments_list")
     private List<Comment> comments_list;
 
+    @SerializedName("profile_photo")
+    private String profile_photo;
+
+    @SerializedName("full_name")
+    private String full_name;
+
+    public String getProfile_photo() {
+        return profile_photo;
+    }
+
+    public void setProfile_photo(String profile_photo) {
+        this.profile_photo = profile_photo;
+    }
+
+    public String getFull_name() {
+        return full_name;
+    }
+
+    public void setFull_name(String full_name) {
+        this.full_name = full_name;
+    }
 
     public Recipe getRecipe() {
         return recipe;
@@ -68,27 +94,25 @@ public class Post implements Parcelable, Serializable {
         HashMap<String, Object> ans = new HashMap<>();
         if(recipe != null) {
             ans.put("recipe", recipe);
-            ans.put("caption", caption);
-            ans.put("date_created", date_created);
-            ans.put("image_paths", image_paths);
-            ans.put("liked_list", liked_list);
-            ans.put("cart_list", cart_list);
-            ans.put("comments_list", comments_list);
-            ans.put("post_id", photo_id);
-            ans.put("user_id", user_id);
-            ans.put("tags", tags);
-        }else{
-            ans.put("caption", caption);
-            ans.put("date_created", date_created);
-            ans.put("image_paths", image_paths);
-            ans.put("liked_list", liked_list);
-            ans.put("cart_list", cart_list);
-            ans.put("comments_list", comments_list);
-            ans.put("post_id", photo_id);
-            ans.put("user_id", user_id);
-            ans.put("tags", tags);
         }
+        ans.put("caption", caption);
+        ans.put("date_created", date_created);
+        ans.put("image_paths", image_paths);
+        ans.put("liked_list", liked_list);
+        ans.put("cart_list", cart_list);
+        ans.put("comments_list", comments_list);
+        ans.put("post_id", photo_id);
+        ans.put("user_id", user_id);
+        ans.put("tags", tags);
+        ans.put("profile_photo", profile_photo);
+        ans.put("full_name", full_name);
+
         return ans;
+    }
+
+    public HashMap<String, Object> PostMapForServer(){
+        return this.PostMapForServer(this.recipe, this.caption, this.date_created, this.image_paths,
+                this.liked_list, this.cart_list, this.comments_list, this.post_id, this.user_id, this.tags);
     }
 
     public Post(List<String> cart_list) {
@@ -105,10 +129,38 @@ public class Post implements Parcelable, Serializable {
 
     }
 
+    public Post(JsonObject data, String copy_rights) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT'Z", Locale.ENGLISH);
+
+        this.recipe = new Recipe(data, copy_rights);
+        this.image_paths = convert_json_array_to_str_list(data.get("Images").getAsJsonArray());
+        this.post_id = "post_" + UUID.randomUUID().toString();
+        this.date_created = dateFormat.format(new Date());
+        this.user_id = recipe.getCopy_rights();
+        this.caption = recipe.getTitle();
+        this.tags = this.caption;
+        this.liked_list = new ArrayList<>();
+        this.cart_list = new ArrayList<>();
+        this.comments_list = new ArrayList<>();
+    }
+
+
+    private List<String> convert_json_array_to_str_list(JsonArray arr) {
+        JsonArray ingredients = arr.getAsJsonArray();
+        int arr_size = ingredients.size();
+        List<String> str_list = new ArrayList<>();
+        for (int i = 0; i < arr_size; i++){
+            JsonObject ing = ingredients.get(i).getAsJsonObject();
+            for (String key :ing.keySet()) {
+                str_list.add(ing.get(key).toString().replace("\"", ""));
+            }
+        }
+        return str_list;
+    } // convert_json_array_to_str_list
 
     public Post(Recipe recipe, String caption, String date_created, List<String> image_paths,
                 List<String> liked_list, List<String> cart_list, List<Comment> comments_list, String post_id,
-                String user_id, String tags) {
+                String user_id, String tags, String profile_photo, String full_name) {
         this.recipe = recipe;
         this.caption = caption;
         this.date_created = date_created;
@@ -134,6 +186,8 @@ public class Post implements Parcelable, Serializable {
         this.post_id = post_id;
         this.user_id = user_id;
         this.tags = tags;
+        this.profile_photo = profile_photo;
+        this.full_name = full_name;
     }
 
     protected Post(Parcel in) {
@@ -146,6 +200,8 @@ public class Post implements Parcelable, Serializable {
         post_id = in.readString();
         user_id = in.readString();
         tags = in.readString();
+        profile_photo = in.readString();
+        full_name = in.readString();
     }
 
     public static final Creator<Post> CREATOR = new Creator<Post>() {
@@ -289,6 +345,8 @@ public class Post implements Parcelable, Serializable {
                 ", liked_list=" + liked_list +
                 ", cart_list=" + cart_list +
                 ", comments_list=" + comments_list +
+                ", profile_photo='" + profile_photo + '\'' +
+                ", full_name='" + full_name + '\'' +
                 '}';
     }
 
@@ -308,5 +366,7 @@ public class Post implements Parcelable, Serializable {
         dest.writeString(post_id);
         dest.writeString(user_id);
         dest.writeString(tags);
+        dest.writeString(profile_photo);
+        dest.writeString(full_name);
     }
 }

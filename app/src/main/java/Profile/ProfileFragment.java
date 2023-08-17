@@ -123,6 +123,8 @@ public class ProfileFragment extends Fragment {
     private int mPostsCount = 0;
     private UserSettings mcurrentUserSettings = null;
 
+    RequestPosts userFeed;
+
 
     @Nullable
     @Override
@@ -288,7 +290,7 @@ public class ProfileFragment extends Fragment {
     }
 
 
-    private void deleteAllSelectedPosts(RequestUserFeed myPosts) {
+    private void deleteAllSelectedPosts(RequestPosts myPosts) {
         uid = mAuth.getCurrentUser().getUid();
 
         if (!adapter.getSelectedIndexes().isEmpty()) {
@@ -407,14 +409,14 @@ public class ProfileFragment extends Fragment {
         uid = mAuth.getCurrentUser().getUid();
 
         if (uid != null) {
-            serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
+            serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestPosts>() {
                 @Override
-                public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
+                public void onResponse(@NonNull Call<RequestPosts> call, @NonNull Response<RequestPosts> response) {
                     if (response.isSuccessful()) {
                         Log.d(TAG, "setupGridView: success");
                         System.out.println("setupGridView: success");
 
-                        RequestUserFeed userFeed = response.body();
+                        userFeed = response.body();
                         if (userFeed != null && userFeed.size() > 0) {
                             System.out.println("userFeed: userFeed.size() =  " + userFeed.size());
                             //setup our image grid
@@ -477,7 +479,7 @@ public class ProfileFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(@NonNull Call<RequestUserFeed> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<RequestPosts> call, @NonNull Throwable t) {
                     Log.d(TAG, "setupGridView: Error: " + t.getMessage());
                     System.out.println("setupGridView: Error: " + t.getMessage());
                 }

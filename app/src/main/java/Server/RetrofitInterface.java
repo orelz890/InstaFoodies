@@ -89,10 +89,10 @@ public interface RetrofitInterface {
     Call<Boolean> addOrRemoveCartPost (@Path("uid") String uid, @Path("postOwnerId") String postOwnerId, @Path("postId") String postId);
 
     @GET("/getUserFeedPosts/{uid}")
-    Call<RequestUserFeed> getUserFeedPosts (@Path("uid") String uid);
+    Call<RequestPosts> getUserFeedPosts (@Path("uid") String uid);
 
     @GET("/getProfileFeedPosts/{uid}")
-    Call<RequestUserFeed> getProfileFeedPosts (@Path("uid") String uid);
+    Call<RequestPosts> getProfileFeedPosts (@Path("uid") String uid);
 
     @POST("/addOrRemoveLikeToPostComment/{postOwner}/{postId}/{uid}/{position}")
     Call<Boolean> addOrRemoveLikeToPostComment (@Path("postOwner") String postOwner,

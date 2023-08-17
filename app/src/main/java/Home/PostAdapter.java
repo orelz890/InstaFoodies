@@ -33,19 +33,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
-import Chat.MessageAdapter;
-import Server.RequestUserFeed;
+import Server.RequestPosts;
+
+
 import Utils.ServerMethods;
 import Utils.StringImageAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.Post;
 import models.Recipe;
-import models.User;
-import models.UserAccountSettings;
-import models.UserSettings;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -56,7 +55,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private ServerMethods serverMethods;
 
 
-    private RequestUserFeed requestUserFeed;
+    private RequestPosts userFeed;
 
 
     private FirebaseAuth mAuth;
@@ -79,8 +78,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
 
 
-    public PostAdapter(RequestUserFeed requestUserFeed, Context context, RelativeLayout layout) {
-        this.requestUserFeed = requestUserFeed;
+    public PostAdapter(RequestPosts userFeed, Context context, RelativeLayout layout) {
+        this.userFeed = userFeed;
         this.mContext = context;
         this.serverMethods = new ServerMethods(context);
         this.layout = layout;
@@ -103,32 +102,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-        if (requestUserFeed != null) {
-            User user = requestUserFeed.getUser();
-            UserAccountSettings userAccountSettings = requestUserFeed.getAccount();
-            Post post = requestUserFeed.getPost(position);
+        if (userFeed != null) {
+            Post post = userFeed.getPost(position);
             ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
             if (post.getRecipe() == null){
                 holder.imageAddCart.setVisibility(View.INVISIBLE);
-            }
-
-            // Set the user info & photo
-            if (userAccountSettings != null) {
-                System.out.println("PostAdapter - onBindViewHolder - userAccountSettings != null\n Post(" + position + "): " + userAccountSettings.toString());
-                // Set photo
-                String profile_photo = userAccountSettings.getProfile_photo();
-                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
-                    Picasso.get().load(profile_photo).into(holder.profilePhoto);
-                } else {
-                    holder.profilePhoto.setImageResource(R.drawable.profile_image);
-                }
-
-                // Set username
-                holder.username.setText(user.getUsername());
-            } else {
-                System.out.println("PostAdapter - onBindViewHolder - userAccountSettings == null");
             }
 
             // Set the post content
@@ -140,6 +120,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 } else {
                     holder.imageAddCart.setVisibility(View.GONE);
                 }
+
+                if (!post.getProfile_photo().isEmpty() && !post.getProfile_photo().equals("none")) {
+                    Picasso.get().load(post.getProfile_photo()).into(holder.profilePhoto);
+                } else {
+                    holder.profilePhoto.setImageResource(R.drawable.profile_image);
+                }
+
+                // Set username
+                holder.username.setText(post.getFull_name());
+
                 // Set he post pictures
                 List<String> image_paths = post.getImage_paths();
                 if (image_paths != null && !image_paths.isEmpty()) {
@@ -243,7 +233,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 System.out.println("PostAdapter - onBindViewHolder - post == null");
             }
         } else {
-            System.out.println("PostAdapter - onBindViewHolder - requestUserFeed == null");
+            System.out.println("PostAdapter - onBindViewHolder - userFeed == null");
         }
     }
 
@@ -263,8 +253,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
 
         // Set user photo
-        UserAccountSettings userAccountSettings = requestUserFeed.getAccount();
-        Picasso.get().load(userAccountSettings.getProfile_photo()).placeholder(R.drawable.profile_image).into(profileImage);
+        String profile_photo = userFeed.getPost(position).getProfile_photo();
+        Picasso.get().load(profile_photo).placeholder(R.drawable.profile_image).into(profileImage);
 
         // Setup popup abilities
         setupSendMessageButton(sendButton, etNewComment, position);
@@ -333,7 +323,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     private void setupCommentsMainFeed(int position) {
-        Post post = requestUserFeed.getPost(position);
+        Post post = userFeed.getPost(position);
         serverMethods.retrofitInterface.getPostComments(post.getUser_id(),post.getPost_id()).enqueue(new Callback<Comment[]>() {
             @Override
             public void onResponse(@NonNull Call<Comment[]> call, @NonNull Response<Comment[]> response) {
@@ -405,17 +395,26 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
              + "    Ready in: " + recipe.getTotalTime() + "\n");
 
             ans += "\nIngredients - \n";
-            for (int i = 0; i < recipe.getIngredients().size(); i++) {
+            if (!Objects.equals(post.getUser_id(), "www.allrecipes.com")) {
+
+                for (int i = 0; i < recipe.getIngredients().size(); i++) {
                 String[] split = recipe.getIngredients().get(i).split(":");
-                Double weight = Double.parseDouble(split[0]);
-                if (weight < 1000){
-                    split[0] = Math.round(weight) + "g";
+
+
+                    Double weight = Double.parseDouble(split[0]);
+                    if (weight < 1000) {
+                        split[0] = Math.round(weight) + "g";
+                    } else {
+                        weight = weight / 1000;
+                        split[0] = String.format("%.0f", weight) + " kg";
+                    }
+                    ans += "    " + split[0] + " " + split[1] + "\n";
                 }
-                else {
-                    weight = weight/1000;
-                    split[0] = String.format("%.0f",weight) + " kg";
+            }
+            else {
+                for (int i = 0; i < recipe.getIngredients().size(); i++) {
+                    ans += recipe.getIngredients().get(i);
                 }
-                ans += "    " + split[0] +" "+split[1] + "\n";
             }
 
             ans += "\nInstructions - \n";
@@ -495,15 +494,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
                 else {
                     // Add comment to post using the server
-                    Post post = requestUserFeed.getPost(position);
-                    UserAccountSettings userAccountSettings = requestUserFeed.getAccount();
+                    Post post = userFeed.getPost(position);
                     String comment_id = createHash();
 
-                    User user = requestUserFeed.getUser();
+
 
                     serverMethods.retrofitInterface.addCommentToPost(post.getUser_id(),
-                            post.getPost_id(), uid, commentText, user.getFull_name(),
-                            userAccountSettings.getProfile_photo(),
+                            post.getPost_id(), uid, commentText, post.getFull_name(),
+                            post.getProfile_photo(),
                             comment_id).enqueue(new Callback<Comment>() {
                         @Override
                         public void onResponse(@NonNull Call<Comment> call, @NonNull Response<Comment> response) {
@@ -513,8 +511,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                                 Comment comment = response.body();
                                 if (comment != null) {
                                     post.addComment(comment);
-//                                    requestUserFeed.patchPost(position, post);
-//                                    changeAdapter();
+
                                     List<Comment> comments = post.getComments_list();
                                     commentsAdapter = new CommentsAdapter(comments, mContext, post.getUser_id(), post.getPost_id(), serverMethods);
                                     commentsRecyclerView.setAdapter(commentsAdapter);
@@ -549,8 +546,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     @Override
     public int getItemCount() {
-        System.out.println("getItemCount = " + requestUserFeed.size());
-        return requestUserFeed.size();
+        System.out.println("getItemCount = " + userFeed.size());
+        return userFeed.size();
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {

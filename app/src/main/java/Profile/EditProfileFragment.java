@@ -227,8 +227,6 @@ public class EditProfileFragment extends Fragment {
                 dialog.dismiss();
             }
         });
-
-
     }
 
     private void uploadImageToStorage(Uri imageUri, Dialog dialog) {

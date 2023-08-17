@@ -8,6 +8,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,16 +33,23 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import Chat.MainChatActivity2;
 import Login.LoginActivity;
+import Server.RequestPosts;
 import Server.RequestUserFeed;
 import Utils.BottomNavigationViewHelper;
 import Utils.ServerMethods;
+import models.Post;
+import models.Recipe;
+import models.User;
 import models.UserAccountSettings;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,7 +72,7 @@ public class HomeActivity extends AppCompatActivity {
     private String uid;
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RequestUserFeed requestUserFeed;
+    private RequestPosts userFeed;
 
     private ImageView messenger;
 
@@ -109,7 +117,87 @@ public class HomeActivity extends AppCompatActivity {
 
         setSwipeRefresh();
 
+//        init_database_with_existing_scraped_data();
     }
+
+    // ======================= Don't delete this function!!! ==========================
+//    public boolean init_database_with_existing_scraped_data() {
+//
+//            String copy_rights = "www.allrecipes.com";
+//
+//            // signUp as user
+////            User user = new User("", copy_rights, "", "", "allrecipes","allrecipes");
+////            HashMap<String, Object> stringObjectHashMap = user.userMapForServer();
+//
+////            serverMethods.retrofitInterface.executeSignup(stringObjectHashMap).enqueue(new Callback<User>() {
+////                @Override
+////                public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+////                    if (response.isSuccessful()){
+//                        try {
+//                            AssetManager assetManager = getAssets();
+//                            String[] files = assetManager.list("scraped_data");
+//                            for (String f : files) {
+//                                String[] files2 = assetManager.list("scraped_data/" + f);
+//                                System.out.println(">>>>>>>>>>>>>>> " + f + " <<<<<<<<<<<<<<<<<<<");
+//                                for (String f2 : files2) {
+//                                    String[] files3 = assetManager.list("scraped_data/" + f + "/" + f2);
+//
+//    //                        System.out.println(f2);
+//                                    for (String f3 : files3) {
+//                                        try {
+//                                            String file_path = "scraped_data/" + f + "/" + f2 + "/" + f3;
+//                                            InputStream inputStream = getAssets().open(file_path);
+//                                            int size = inputStream.available();
+//                                            byte[] buffer = new byte[size];
+//                                            inputStream.read(buffer);
+//                                            String json_str = new String(buffer);
+//                                            JsonObject jsonObject = new JsonParser().parse(json_str)
+//                                                    .getAsJsonObject();
+//
+//
+//                                            Post post = new Post(jsonObject, copy_rights);
+//
+//                                            System.out.println(post);
+//
+//
+//                                            serverMethods.retrofitInterface.uploadNewPost(copy_rights, post.PostMapForServer()).enqueue(new Callback<Void>() {
+//                                                @Override
+//                                                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+//                                                    if (response.isSuccessful()) {
+//                                                        Recipe recipe = post.getRecipe();
+//                                                        System.out.println(recipe.getMain_category() + " - " + recipe.getCategory() + " - " + recipe.getTitle() + " loaded!");
+//                                                    }
+//                                                }
+//
+//                                                @Override
+//                                                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+//                                                    Recipe recipe = post.getRecipe();
+//                                                    System.out.println(recipe.getMain_category() + " - " + recipe.getCategory() + " - " + recipe.getTitle() + " failure!");
+//
+//                                                }
+//                                            });
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                        break;
+//                                    }
+//                                    System.out.println("\n=====================================\n");
+//                                }
+//                            }
+//                        } catch (Exception ex) {
+//                            ex.printStackTrace();
+//                        }
+////                    }
+////                }
+////
+////                @Override
+////                public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+////                    System.out.println("\n\nonFailure >>>> Problem signup as " + copy_rights + "<<<<\n\n");
+////                }
+////            });
+//
+//        return true;
+//    }
 
 //    private void setupToolbar() {
 //        db.collection("users_account_settings")
@@ -206,7 +294,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void shufflePosts(){
-        Collections.shuffle(requestUserFeed.getPosts());
+        Collections.shuffle(userFeed.getPosts());
     }
 
     private void setupMainFeed() {
@@ -214,20 +302,20 @@ public class HomeActivity extends AppCompatActivity {
 
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 //        serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
-        serverMethods.retrofitInterface.getUserFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
+        serverMethods.retrofitInterface.getUserFeedPosts(uid).enqueue(new Callback<RequestPosts>() {
             @Override
-            public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
+            public void onResponse(@NonNull Call<RequestPosts> call, @NonNull Response<RequestPosts> response) {
                 if (response.isSuccessful()){
                     System.out.println(TAG + " - setupMainFeed - response.isSuccessful()");
-                    requestUserFeed = response.body();
+                    userFeed = response.body();
 
-                    System.out.println(requestUserFeed);
+                    System.out.println(userFeed);
 //                    setProfileIconInNevigation();
 
-                    if (requestUserFeed != null){
+                    if (userFeed != null){
                         System.out.println(TAG + " - setupMainFeed - requestUserFeed != null");
                         shufflePosts();
-                        postAdapter = new PostAdapter(requestUserFeed, mContext, layout_home);
+                        postAdapter = new PostAdapter(userFeed, mContext, layout_home);
                         postList.setAdapter(postAdapter);
                     } else {
                         System.out.println(TAG + " - setupMainFeed - requestUserFeed == null");
@@ -238,7 +326,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<RequestUserFeed> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<RequestPosts> call, @NonNull Throwable t) {
                 System.out.println(TAG + " - setupMainFeed - onFailure: " + t.getMessage());
             }
         });
@@ -365,11 +453,11 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void setProfileIconInNevigation() {
-        if (this.requestUserFeed != null) {
-            UserAccountSettings account = this.requestUserFeed.getAccount();
-            if (account != null) {
-                String profile_photo = account.getProfile_photo();
+    private void setProfileIconInNevigation(int position) {
+        if (this.userFeed != null) {
+            Post post = userFeed.getPost(position);
+            if (post != null) {
+                String profile_photo = post.getProfile_photo();
                 if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
                     Menu menu = bottomNavigationView.getMenu();
                     MenuItem menuItem = menu.findItem(R.id.ic_android);

@@ -43,6 +43,7 @@ import java.util.ArrayList;
 
 import Profile.ProfileActivity;
 import Search.SearchActivity;
+import Server.RequestPosts;
 import Server.RequestUserFeed;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
@@ -89,6 +90,8 @@ public class ViewProfileFragment extends Fragment {
     private int mPostsCount = 0;
     private UserSettings mUser;
     private UserSettings currentUser;
+
+    RequestPosts userFeed;
 
     public interface OnGridImageSelectedListener{
         void onGridImageSelected(Post post, int activityNumber);
@@ -254,14 +257,14 @@ public class ViewProfileFragment extends Fragment {
         uid = mUser.getUser().getUser_id();
 
         if (uid != null) {
-            serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
+            serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestPosts>() {
                 @Override
-                public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
+                public void onResponse(@NonNull Call<RequestPosts> call, @NonNull Response<RequestPosts> response) {
                     if (response.isSuccessful()){
                         Log.d(TAG, "setupGridView: success");
                         System.out.println("setupGridView: success");
 
-                        RequestUserFeed userFeed = response.body();
+                        userFeed = response.body();
                         if (userFeed != null){
                             System.out.println("userFeed: userFeed.size() =  " + userFeed.size());
                             //setup our image grid
@@ -299,7 +302,7 @@ public class ViewProfileFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(@NonNull Call<RequestUserFeed> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<RequestPosts> call, @NonNull Throwable t) {
                     Log.d(TAG, "setupGridView: Error: " + t.getMessage());
                     System.out.println("setupGridView: Error: " + t.getMessage());
                 }
