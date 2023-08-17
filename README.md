@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="[https://github.com/orelz890/InstaFoodies/pics/logo.png" alt="InstaFoodies Logo" width="200"/>
+  <img src="pics/logo.jpeg" alt="InstaFoodies Logo"  width="1000" height="210"/>
   <h1>InstaFoodies: Social Media Platform for Food Enthusiasts</h1>
   <p>Welcome to InstaFoodies, where culinary creativity meets social networking!</p>
 </div>
