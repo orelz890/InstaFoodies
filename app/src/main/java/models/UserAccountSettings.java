@@ -135,11 +135,11 @@ public class UserAccountSettings implements Serializable {
     }
 
     public int getFollowers() {
-//        if (following_ids != null){
-//            return following_ids.size();
-//        }
-//        return 0;
-        return followers;
+        if (followers_ids != null){
+            return followers_ids.size();
+        }
+        return 0;
+//        return followers;
     }
 
     public void setFollowers(int followers) {
@@ -147,11 +147,11 @@ public class UserAccountSettings implements Serializable {
     }
 
     public int getFollowing() {
-//        if (following_ids != null){
-//            return following_ids.size();
-//        }
-//        return 0;
-        return following;
+        if (following_ids != null){
+            return following_ids.size();
+        }
+        return 0;
+//        return following;
     }
 
     public void setFollowing(int following) {

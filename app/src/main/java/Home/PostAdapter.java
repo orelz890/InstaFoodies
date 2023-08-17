@@ -115,7 +115,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             if (post != null) {
                 System.out.println("PostAdapter - onBindViewHolder - post != null\n Post(" + position + "): " + post.toString());
                 // Set the visibility of the add_to_cart ImageView based on whether the post is a recipe
-                if (post.getRecipe() != null) {
+                if (post.getRecipe() != null && !Objects.equals(post.getUser_id(), "www.allrecipes.com")) {
                     holder.imageAddCart.setVisibility(View.VISIBLE);
                 } else {
                     holder.imageAddCart.setVisibility(View.GONE);
