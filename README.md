@@ -1,153 +1,163 @@
 <div align="center">
-  <img src="pics/logo.jpeg" alt="InstaFoodies Logo"  width="1000" height="210"/>
-  <h1>InstaFoodies: Social Media Platform for Food Enthusiasts</h1>
-  <p>Welcome to InstaFoodies, where culinary creativity meets social networking!</p>
+  <img src="pics/app_food_2.jpg" alt="InstaFoodies Logo"  width="1000" height="250"/>
+  <h1>🍴 Frontend Delights: A Culinary Adventure with InstaFoodies 📸</h1>
+  <p>Welcome to the enchanting realm of InstaFoodies' frontend, where the art of cooking converges with the magic of social connection! </p>
 </div>
 
-## 🍔 Introducing InstaFoodies
-
-Discover and share mouthwatering recipes from around the world. Join a community of food enthusiasts, upload your culinary creations, and connect with fellow foodies.
+---
 
 ## Table of Contents
 
-1. [Introduction](#-introducing-instafoodies)
-2. [Features](#-features)
-3. [Architecture](#-architecture)
-4. [Modules](#-modules)
-   1. [User Authentication and Registration](#user-authentication-and-registration)
-   2. [Post Creation and Editing](#post-creation-and-editing)
-   3. [Feed Display and Navigation](#feed-display-and-navigation)
-   4. [User Profile and Settings](#user-profile-and-settings)
-   5. [Search Functionality](#search-functionality)
-   6. [Notifications](#notifications)
-   7. [Chat Messaging](#chat-messaging)
-   8. [Content Recognition and Reporting](#content-recognition-and-reporting)
-   9. [Recipe Web Scraping and Integration](#recipe-web-scraping-and-integration)
-5. [Human Interface Design](#-human-interface-design)
-6. [Getting Started](#-getting-started)
-7. [Contributing](#-contributing)
-8. [Attribution](#-attribution)
-9. [License](#-license)
+- [Introduction](#-introduction)
+- [System Overview](#-system-overview)
+- [System Architecture](#system-architecture)
+  - [Architectural Design](#-architectural-design)
+- [Decomposed Modules](#decomposed-modules)
+  - [User Authentication and Registration](#user-authentication-and-registration)
+  - [Post Creation and Editing](#post-creation-and-editing)
+  - [Feed Display and Navigation](#feed-display-and-navigation)
+  - [User Profile and Settings](#user-profile-and-settings)
+  - [Search Functionality](#search-functionality)
+  - [Notifications](#notifications)
+  - [Chat Messaging](#chat-messaging)
+  - [Content Recognition and Reporting](#content-recognition-and-reporting)
+  - [Recipe Web Scraping and Integration](#recipe-web-scraping-and-integration)
+- [Human Interface Design](#human-interface-design)
+  - [Feed](#feed)
+  - [Profile](#profile)
+  - [Search](#search)
+  - [Upload Update](#upload-update)
+  - [Notifications](#notifications-ui)
+- [License](#-license)
 
-## 🌟 Features
+---
 
-- 📸 Upload food photos with detailed recipe descriptions.
-- 👥 Follow users and curate your personalized recipe feed.
-- 🗓️ Plan your weekly recipes and export your cart as a WhatsApp message.
-- 🔔 Receive real-time notifications for likes, comments, and follows.
-- 💬 Chat with friends and fellow food lovers.
-- 🔍 Search for users and recipes with ease.
-- 🔍 Use content recognition to ensure the quality of shared recipes.
-- 🔗 Seamlessly integrate scraped recipes from external websites.
+## 📑 Introduction
 
-## 🏗️ Architecture
+## Discover Flavorful Frontend Adventures
 
-InstaFoodies is built using the Model-View-ViewModel (MVVM) architectural pattern. This ensures clean code organization and easy maintenance.
+Step into a world where recipes become stories and culinary creativity knows no bounds. InstaFoodies' frontend is your portal to a vibrant community of food enthusiasts, where each screen and interaction is designed to elevate your culinary journey. 🍳🎨👨‍🍳👩‍🍳
 
-- **Model:** Handles server communication and data logic.
-- **View:** Presents the Android UI and user interface elements.
-- **ViewModel:** Prepares data for the UI and contains UI-related logic.
+## Savory Features at Your Fingertips
 
-## 🧩 Modules
+Craft, share, and savor the magic of cooking with ease. Unleash your inner chef with the "Post Creation and Editing" module, elegantly blending images, descriptions, and instructions. Forge connections with like-minded food lovers using the intuitive "Chat Messaging" component. 💬📝
+
+## A Fusion of Design and Passion
+
+Every pixel of InstaFoodies' frontend is a labor of love, catering to your craving for both aesthetic pleasure and seamless functionality. Whether you're discovering global flavors or sharing your culinary creations, our UI promises an experience as delightful as your favorite dish. 🧡🎨
+
+## Embark on Your Culinary Odyssey
+
+Get ready to immerse yourself in a world where recipes come to life and friendships are forged over shared flavors. InstaFoodies' frontend is your gateway to a culinary adventure that marries the art of cooking with the joy of connection.
+
+Fire up your creativity, ignite your taste buds, and embark on a journey where food, fun, and friendship meet in perfect harmony.
+
+Bon appétit and bon voyage! 🍽️🌍
+
+---
+
+## 📋 System Overview
+
+InstaFoodies UI is the captivating facade of our dynamic recipe-sharing application, an innovative social media platform designed for users to effortlessly share and explore new culinary creations. Our users can craft and edit recipe posts, follow other culinary aficionados, embark on a culinary journey through a diverse recipe repertoire, and stay informed through real-time notifications. The UI boasts a sleek and intuitive design to ensure an immersive and engaging experience. 📸👨‍🍳🌟
+
+---
+
+## System Architecture
+
+### 📱 Architectural Design
+
+Our UI is architected using the Model-View-ViewModel (MVVM) design pattern, a cornerstone for maintainable and scalable app development. The MVVM pattern empowers us with:
+
+- **Model:** Expertly handles data logic and facilitates communication with the backend.
+- **View:** Artfully crafts the Android UI, utilizing layouts and user interface components.
+- **ViewModel:** Seamlessly orchestrates data preparation for the UI and encapsulates UI-centric logic. 🏛️🛠️
+
+## Decomposed Modules
+
+Our UI is meticulously divided into a symphony of modules, each finely tuned to orchestrate a specific realm of functionality:
 
 ### User Authentication and Registration
 
-Create accounts securely with email, username, and password. Verify authentication via email confirmation.
+- Component: `Login` 🔐
+- Responsibilities: Expertly handles user registration and authentication, prioritizing security and seamless user experience.
 
 ### Post Creation and Editing
 
-Craft and manage recipe posts with images, captions, ingredients, and cooking instructions.
+- Component: `Post` 📝
+- Responsibilities: Empowers users to sculpt and refine their culinary masterpieces, effortlessly intertwining captivating images with descriptive narratives.
 
 ### Feed Display and Navigation
 
-Explore a chronological feed of posts, engage through likes, comments, and shares.
+- Component: `Feed` 🍔
+- Responsibilities: Transforms your feed into a culinary odyssey, elegantly showcasing posts, likes, comments, and shares.
 
 ### User Profile and Settings
 
-Customize profiles, including pictures and bios.
+- Component: `Profile` 👤
+- Responsibilities: Elevates personalization by furnishing users with a canvas to curate their profiles, tantalizingly painting their culinary identity.
 
 ### Search Functionality
 
-Discover users and content seamlessly.
+- Component: `Search` 🔍
+- Responsibilities: Unleashes the power of exploration, offering users a portal to discover fellow food enthusiasts and delectable recipes.
 
 ### Notifications
 
-Stay updated with real-time notifications.
+- Component: `Notifications` 🔔
+- Responsibilities: Elevates interaction with real-time notifications, seamlessly connecting users to their culinary community.
 
 ### Chat Messaging
 
-Engage in direct conversations with friends and foodies.
+- Component: `Chat` 💬
+- Responsibilities: Facilitates engaging and real-time conversations, sating the appetite for connection.
 
 ### Content Recognition and Reporting
 
-Ensure recipe content quality with Firebase ML Kit's object detection.
+- Component: `ContentRecognition` 🕵️
+- Responsibilities: Safeguards the platform's integrity by leveraging AI to identify and address potential content violations.
 
 ### Recipe Web Scraping and Integration
 
-Integrate diverse recipes from external websites into the app's database.
+- Component: `Scraping` 📚
+- Responsibilities: Bridges the culinary divide by ingeniously integrating external recipes, inspiring creativity without leaving the app.
 
+  ---
 
-## 🌈 Human Interface Design
+## Human Interface Design
 
-### Overview of User Interface
+Our UI is a canvas of user-centric design, harmoniously merging aesthetics and functionality to craft an unparalleled experience.
 
-The user interface (UI) of the application is designed to be intuitive, user-friendly, and visually appealing.
+Key screens include:
 
-It consists of various screens that promote seamless navigation and interaction. The main screens include:
+### Feed
 
-- **Feed:** Displays a curated list of recipe posts from followed users.
-- **Profile:** Shows the user's recipe posts and personal information.
-- **Search:** Allows users to search for specific recipes or users.
-- **Upload Update:** Provides a convenient way to upload and add new recipe posts.
-- **Notifications:** Presents notifications for new posts or interactions.
+![Feed](/pics/feed.jpg)
 
-### Screen Objects and Actions
+### Profile
 
-1. **Entry Screen:**
-   - Login Button: Initiates Google login action.
+![Profile](/pics/profile.jpg)
 
-2. **Main Feed Screen:**
-   - Recycler View: Displays a list of recipe post items.
-   - Search Bar: Enables users to search for recipes.
-   - Like Button: Allows users to like posts.
-   - Comment Button: Allows users to comment on posts.
-   - Weekly Plan Button: Helps users plan their recipes for the week.
-   - Side Menu Button: Provides access to additional actions (e.g., profile search, add a post, apply as a chef, view other profiles).
+### Search
 
-3. **Full Details Post Screen:**
-   - Text Views: Display recipe details.
-   - WhatsApp Button: Shares recipe details via WhatsApp.
+![Search](/pics/search.jpg)
 
-4. **Post Upload Screen:**
-   - List View: Allows users to add ingredients.
-   - Text Fields: Enable users to provide recipe directions, calories, images, etc.
+### Upload Update
 
-5. **Profile Page Screen:**
-   - Recipe Feed: Displays the user's recipe uploads.
-   - Friends Count View: Shows the number of friends/followers.
-   - Profile Picture View: Displays the user's profile picture.
-   - Editable Profile Elements: Allows users to update profile details by clicking on them.
+![Upload Update](/pics/upload.jpg)
 
-## 🚀 Getting Started
+### Notifications UI
 
-To get started with InstaFoodies, follow these steps:
+![Notifications](/pics/notifications.jpg)
 
-1. Clone the repository: `git clone https://github.com/orelz890/InstaFoodies.git`
-2. Open the project in Android Studio.
-3. Build and run the app on an emulator or device.
-4. Enjoy the world of culinary exploration and connection!
+For a comprehensive tour of each module's symphony, meticulously composed to serenade your culinary senses,
 
-## 🌐 Contributing
+please navigate to the [Decomposed Modules](#decomposed-modules) section above. 🎨📱
 
-We welcome contributions! For guidelines, please refer to [Contributing Guidelines](CONTRIBUTING.md).
-
-## © Attribution
-
-We respect copyright and intellectual property rights. Proper attribution to original sources is important.
+---
 
 ## 📜 License
 
-InstaFoodies is released under the [MIT License](LICENSE). You are free to use, modify, and distribute this software while respecting the terms of the license.
+InstaFoodies UI is proudly crafted under the umbrella of the [MIT License](https://opensource.org/licenses/MIT). This sacred culinary masterpiece is open for you to savor, modify, and distribute, while honoring the terms of the license.
 
-Join us on InstaFoodies, where the joy of cooking meets the power of social connection! 🍳📸🥗
+Embark on a gastronomic odyssey with us at InstaFoodies, where the joy of cooking meets the power of social connection! 🍳📸🥗
 
