@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="path/to/your/logo.png" alt="InstaFoodies Logo" width="200"/>
+  <img src="[https://github.com/orelz890/InstaFoodies/pics/logo.png" alt="InstaFoodies Logo" width="200"/>
   <h1>InstaFoodies: Social Media Platform for Food Enthusiasts</h1>
   <p>Welcome to InstaFoodies, where culinary creativity meets social networking!</p>
 </div>
@@ -10,10 +10,10 @@ Discover and share mouthwatering recipes from around the world. Join a community
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Features](#features)
-3. [Architecture](#architecture)
-4. [Modules](#modules)
+1. [Introduction](#-introducing-instafoodies)
+2. [Features](#-features)
+3. [Architecture](#-architecture)
+4. [Modules](#-modules)
    1. [User Authentication and Registration](#user-authentication-and-registration)
    2. [Post Creation and Editing](#post-creation-and-editing)
    3. [Feed Display and Navigation](#feed-display-and-navigation)
@@ -23,12 +23,11 @@ Discover and share mouthwatering recipes from around the world. Join a community
    7. [Chat Messaging](#chat-messaging)
    8. [Content Recognition and Reporting](#content-recognition-and-reporting)
    9. [Recipe Web Scraping and Integration](#recipe-web-scraping-and-integration)
-5. [Component Design](#component-design)
-6. [Human Interface Design](#human-interface-design)
-7. [Getting Started](#getting-started)
-8. [Contributing](#contributing)
-9. [Attribution](#attribution)
-10. [License](#license)
+5. [Human Interface Design](#-human-interface-design)
+6. [Getting Started](#-getting-started)
+7. [Contributing](#-contributing)
+8. [Attribution](#-attribution)
+9. [License](#-license)
 
 ## 🌟 Features
 
@@ -133,7 +132,7 @@ It consists of various screens that promote seamless navigation and interaction.
 
 To get started with InstaFoodies, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/yourusername/InstaFoodies.git`
+1. Clone the repository: `git clone https://github.com/orelz890/InstaFoodies.git`
 2. Open the project in Android Studio.
 3. Build and run the app on an emulator or device.
 4. Enjoy the world of culinary exploration and connection!
