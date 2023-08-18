@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -24,7 +23,7 @@ import org.json.JSONObject;
 
 import java.math.BigDecimal;
 
-public class amount_paypal_page extends AppCompatActivity {
+public class PaypalActivity extends AppCompatActivity {
 
     ImageView btn;
     EditText amount;

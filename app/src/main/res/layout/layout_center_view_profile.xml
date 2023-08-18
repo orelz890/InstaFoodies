@@ -24,9 +24,9 @@
                 android:orientation="horizontal">
 
                 <RelativeLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="25"
+                    android:layout_weight="5"
                     android:layout_marginStart="25dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
@@ -37,6 +37,17 @@
                         app:civ_border_width="0.5dp"
                         android:layout_centerVertical="true"/>
 
+                    <ImageView
+                        android:id="@+id/ivViewChef"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignBottom="@id/view_profilePhoto"
+                        android:layout_alignEnd="@id/view_profilePhoto"
+                        android:layout_marginBottom="0dp"
+                        android:layout_marginEnd="-15dp"
+                        android:src="@drawable/chef"
+                        android:visibility="invisible"
+                        />
 
                 </RelativeLayout>
 
@@ -86,17 +97,23 @@
                     android:textColor="@color/DodgerBlue"
                     android:text=""
                     android:textSize="16sp"
-                    android:layout_marginTop="5dp"/>
+                    android:layout_marginTop="5dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:linksClickable="true"
+                    android:enableOnBackInvokedCallback="true"
+                    />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/linLayout3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_below="@id/linLayout2"
                 android:padding="20dp"
-                android:layout_marginBottom="5dp">
+                android:layout_marginBottom="5dp"
+                >
 
                 <TextView
                     android:id="@+id/follow"
@@ -113,7 +130,17 @@
                     android:layout_marginTop="5dp"/>
 
 
-
+                <TextView
+                    android:id="@+id/tvFollowHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Click Follow to see our posts:)"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="20dp"
+                    android:textSize="15sp"
+                    android:textColor="@color/Gray"
+                    android:visibility="invisible"
+                    />
 
 
 
