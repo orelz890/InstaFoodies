@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,6 +48,7 @@ import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
 
+import Profile.CustomPaymentDialog;
 import Profile.ProfileActivity;
 import Profile.ProfileFragment;
 import Search.SearchActivity;
@@ -65,7 +68,7 @@ public class ViewProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
-   // private OnGridImageSelectedListener mOnGridImageSelectedListener;
+    // private OnGridImageSelectedListener mOnGridImageSelectedListener;
     private View view; // Add this line to declare the view variable
 
 
@@ -84,11 +87,10 @@ public class ViewProfileFragment extends Fragment {
     private CircleImageView mProfilePhoto;
     private GridView gridView;
     private Toolbar toolbar;
-    private ImageView profileMenu;
+    private ImageView profileMenu, ivViewChef;
     private BottomNavigationViewEx bottomNavigationView;
     private Context mContext;
-    private TextView followButton;
-
+    private TextView followButton, tvFollowHint;
 
 
     //vars
@@ -98,19 +100,25 @@ public class ViewProfileFragment extends Fragment {
     private UserSettings mUser;
     private UserSettings currentUser;
 
+
     RequestPosts userFeed;
 
-    public interface OnGridImageSelectedListener{
+    public interface OnGridImageSelectedListener {
         void onGridImageSelected(Post post, int activityNumber);
     }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_view_profile, container, false);
-        mAuth= FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         mDisplayName = (TextView) view.findViewById(R.id.display_name);
         mUsername = (TextView) view.findViewById(R.id.username);
         mWebsite = (TextView) view.findViewById(R.id.website);
+
+        // Convert the link text to clickable links
+        Linkify.addLinks(mWebsite, Linkify.WEB_URLS);
+
         mDescription = (TextView) view.findViewById(R.id.description);
         mProfilePhoto = (CircleImageView) view.findViewById(R.id.view_profilePhoto);
         mPosts = (TextView) view.findViewById(R.id.viewTvPost);
@@ -120,10 +128,14 @@ public class ViewProfileFragment extends Fragment {
         gridView = (GridView) view.findViewById(R.id.viewGridView);
         toolbar = (Toolbar) view.findViewById(R.id.profileToolBarView);
         profileMenu = (ImageView) view.findViewById(R.id.profileMenu);
+        ivViewChef = (ImageView) view.findViewById(R.id.ivViewChef);
         bottomNavigationView = (BottomNavigationViewEx) view.findViewById(R.id.bottomNavViewBar);
         followButton = (TextView) view.findViewById(R.id.follow);
+        tvFollowHint = (TextView) view.findViewById(R.id.tvFollowHint);
+
         mContext = getActivity();
-        mAuth = FirebaseAuth.getInstance();
+
+        uid = mAuth.getCurrentUser().getUid();
         serverMethods = new ServerMethods(mContext);
         Log.d(TAG, "onCreateView: stared.");
 //        try {
@@ -135,12 +147,10 @@ public class ViewProfileFragment extends Fragment {
         try {
             mUser = getUserFromBundle();
             init();
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage());
             Toast.makeText(mContext, "something went worng", Toast.LENGTH_SHORT).show();
             getActivity().getSupportFragmentManager().popBackStack();
-
-
         }
         setupBottomNavigationView();
         setupToolbar();
@@ -159,26 +169,36 @@ public class ViewProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: send follow or un follow " + mContext.getString(R.string.view_profile_fragment));
-                if(followButton.getText().equals("Follow")){followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),true);}
-                else{followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),false);}
+                if (followButton.getText().equals("Follow")) {
+                    if (mUser.getSettings().getIsBusiness()){
+                        CustomPaymentDialog customDialog = new CustomPaymentDialog(mContext, "");
+                        customDialog.show();
+                    }
+                    else {
+                        followUnfollowAction(mAuth.getCurrentUser().getUid(), mUser.getUser(), true);
+                    }
+                } else {
+                    followUnfollowAction(mAuth.getCurrentUser().getUid(), mUser.getUser(), false);
+                }
 
-            };
+            }
+
+            ;
         });
 
         return view;
     }
 
 
-
-    private void init(){
+    private void init() {
         //onAttach(mContext);
         //set the profile widgets
-        setProfileWidgets(mUser.getUser(),mUser.getSettings());
+        setProfileWidgets(mUser.getUser(), mUser.getSettings());
         //get the users profile photos
         setupGridView(mUser);
     }
 
-    private void followUnfollowAction(String currentUid, User personTo, Boolean followOrUnfollow){
+    private void followUnfollowAction(String currentUid, User personTo, Boolean followOrUnfollow) {
         //true current wants to follow personTo
         if (followOrUnfollow) {
             Call<Boolean> call = serverMethods.retrofitInterface.followUnfollow
@@ -190,7 +210,7 @@ public class ViewProfileFragment extends Fragment {
                         Toast.makeText(mContext, personTo.getUsername() + "followed seccessfully: " + response.message(), Toast.LENGTH_LONG).show();
                         followButton.setText("UnFollow");
                         followButton.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.unfollow_button));
-                        mFollowersCount  += 1 ;
+                        mFollowersCount += 1;
                         mFollowers.setText(String.valueOf(mFollowersCount));
 
                     } else {
@@ -207,45 +227,45 @@ public class ViewProfileFragment extends Fragment {
             });
 
             //false current wants to unfollow personTo
-        }else{
-                Call<Boolean> call = serverMethods.retrofitInterface.followUnfollow
-                        (currentUid, personTo.getUser_id(), false);
-                call.enqueue(new Callback<Boolean>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
-                        if (response.code() == 200) {
-                            Toast.makeText(mContext, personTo.getUsername() +"UnFollowed seccessfully: "+response.message(), Toast.LENGTH_LONG).show();
-                            followButton.setText("Follow");
-                            mFollowersCount -= 1 ;
-                            followButton.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.follow_button));
-                            mFollowers.setText(String.valueOf(mFollowersCount));
-                        } else {
-                            Toast.makeText(mContext, "failed UnFollowing  "+personTo.getUsername()
-                                    +" response code was not valid: "+ response.message(), Toast.LENGTH_LONG).show();
-                        }
+        } else {
+            Call<Boolean> call = serverMethods.retrofitInterface.followUnfollow
+                    (currentUid, personTo.getUser_id(), false);
+            call.enqueue(new Callback<Boolean>() {
+                @Override
+                public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                    if (response.code() == 200) {
+                        Toast.makeText(mContext, personTo.getUsername() + "UnFollowed seccessfully: " + response.message(), Toast.LENGTH_LONG).show();
+                        followButton.setText("Follow");
+                        mFollowersCount -= 1;
+                        followButton.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.follow_button));
+                        mFollowers.setText(String.valueOf(mFollowersCount));
+                    } else {
+                        Toast.makeText(mContext, "failed UnFollowing  " + personTo.getUsername()
+                                + " response code was not valid: " + response.message(), Toast.LENGTH_LONG).show();
                     }
-                    @Override
-                    public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
-                        Toast.makeText(mContext, "failed UnFollowing "+personTo.getUsername()
-                                +" response failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                    Toast.makeText(mContext, "failed UnFollowing " + personTo.getUsername()
+                            + " response failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
         }
 
     }
 
 
-
-    private UserSettings getUserFromBundle(){
-        Log.d(TAG, "getUserFromBundle: arguments: "+ getArguments());
-        Bundle bundle =  this.getArguments();
-        System.out.println("IN VIEW PROFILE FRAGMENT THE BUNDLE IS "+bundle.toString()+bundle.getParcelable("intent_user"));
-        if (bundle != null){
-            System.out.println("1111111111111111111111111\n what profile view got from bundle should be both:"+bundle.getParcelable(getString(R.string.intent_user)));
+    private UserSettings getUserFromBundle() {
+        Log.d(TAG, "getUserFromBundle: arguments: " + getArguments());
+        Bundle bundle = this.getArguments();
+        System.out.println("IN VIEW PROFILE FRAGMENT THE BUNDLE IS " + bundle.toString() + bundle.getParcelable("intent_user"));
+        if (bundle != null) {
+            System.out.println("1111111111111111111111111\n what profile view got from bundle should be both:" + bundle.getParcelable(getString(R.string.intent_user)));
             return bundle.getParcelable(getString(R.string.intent_user));
-            }
-
-        else{return null;}
+        } else {
+            return null;
+        }
 
 
     }
@@ -276,57 +296,75 @@ public class ViewProfileFragment extends Fragment {
 //    }
 
 
-
-    private void setupGridView(UserSettings mUser){
+    private void setupGridView(UserSettings mUser) {
         Log.d(TAG, "setupGridView: Setting up image grid.");
 
         System.out.println("\nsetupGridView: Setting up image grid.\n");
+        UserAccountSettings friendSettings = mUser.getSettings();
+        boolean isBusiness = friendSettings.getIsBusiness();
 
-        uid = mUser.getUser().getUser_id();
-        showPostsGrid(uid);
-        if (uid != null) {
-            serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestPosts>() {
+        if (isBusiness){
+            ivViewChef.setVisibility(View.VISIBLE);
+
+            // If its a business and the user is one of its followers he need to pay to see the content
+            if (friendSettings.getFollowers_ids().contains(uid)) {
+                tvFollowHint.setVisibility(View.INVISIBLE);
+                String friendUid = mUser.getUser().getUser_id();
+                showPostsGrid(friendUid);
+            }
+            // If its a business and the user is not one of its followers
+            else {
+                tvFollowHint.setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
+
+    private void showPostsGrid(String friendUid) {
+        if (friendUid != null) {
+            serverMethods.retrofitInterface.getProfileFeedPosts(friendUid).enqueue(new Callback<RequestPosts>() {
                 @Override
                 public void onResponse(@NonNull Call<RequestPosts> call, @NonNull Response<RequestPosts> response) {
-                    if (response.isSuccessful()){
+                    if (response.isSuccessful()) {
                         Log.d(TAG, "setupGridView: success");
                         System.out.println("setupGridView: success");
 
                         userFeed = response.body();
-                        if (userFeed != null){
+                        if (userFeed != null) {
                             System.out.println("userFeed: userFeed.size() =  " + userFeed.size());
                             //setup our image grid
                             int gridWidth = getResources().getDisplayMetrics().widthPixels;
-                            int imageWidth = gridWidth/NUM_GRID_COLUMNS;
+                            int imageWidth = gridWidth / NUM_GRID_COLUMNS;
                             gridView.setColumnWidth(imageWidth);
 
                             ArrayList<String> imgUrls = new ArrayList<String>();
-                            for(int i = 0; i < userFeed.size(); i++){
+                            for (int i = 0; i < userFeed.size(); i++) {
                                 imgUrls.add(userFeed.getPost(i).getImage_paths().get(0));
                                 System.out.println("Image (" + i + ") = " + userFeed.getPost(i).getImage_paths().get(0));
                             }
 
-                            GridImageStringAdapter adapter = new GridImageStringAdapter(getActivity(),R.layout.layout_grid_image_view,
+                            GridImageStringAdapter adapter = new GridImageStringAdapter(getActivity(), R.layout.layout_grid_image_view,
                                     "", imgUrls);
-                            gridView.setAdapter(adapter); 
-                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {                                 @Override
-                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                Log.d(TAG, "onGridImageSelected: selected an image gridview: " + userFeed.getPost(position).toString());
+                            gridView.setAdapter(adapter);
+                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    Log.d(TAG, "onGridImageSelected: selected an image gridview: " + userFeed.getPost(position).toString());
 
-                                // sets arguments to be passed to the fragment
-                                ViewPostFragment fragment = new ViewPostFragment();
-                                Bundle args = new Bundle();
-                                args.putParcelable(getString(R.string.post), userFeed.getPost(position));
-                                args.putInt(getString(R.string.activity_number),4 );
+                                    // sets arguments to be passed to the fragment
+                                    ViewPostFragment fragment = new ViewPostFragment();
+                                    Bundle args = new Bundle();
+                                    args.putParcelable(getString(R.string.post), userFeed.getPost(position));
+                                    args.putInt(getString(R.string.activity_number), 4);
 
-                                fragment.setArguments(args);
+                                    fragment.setArguments(args);
 
-                                FragmentTransaction transaction  = getFragmentManager().beginTransaction();
-                                transaction.replace(R.id.container, fragment);
-                                transaction.addToBackStack(getString(R.string.view_post_fragment));
-                                transaction.commit();
+                                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                                    transaction.replace(R.id.container, fragment);
+                                    transaction.addToBackStack(getString(R.string.view_post_fragment));
+                                    transaction.commit();
 
-                                System.out.println("in gridView.setOnItemClickListener of viewProfileFragment before checking the lisnter");
+                                    System.out.println("in gridView.setOnItemClickListener of viewProfileFragment before checking the lisnter");
 //                                        if (mOnGridImageSelectedListener != null) {
 //                                            System.out.println("in gridView.setOnItemClickListener of viewProfileFragment after checking the lisnter it is not null");
 //
@@ -336,17 +374,15 @@ public class ViewProfileFragment extends Fragment {
 //                                            // Handle the situation when the listener is not initialized
 //                                            // You can show a message to the user or perform appropriate action
 //                                        }
-                                    }
-                                });
+                                }
+                            });
 
-                        }
-                        else {
+                        } else {
                             Log.d(TAG, "setupGridView: userFeed == null");
                             System.out.println("setupGridView: userFeed == null");
                         }
 
-                    }
-                    else {
+                    } else {
                         Log.d(TAG, "setupGridView: Error: " + response.message());
                         System.out.println("setupGridView: Error: " + response.message());
                     }
@@ -359,10 +395,6 @@ public class ViewProfileFragment extends Fragment {
                 }
             });
         }
-    }
-
-    private void showPostsGrid(String uid) {
-
     }
 
 
@@ -411,6 +443,15 @@ public class ViewProfileFragment extends Fragment {
             followButton.setText("UnFollow");
         }
 
+        // Set an OnClickListener to handle link clicks
+        mWebsite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = ((TextView) v).getText().toString();
+                openWebPage(url);
+            }
+        });
+
         //SERVER FUNACITONALITY WAS NOT BUILD YET//////////////
 
 
@@ -419,7 +460,7 @@ public class ViewProfileFragment extends Fragment {
             @Override
             public void onResponse(Call<UserSettings> call, Response<UserSettings> response) {
                 if (response.code() == 200) {
-                    currentUser  = response.body();
+                    currentUser = response.body();
                     if (currentUser != null) {
                         if (currentUser.getSettings().getFollowing_ids().contains(user.getUser_id())) {
                             followButton.setText("Unfollow");
@@ -427,9 +468,9 @@ public class ViewProfileFragment extends Fragment {
                             followButton.setText("Follow");
                         }
                     }
-                }else {
+                } else {
                     Toast.makeText(mContext, "failed to get current user settings code was not valid: "
-                            +response.message(), Toast.LENGTH_LONG).show();
+                            + response.message(), Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -442,9 +483,17 @@ public class ViewProfileFragment extends Fragment {
         });
 
 
-
     }
 
+    // Method to open a web page using an Intent
+    private void openWebPage(String url) {
+        if (!url.startsWith("https://")){
+            url = "https://" + url;
+        }
+        Uri webpage = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+        startActivity(intent);
+    }
 
     /**
      * Responsible for setting up the profile toolbar
@@ -464,11 +513,10 @@ public class ViewProfileFragment extends Fragment {
     }
 
 
-
     /**
      * BottomNavigationView setup
      */
-    private void setupBottomNavigationView(){
+    private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationView bottomNavigationView = (BottomNavigationView) view.findViewById(R.id.bottomNavViewBar);
         BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
@@ -511,7 +559,6 @@ public class ViewProfileFragment extends Fragment {
     }
 
 
-
     private void showImagePopup() {
         mImageDialog = new Dialog(mContext);
         mImageDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -530,7 +577,7 @@ public class ViewProfileFragment extends Fragment {
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-       // retrieveData();
+        // retrieveData();
 
     }
 

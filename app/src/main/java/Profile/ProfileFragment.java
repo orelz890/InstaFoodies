@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -330,8 +332,6 @@ public class ProfileFragment extends Fragment {
                 }
             });
         }
-
-
     }
 
     public void setCurrentUserSettings(UserSettings userSettings) {
@@ -401,6 +401,8 @@ public class ProfileFragment extends Fragment {
     }
 
     private void GridViewByPosts() {
+
+
 
         uid = mAuth.getCurrentUser().getUid();
 
@@ -657,6 +659,13 @@ public class ProfileFragment extends Fragment {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
 
+        if (userAccountSettings.getIsBusiness()){
+            ivChef.setVisibility(View.VISIBLE);
+        }
+        else {
+            ivChef.setVisibility(View.INVISIBLE);
+        }
+
         Glide.with(mContext)
                 .load(userAccountSettings.getProfile_photo())
                 .placeholder(R.drawable.ic_android)
@@ -684,12 +693,35 @@ public class ProfileFragment extends Fragment {
 
         mDisplayName.setText(user.getFull_name());
         mUsername.setText(user.getUsername());
+
+        // Convert the link text to clickable links
+        Linkify.addLinks(mWebsite, Linkify.WEB_URLS);
+
         mWebsite.setText(userAccountSettings.getWebsite());
         mDescription.setText(userAccountSettings.getDescription());
         mPosts.setText(String.valueOf(userAccountSettings.getPosts()));
         mFollowing.setText(String.valueOf(userAccountSettings.getFollowing()));
         mFollowers.setText(String.valueOf(userAccountSettings.getFollowers()));
         mProgressBar.setVisibility(View.GONE);
+
+        // Set an OnClickListener to handle link clicks
+        mWebsite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = ((TextView) v).getText().toString();
+                openWebPage(url);
+            }
+        });
+    }
+
+    // Method to open a web page using an Intent
+    private void openWebPage(String url) {
+        if (!url.startsWith("https://")){
+            url = "https://" + url;
+        }
+        Uri webpage = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+        startActivity(intent);
     }
 
 

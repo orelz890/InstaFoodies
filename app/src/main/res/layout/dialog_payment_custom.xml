@@ -1,0 +1,60 @@
+<!-- res/layout/dialog_custom.xml -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/ivCancel"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/cancel"
+        android:layout_alignParentEnd="true"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/tvDialogTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Payment"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/link_color"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvNoteAndAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="See our content with just 1$ payment"
+            android:textSize="18sp"
+            android:textStyle="normal"
+            android:textColor="@color/Gray"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="8dp"
+            />
+
+        <ImageView
+            android:id="@+id/ivPaypal"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:src="@drawable/paypal"
+            android:background="@drawable/circle_dialog_custom_button_background"
+            android:layout_gravity="center"
+            />
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>

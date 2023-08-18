@@ -95,7 +95,7 @@
 
         <receiver android:name="Notifications.ReminderBroadcast" /> <!-- the payment part -->
         <activity
-            android:name="payment.amount_paypal_page"
+            android:name="payment.PaypalActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -123,7 +123,12 @@
         </activity>
         <activity android:name="Login.RegisterActivity" />
         <activity android:name="Likes.LikesActivity" />
-        <activity android:name="Profile.ProfileActivity" />
+        <activity android:name="Profile.ProfileActivity"
+            android:exported="true"
+            android:enableOnBackInvokedCallback="true">
+        </activity>
+
+
         <activity
             android:name="Profile.ChefProfileActivity"
             android:exported="false">

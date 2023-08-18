@@ -1,5 +1,10 @@
 package models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -7,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class UserAccountSettings implements Serializable {
+public class UserAccountSettings implements Parcelable, Serializable {
 
 
     @SerializedName("description")
@@ -45,6 +50,30 @@ public class UserAccountSettings implements Serializable {
                 settings.following, settings.posts, settings.website, settings.following_ids,settings.followers_ids);
     }
 
+
+    protected UserAccountSettings(Parcel in) {
+        description = in.readString();
+        profile_photo = in.readString();
+        isBusiness = in.readByte() != 0;
+        followers = in.readInt();
+        following = in.readInt();
+        posts = in.readInt();
+        website = in.readString();
+        following_ids = in.createStringArrayList();
+        followers_ids = in.createStringArrayList();
+    }
+
+    public static final Creator<UserAccountSettings> CREATOR = new Creator<UserAccountSettings>() {
+        @Override
+        public UserAccountSettings createFromParcel(Parcel in) {
+            return new UserAccountSettings(in);
+        }
+
+        @Override
+        public UserAccountSettings[] newArray(int size) {
+            return new UserAccountSettings[size];
+        }
+    };
 
     public HashMap<String, Object> userAccountHashForServer(String description,
                                                             String profile_photo,
@@ -126,12 +155,29 @@ public class UserAccountSettings implements Serializable {
         this.profile_photo = profile_photo;
     }
 
-    public boolean isBusiness() {
+
+    public boolean getIsBusiness() {
         return isBusiness;
     }
 
-    public void setBusiness(boolean business) {
+
+    public void setIsBusiness(boolean business) {
         isBusiness = business;
+    }
+
+    @Override
+    public String toString() {
+        return "UserAccountSettings{" +
+                "description='" + description + '\'' +
+                ", profile_photo='" + profile_photo + '\'' +
+                ", isBusiness=" + isBusiness +
+                ", followers=" + followers +
+                ", following=" + following +
+                ", posts=" + posts +
+                ", website='" + website + '\'' +
+                ", following_ids=" + following_ids +
+                ", followers_ids=" + followers_ids +
+                '}';
     }
 
     public int getFollowers() {
@@ -187,23 +233,26 @@ public class UserAccountSettings implements Serializable {
         return followers_ids;
     }
 
-    @Override
-    public String toString() {
-        return "UserAccountSettings{" +
-                "description='" + description + '\'' +
-                ", profile_photo='" + profile_photo + '\'' +
-                ", isBusiness=" + isBusiness +
-                ", followers=" + followers +
-                ", following=" + following +
-                ", posts=" + posts +
-                ", website='" + website + '\'' +
-                ", following_ids=" + following_ids +
-                ", followers_ids=" + followers_ids +
-                '}';
-    }
-
     public void setFollowers_ids(List<String> followers_ids) {
         this.followers_ids = new ArrayList<>();
         this.followers_ids.addAll(followers_ids);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(this.description);
+        dest.writeString(this.website);
+        dest.writeStringList(this.followers_ids);
+        dest.writeStringList(this.following_ids);
+        dest.writeBoolean(this.isBusiness);
+        dest.writeInt(this.posts);
+        dest.writeInt(this.following);
+        dest.writeInt(this.followers);
+        dest.writeString(profile_photo);
     }
 }

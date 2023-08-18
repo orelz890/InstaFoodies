@@ -56,6 +56,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileFragmen
 
     @Override
     public void onBackPressed() {
+
         if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
             // If there are more than 1 fragments in the back stack, pop the current fragment
             getSupportFragmentManager().popBackStack();
@@ -67,6 +68,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileFragmen
 
 
      private void init(){
+
         Log.d(TAG, "init: inflating " +"Profile");
         Intent intent = getIntent();
         System.out.println("IN PROFILE ACTIVITY I GOT THE INTENT USER "+intent.toString()+intent.getParcelableExtra("intent_user"));
