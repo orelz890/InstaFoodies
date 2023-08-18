@@ -128,18 +128,14 @@ public class ProfileFragment extends Fragment {
         setupBottomNavigationView();
         setupToolbar();
         if (mcurrentUserSettings != null) {
-            // This is the user's own profile, use currentUserSettings to set widgets
-            setupFirebaseAuth();
             setProfileWidgets(mcurrentUserSettings.getUser(), mcurrentUserSettings.getSettings());
             setupGridViewByOption("myPosts");
         } else {
-            // This is someone else's profile, continue with normal initialization
             setupFirebaseAuth();
             setupGridViewByOption("myPosts");
         }
 
         setupOnClickListeners();
-
         return view;
     }
 
@@ -759,54 +755,6 @@ public class ProfileFragment extends Fragment {
         };
 
         retrieveData();
-//        Call<User> call = serverMethods.retrofitInterface.getUser(mAuth.getCurrentUser().getUid());
-//        Call<UserAccountSettings> call2 = serverMethods.retrofitInterface.getUserAccountSettings(mAuth.getCurrentUser().getUid());
-//
-//        call.enqueue(new Callback<User>() {
-//            @Override
-//            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
-//
-//                User result1 = response.body();
-//                if (response.code() == 200) {
-//                    assert result1 != null;
-//                    call2.enqueue(new Callback<UserAccountSettings>() {
-//                        @Override
-//                        public void onResponse(@NonNull Call<UserAccountSettings> call, @NonNull Response<UserAccountSettings> response) {
-//                            UserAccountSettings result2 = response.body();
-//                            if (response.code() == 200) {
-//                                assert result2 != null;
-//                                setProfileWidgets(result1, result2);
-//                            } else if (response.code() == 400) {
-//                                Toast.makeText(mContext,
-//                                        "Don't exist", Toast.LENGTH_LONG).show();
-//                            } else {
-//                                Toast.makeText(mContext, response.message(),
-//                                        Toast.LENGTH_LONG).show();
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailure(@NonNull Call<UserAccountSettings> call, @NonNull Throwable t) {
-//                            Toast.makeText(mContext, t.getMessage(),
-//                                    Toast.LENGTH_LONG).show();
-//                        }
-//                    });
-//                } else if (response.code() == 400) {
-//                    Toast.makeText(mContext,
-//                            "Don't exist", Toast.LENGTH_LONG).show();
-//                } else {
-//                    Toast.makeText(mContext, response.message(),
-//                            Toast.LENGTH_LONG).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-//                Toast.makeText(mContext, t.getMessage(),
-//                        Toast.LENGTH_LONG).show();
-//            }
-//        });
-
     }
 
 
@@ -817,6 +765,7 @@ public class ProfileFragment extends Fragment {
             public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
 
                 UserSettings userSettings = response.body();
+                mcurrentUserSettings = userSettings;
                 if (response.code() == 200) {
                     assert userSettings != null;
                     if (userSettings.getSettings() != null) {
