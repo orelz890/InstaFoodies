@@ -1,6 +1,7 @@
 package Home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -30,6 +31,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -221,6 +223,22 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                         updateCartPost(uid, post);
                     }
                 });
+                holder.imageShare.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String shareText = createPostShareText(post.getFull_name(), captionsForPostOrRecipe(post), holder.postTimePosted.getText().toString());
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+                        sendIntent.setType("text/plain");
+                        try {
+                            mContext.startActivity(sendIntent);
+                            //maybe need to change for    mContext.startActivity(Intent.createChooser(sendIntent, "Share via"));
+                            //for better user experience
+                        } catch (android.content.ActivityNotFoundException ex) {
+                            Toast.makeText(mContext, "No apps can perform this action.", Toast.LENGTH_SHORT).show();
+                        }}
+                });
 
                 holder.commentsBubble.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -236,6 +254,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             System.out.println("PostAdapter - onBindViewHolder - userFeed == null");
         }
     }
+
+
+    private String createPostShareText(String userName, String caption, String timeStamp) {
+        String shareText = mAuth.getCurrentUser().getDisplayName()+ " shred "+userName+" post";
+        shareText += "\n\n"+caption.split("See less...")[0]+"\n\n"+timeStamp;
+        return shareText;
+    }
+
+
 
     private void createPopupCommentsWindow(int position) {
         currentPosition = position;
@@ -354,8 +381,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         });
 
     }
-
-    private String captionsForPostOrRecipe(Post post){
+    private String captionsForPostOrRecipe(Post post ){
         String ans="";
         if (post.getRecipe() == null){ans = post.getCaption();}
         else {
@@ -556,7 +582,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         public TextView username, imageLikes, postCaption, imageCommentsLink, postTimePosted;
         public CircleImageView profilePhoto;
-        public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble,imageAddCart,imageAddToCartFill;
+        public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble,imageAddCart,imageAddToCartFill,imageShare;
         public ViewPager2 postImages;
         public StringImageAdapter adapter;
         public View view;
@@ -570,6 +596,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             ivEllipses = (ImageView) itemView.findViewById(R.id.ivEllipses);
             postImages = (ViewPager2) itemView.findViewById(R.id.post_images); // <<<< ///
             imageHeartRed = (ImageView) itemView.findViewById(R.id.image_heart_red);
+            imageShare = (ImageView) itemView.findViewById(R.id.image_share);
             imageHeart = (ImageView) itemView.findViewById(R.id.image_heart);
             commentsBubble = (ImageView) itemView.findViewById(R.id.speech_bubble);
             imageLikes = (TextView) itemView.findViewById(R.id.image_likes);

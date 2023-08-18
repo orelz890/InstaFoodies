@@ -111,10 +111,23 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_centerVertical="true"
-                android:layout_margin="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
                 android:layout_toEndOf="@+id/speech_bubble"
                 android:src="@drawable/added_to_cart"
                 android:visibility="invisible" />
+            <ImageView
+                android:id="@+id/image_share"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:clickable="true"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/share_post"
+                android:visibility="visible" />
 
         </RelativeLayout>
 
