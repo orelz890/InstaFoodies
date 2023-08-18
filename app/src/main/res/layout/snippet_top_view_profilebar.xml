@@ -20,7 +20,7 @@
                     android:layout_height="29dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="35dp"
-                    android:text="svddgdhb"
+                    android:text=""
                     android:textColor="@color/black"
                     android:textSize="20sp" />
 

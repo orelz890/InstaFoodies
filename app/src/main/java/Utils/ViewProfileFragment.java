@@ -3,6 +3,7 @@ package Utils;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -23,13 +24,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
@@ -38,10 +44,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import Profile.ProfileActivity;
+import Profile.ProfileFragment;
 import Search.SearchActivity;
 import Server.RequestPosts;
 import Server.RequestUserFeed;
@@ -59,8 +65,9 @@ public class ViewProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
-    private OnGridImageSelectedListener mOnGridImageSelectedListener;
+   // private OnGridImageSelectedListener mOnGridImageSelectedListener;
     private View view; // Add this line to declare the view variable
+
 
     //firebase
     private FirebaseAuth mAuth;
@@ -80,7 +87,7 @@ public class ViewProfileFragment extends Fragment {
     private ImageView profileMenu;
     private BottomNavigationViewEx bottomNavigationView;
     private Context mContext;
-    private AppCompatButton followButton;
+    private TextView followButton;
 
 
 
@@ -96,7 +103,6 @@ public class ViewProfileFragment extends Fragment {
     public interface OnGridImageSelectedListener{
         void onGridImageSelected(Post post, int activityNumber);
     }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -115,11 +121,16 @@ public class ViewProfileFragment extends Fragment {
         toolbar = (Toolbar) view.findViewById(R.id.profileToolBarView);
         profileMenu = (ImageView) view.findViewById(R.id.profileMenu);
         bottomNavigationView = (BottomNavigationViewEx) view.findViewById(R.id.bottomNavViewBar);
-        followButton = (AppCompatButton) view.findViewById(R.id.follow);
+        followButton = (TextView) view.findViewById(R.id.follow);
         mContext = getActivity();
         mAuth = FirebaseAuth.getInstance();
         serverMethods = new ServerMethods(mContext);
         Log.d(TAG, "onCreateView: stared.");
+//        try {
+//            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
+//        } catch (ClassCastException e) {
+//            Log.e(TAG, "onActivityCreated: ClassCastException: " + e.getMessage());
+//        }
 
         try {
             mUser = getUserFromBundle();
@@ -147,7 +158,7 @@ public class ViewProfileFragment extends Fragment {
         followButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: send follow or un follow " + mContext.getString(R.string.edit_profile_fragment));
+                Log.d(TAG, "onClick: send follow or un follow " + mContext.getString(R.string.view_profile_fragment));
                 if(followButton.getText().equals("Follow")){followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),true);}
                 else{followUnfollowAction(mAuth.getCurrentUser().getUid(),mUser.getUser(),false);}
 
@@ -160,6 +171,7 @@ public class ViewProfileFragment extends Fragment {
 
 
     private void init(){
+        //onAttach(mContext);
         //set the profile widgets
         setProfileWidgets(mUser.getUser(),mUser.getSettings());
         //get the users profile photos
@@ -176,7 +188,8 @@ public class ViewProfileFragment extends Fragment {
                 public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
                     if (response.code() == 200) {
                         Toast.makeText(mContext, personTo.getUsername() + "followed seccessfully: " + response.message(), Toast.LENGTH_LONG).show();
-                        followButton.setText("Unfollow");
+                        followButton.setText("UnFollow");
+                        followButton.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.unfollow_button));
                         mFollowersCount  += 1 ;
                         mFollowers.setText(String.valueOf(mFollowersCount));
 
@@ -204,6 +217,7 @@ public class ViewProfileFragment extends Fragment {
                             Toast.makeText(mContext, personTo.getUsername() +"UnFollowed seccessfully: "+response.message(), Toast.LENGTH_LONG).show();
                             followButton.setText("Follow");
                             mFollowersCount -= 1 ;
+                            followButton.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.follow_button));
                             mFollowers.setText(String.valueOf(mFollowersCount));
                         } else {
                             Toast.makeText(mContext, "failed UnFollowing  "+personTo.getUsername()
@@ -235,18 +249,32 @@ public class ViewProfileFragment extends Fragment {
 
 
     }
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//
+//        try {
+//            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
+//        } catch (ClassCastException e) {
+//            Log.e(TAG, "onActivityCreated: ClassCastException: " + e.getMessage());
+//        }
+//    }
 
+//    @Override
+//    public void onAttach(Context context) {
+//        super.onAttach(context);
+//
+//        try {
+//            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
+//            if (mOnGridImageSelectedListener == null) {
+//                throw new ClassCastException("Activity must implement OnGridImageSelectedListener");
+//            }
+//        } catch (ClassCastException e) {
+//            Log.e(TAG, "onAttach: ClassCastException: in viewProfileFrament: " + e.getMessage());
+//            // Handle the error, show a toast, log, or take appropriate action
+//        }
+//    }
 
-
-    @Override
-    public void onAttach(Context context) {
-        try{
-            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
-        }catch (ClassCastException e){
-            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage() );
-        }
-        super.onAttach(context);
-    }
 
 
     private void setupGridView(UserSettings mUser){
@@ -280,13 +308,36 @@ public class ViewProfileFragment extends Fragment {
 
                             GridImageStringAdapter adapter = new GridImageStringAdapter(getActivity(),R.layout.layout_grid_image_view,
                                     "", imgUrls);
-                            gridView.setAdapter(adapter);
-                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    mOnGridImageSelectedListener.onGridImageSelected(userFeed.getPost(position), ACTIVITY_NUM);
-                                }
-                            });
+                            gridView.setAdapter(adapter); 
+                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {                                 @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Log.d(TAG, "onGridImageSelected: selected an image gridview: " + userFeed.getPost(position).toString());
+
+                                // sets arguments to be passed to the fragment
+                                ViewPostFragment fragment = new ViewPostFragment();
+                                Bundle args = new Bundle();
+                                args.putParcelable(getString(R.string.post), userFeed.getPost(position));
+                                args.putInt(getString(R.string.activity_number),4 );
+
+                                fragment.setArguments(args);
+
+                                FragmentTransaction transaction  = getFragmentManager().beginTransaction();
+                                transaction.replace(R.id.container, fragment);
+                                transaction.addToBackStack(getString(R.string.view_post_fragment));
+                                transaction.commit();
+
+                                System.out.println("in gridView.setOnItemClickListener of viewProfileFragment before checking the lisnter");
+//                                        if (mOnGridImageSelectedListener != null) {
+//                                            System.out.println("in gridView.setOnItemClickListener of viewProfileFragment after checking the lisnter it is not null");
+//
+//                                            mOnGridImageSelectedListener.onGridImageSelected(userFeed.getPost(position), ACTIVITY_NUM);
+//                                        } else {
+//                                            Log.e(TAG, "mOnGridImageSelectedListener is null");
+//                                            // Handle the situation when the listener is not initialized
+//                                            // You can show a message to the user or perform appropriate action
+//                                        }
+                                    }
+                                });
 
                         }
                         else {
@@ -350,11 +401,16 @@ public class ViewProfileFragment extends Fragment {
         mWebsite.setText(userAccountSettings.getWebsite());
         mDescription.setText(userAccountSettings.getDescription());
         mPosts.setText(String.valueOf(userAccountSettings.getPosts()));
-        mFollowing.setText(String.valueOf(userAccountSettings.getFollowing()));
         mFollowingCount = userAccountSettings.getFollowing();
-        mFollowers.setText(String.valueOf(userAccountSettings.getFollowers()));
+        mFollowing.setText(String.valueOf(mFollowingCount));
         mFollowersCount = userAccountSettings.getFollowers();
+        mFollowers.setText(String.valueOf(mFollowersCount));
         mProgressBar.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+        if (userAccountSettings.getFollowers_ids().contains(mAuth.getCurrentUser().getUid())) {
+            followButton.setBackground(ContextCompat.getDrawable(mContext, R.drawable.unfollow_button));
+            followButton.setText("UnFollow");
+        }
 
         //SERVER FUNACITONALITY WAS NOT BUILD YET//////////////
 

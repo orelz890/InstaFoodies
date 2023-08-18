@@ -162,6 +162,7 @@ public class ProfileFragment extends Fragment {
         setupToolbar();
         if (mcurrentUserSettings != null) {
             // This is the user's own profile, use currentUserSettings to set widgets
+           // onAttach(mContext);
             setupFirebaseAuth();
             setProfileWidgets(mcurrentUserSettings.getUser(), mcurrentUserSettings.getSettings());
             setupGridViewByOption("myPosts");

@@ -436,14 +436,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         StringBuilder truncatedCaption = new StringBuilder();
         for (int i = 0; i < Math.min(lines.length, postMaxLine); i++) {
-            truncatedCaption.append(lines[i]).append("\n");
+            truncatedCaption.append(lines[i]);
+            if (i < Math.min(lines.length, postMaxLine) - 1) {
+                truncatedCaption.append("\n"); // Add newline except for the last line
+            }
         }
 
         // If there are more than 6 lines, add an ellipsis
         if (lines.length > postMaxLine) {
             truncatedCaption.append("See more..."); // Add ellipsis
         }
-
         return truncatedCaption.toString();
     }
 
@@ -553,7 +555,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public static class PostViewHolder extends RecyclerView.ViewHolder {
 
         public TextView username, imageLikes, postCaption, imageCommentsLink, postTimePosted;
-        public Button seeMoreButton;
         public CircleImageView profilePhoto;
         public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble,imageAddCart,imageAddToCartFill;
         public ViewPager2 postImages;
@@ -577,7 +578,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             postTimePosted = (TextView) itemView.findViewById(R.id.post_time_posted); // <<<<
             imageAddCart = itemView.findViewById(R.id.add_cart);
             imageAddToCartFill = itemView.findViewById(R.id.add_to_cart_fill);
-//            seeMoreButton = (Button) itemView.findViewById(R.id.see_more_button);
         }
     }
 

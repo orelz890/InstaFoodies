@@ -86,19 +86,19 @@ public class ProfileActivity extends AppCompatActivity implements ProfileFragmen
                     fragment.setArguments(args);
 
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    transaction.replace(R.id.container, fragment);
+                    transaction.replace(R.id.container, fragment,"ViewProfileFragmentTag");
                     transaction.addToBackStack(getString(R.string.view_profile_fragment));
                     transaction.commit();}
 
             }else{
-                Toast.makeText(mContext, "something went wrong", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "something went wrong:", Toast.LENGTH_SHORT).show();
             }
         }else{
             Log.d(TAG, "init: inflating Profile");
             System.out.println("IN PROFILE ACTIVITY ITS THE USER TRING TO SEARCH THEM SELFS");
             ProfileFragment fragment = new ProfileFragment();
             FragmentTransaction transaction = ProfileActivity.this.getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container, fragment);
+            transaction.replace(R.id.container, fragment,"ProfileFragmentTag");
             transaction.addToBackStack(getString(R.string.profile_fragment));
             transaction.commit();
 
