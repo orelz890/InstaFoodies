@@ -23,11 +23,6 @@
   - [Content Recognition and Reporting](#content-recognition-and-reporting)
   - [Recipe Web Scraping and Integration](#recipe-web-scraping-and-integration)
 - [Human Interface Design](#human-interface-design)
-  - [Feed](#feed)
-  - [Profile](#profile)
-  - [Search](#search)
-  - [Upload Update](#upload-update)
-  - [Notifications](#notifications-ui)
 - [License](#-license)
 
 ---
@@ -129,25 +124,24 @@ Our UI is a canvas of user-centric design, harmoniously merging aesthetics and f
 
 Key screens include:
 
-### Feed
+## Table of Contents
 
-![Feed](/pics/feed.jpg)
+| Login | Feed | Profile |
+| :---: | :---: | :---: |
+| <img src="pics/login.jpg" alt="login" width="250" /> | <img src="pics/feed.jpg" alt="feed" width="250" /> | <img src="pics/profile.jpg" alt="profile" width="250" /> |
 
-### Profile
+| Post | Networking | Chat |
+| :---: | :---: | :---: |
+| <img src="pics/recipe.jpg" alt="post" width="250" /> | <img src="pics/chats.jpg" alt="networking" width="250" /> | <img src="pics/chat.jpg" alt="chat" width="250" /> |
 
-![Profile](/pics/profile.jpg)
+| Chat Requests | Search | Upload & Update |
+| :---: | :---: | :---: |
+| <img src="pics/requests.jpg" alt="chat requests" width="250" /> | <img src="pics/search.jpg" alt="search" width="250" /> | <img src="pics/upload.jpg" alt="upload update" width="250" /> |
 
-### Search
+| Notifications | Scraping | Register |
+| :---: | :---: | :---: |
+| <img src="pics/notifications.jpg" alt="notifications" width="250" /> | <img src="pics/scrapping.jpg" alt="scraping" width="250" /> | <img src="pics/register.jpg" alt="register" width="250" /> |
 
-![Search](/pics/search.jpg)
-
-### Upload Update
-
-![Upload Update](/pics/upload.jpg)
-
-### Notifications UI
-
-![Notifications](/pics/notifications.jpg)
 
 For a comprehensive tour of each module's symphony, meticulously composed to serenade your culinary senses,
 
