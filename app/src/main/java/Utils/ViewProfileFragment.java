@@ -283,7 +283,7 @@ public class ViewProfileFragment extends Fragment {
         System.out.println("\nsetupGridView: Setting up image grid.\n");
 
         uid = mUser.getUser().getUser_id();
-
+        showPostsGrid(uid);
         if (uid != null) {
             serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestPosts>() {
                 @Override
@@ -359,12 +359,11 @@ public class ViewProfileFragment extends Fragment {
                 }
             });
         }
-
-
     }
 
+    private void showPostsGrid(String uid) {
 
-
+    }
 
 
     private void setProfileWidgets(User user, UserAccountSettings userAccountSettings) {

@@ -26,7 +26,9 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginStart="25dp"
-                    android:layout_weight="25">
+                    android:layout_weight="25"
+
+                    >
 
                     <ImageView
                         android:id="@+id/zoomImageView"
@@ -43,6 +45,19 @@
                         android:layout_centerVertical="true"
                         app:civ_border_color="@color/black"
                         app:civ_border_width="0.5dp" />
+
+                    <ImageView
+                        android:id="@+id/ivChef"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignBottom="@id/profilePhoto"
+                        android:layout_alignEnd="@id/profilePhoto"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/chef"
+                        android:visibility="invisible"
+                        />
+
                 </RelativeLayout>
 
                 <RelativeLayout

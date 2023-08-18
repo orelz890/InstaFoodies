@@ -84,6 +84,7 @@ public class ProfileFragment extends Fragment {
     private View view; // Add this line to declare the view variable
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
+    private Context mContext;
 
     //firebase
     private FirebaseAuth mAuth;
@@ -95,24 +96,17 @@ public class ProfileFragment extends Fragment {
 
 
     //widgets
-    private TextView mPosts, mFollowers, mFollowing, mDisplayName, mUsername, mWebsite, mDescription;
-    private Dialog mImageDialog;
-    private ProgressBar mProgressBar;
+    private TextView mPosts, mFollowers, mFollowing, mDisplayName, mUsername, mWebsite, mDescription, emptyGrid, myCart, myPosts, myLikedPosts;
+    private ImageView profileMenu, delete, exportCart, ivChef;
     private CircleImageView mProfilePhoto;
-    private GridView gridView;
-    private TextView emptyGrid;
+    private ProgressBar mProgressBar, gridLoadingProgressBar;
     private Toolbar toolbar;
-    private ImageView profileMenu;
-    private TextView myCart;
-    private TextView myPosts;
-    private TextView myLikedPosts;
-    private BottomNavigationViewEx bottomNavigationView;
-    private Context mContext;
-    private ProgressBar gridLoadingProgressBar;
-    private List<Integer> selectedIndexes = new ArrayList<>();
-    private ImageView delete;
-    private ImageView exportCart;
+    private GridView gridView;
     private GridImageSelection adapter;
+
+    private Dialog mImageDialog;
+    private BottomNavigationViewEx bottomNavigationView;
+    private List<Integer> selectedIndexes = new ArrayList<>();
     private List<Recipe> selectedToCart = new ArrayList<>();
     private List<String> selectedToDelete = new ArrayList<>();
 
@@ -130,6 +124,26 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_profile, container, false);
+        setupProfileFragmentFields();
+        setupBottomNavigationView();
+        setupToolbar();
+        if (mcurrentUserSettings != null) {
+            // This is the user's own profile, use currentUserSettings to set widgets
+            setupFirebaseAuth();
+            setProfileWidgets(mcurrentUserSettings.getUser(), mcurrentUserSettings.getSettings());
+            setupGridViewByOption("myPosts");
+        } else {
+            // This is someone else's profile, continue with normal initialization
+            setupFirebaseAuth();
+            setupGridViewByOption("myPosts");
+        }
+
+        setupOnClickListeners();
+
+        return view;
+    }
+
+    private void setupProfileFragmentFields() {
         mAuth= FirebaseAuth.getInstance();
         mDisplayName = (TextView) view.findViewById(R.id.tv_display_name);
         mUsername = (TextView) view.findViewById(R.id.profileName);
@@ -154,29 +168,12 @@ public class ProfileFragment extends Fragment {
         delete = view.findViewById(R.id.deleteButton);
         exportCart = view.findViewById(R.id.exportButton);
         gridLoadingProgressBar = view.findViewById(R.id.gridLoadingProgressBar);
+        ivChef = view.findViewById(R.id.ivChef);
 
         Log.d(TAG, "onCreateView: stared.");
+    }
 
-
-        setupBottomNavigationView();
-        setupToolbar();
-        if (mcurrentUserSettings != null) {
-            // This is the user's own profile, use currentUserSettings to set widgets
-           // onAttach(mContext);
-            setupFirebaseAuth();
-            setProfileWidgets(mcurrentUserSettings.getUser(), mcurrentUserSettings.getSettings());
-            setupGridViewByOption("myPosts");
-        } else {
-            // This is someone else's profile, continue with normal initialization
-            setupFirebaseAuth();
-            setupGridViewByOption("myPosts");
-        }
-//        setupFirebaseAuth();
-//        setupGridView();
-
-//        setupGridViewByOption("myPosts");
-
-
+    private void setupOnClickListeners() {
         mProfilePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -188,8 +185,10 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 setupGridViewByOption("myPosts");
-                adapter.clearImgURLs();
-                adapter.notifyDataSetChanged();
+                if (adapter != null) {
+                    adapter.clearImgURLs();
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
 
@@ -197,9 +196,10 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 setupGridViewByOption("myCart");
-                adapter.clearImgURLs();
-                adapter.notifyDataSetChanged();
-
+                if (adapter != null){
+                    adapter.clearImgURLs();
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
 
@@ -207,14 +207,13 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 setupGridViewByOption("myLikedPosts");
-                adapter.clearImgURLs();
-                adapter.notifyDataSetChanged();
+                if (adapter != null) {
+                    adapter.clearImgURLs();
+                    adapter.notifyDataSetChanged();
+                }
 
             }
         });
-
-
-        return view;
     }
 
     private void exportCartList(RequestPosts myCart) {

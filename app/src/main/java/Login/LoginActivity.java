@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
     Button loginBtn;
     EditText emailEdit;
     EditText passwordEdit;
-    View acb_getUser;
+//    View acb_getUser;
 
 
     @Override
@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn = findViewById(R.id.btn_login);
         emailEdit = findViewById(R.id.input_email);
         passwordEdit = findViewById(R.id.input_password);
-        acb_getUser = findViewById(R.id.acb_getUser);
+//        acb_getUser = findViewById(R.id.acb_getUser);
 
         setContentView(R.layout.activity_login);
         mProgressBar = (ProgressBar) findViewById(R.id.login_request_loading_progress_bar);
@@ -156,13 +156,13 @@ public class LoginActivity extends AppCompatActivity {
 //            }
 //        });
 //
-        findViewById(R.id.acb_getUser).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                tast();
-//                handleGetUserDialog();
-            }
-        });
+//        findViewById(R.id.acb_getUser).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                tast();
+////                handleGetUserDialog();
+//            }
+//        });
 //
 //        findViewById(R.id.acb_delUser).setOnClickListener(new View.OnClickListener() {
 //            @Override

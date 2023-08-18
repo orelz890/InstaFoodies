@@ -262,7 +262,7 @@ public class EditProfileFragment extends Fragment {
                                 //retrieveData();
                                 dialog.dismiss();
                                 //TODO need to check if it work appropriate ->>
-                                Intent intent = new Intent(getActivity(), ProfileFragment.class);
+                                Intent intent = new Intent(mContext, ProfileFragment.class);
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getContext(), "Wrong Change Profile Image: " + response.message(), Toast.LENGTH_LONG).show();

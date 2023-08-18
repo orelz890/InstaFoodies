@@ -9,12 +9,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-
-
-
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -26,22 +23,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Instafoodies"
         android:usesCleartextTraffic="true"
-        
         tools:targetApi="31">
 
-
-        <activity android:name="Chat.ImageViewerActivity"> </activity>
-<!--        <activity android:name="Chat.PhoneLoginActivity"> </activity>-->
-        <activity android:name="Chat.SettingsActivity"> </activity>
-        <activity android:name="Chat.FindFriendsActivity"
-            android:parentActivityName="Chat.MainChatActivity"> </activity>
-        <activity android:name="Chat.RequestsActivity"
-            android:parentActivityName="Chat.MainChatActivity"> </activity>
-
-        <activity android:name="Chat.ChatProfileActivity"> </activity>
-        <activity android:name="Chat.ChatActivity"
-            android:parentActivityName="Chat.MainChatActivity"> </activity>
-
+        <activity android:name="Chat.ImageViewerActivity"></activity> <!-- <activity android:name="Chat.PhoneLoginActivity"> </activity> -->
+        <activity android:name="Chat.SettingsActivity"></activity>
+        <activity
+            android:name="Chat.FindFriendsActivity"
+            android:parentActivityName="Chat.MainChatActivity2"></activity>
+        <activity
+            android:name="Chat.RequestsActivity"
+            android:parentActivityName="Chat.MainChatActivity2"></activity>
+        <activity android:name="Chat.ChatProfileActivity"></activity>
+        <activity
+            android:name="Chat.ChatActivity"
+            android:parentActivityName="Chat.MainChatActivity2"></activity>
         <activity
             android:name="Share.NextRecipeActivity"
             android:exported="false">
@@ -71,7 +66,6 @@
                 android:value="" />
         </activity>
         <activity android:name="Chat.MainChatActivity2" />
-
         <activity
             android:name="MLKIT.text.SpamTextDetectionActivity"
             android:exported="true">
@@ -120,23 +114,24 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
-        <activity android:name="Login.LoginActivity"
+        <activity
+            android:name="Login.LoginActivity"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </activity>
-
         <activity android:name="Login.RegisterActivity" />
         <activity android:name="Likes.LikesActivity" />
         <activity android:name="Profile.ProfileActivity" />
+        <activity
+            android:name="Profile.ChefProfileActivity"
+            android:exported="false">
+        </activity>
         <activity android:name="Search.SearchActivity" />
         <activity android:name="Share.ShareActivity" />
         <activity android:name="Share.NextActivity" />
         <activity android:name="Profile.AccountSettingsActivity" />
-
-
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -152,8 +147,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
     </application>
 
 </manifest>

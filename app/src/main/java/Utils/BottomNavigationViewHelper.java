@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 
 import Likes.LikesActivity;
 import Home.HomeActivity;
+import Notifications.reminder;
+import Profile.ChefProfileActivity;
 import Profile.ProfileActivity;
 
 import com.example.instafoodies.R;
@@ -86,12 +88,12 @@ public class BottomNavigationViewHelper {
                         return true;
 
                     case R.id.ic_alert:
-                        Intent intent4 = new Intent(context, LikesActivity.class);// ACTIVITY_NUM 3
+                        Intent intent4 = new Intent(context, reminder.class);// ACTIVITY_NUM 3
                         context.startActivity(intent4);
                         break;
 
                     case R.id.ic_android:
-                        Intent intent5 = new Intent(context, ProfileActivity.class);// ACTIVITY_NUM 4
+                        Intent intent5 = new Intent(context, ChefProfileActivity.class);// ACTIVITY_NUM 4
                         context.startActivity(intent5);
                         break;
                 }

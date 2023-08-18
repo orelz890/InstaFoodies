@@ -2,7 +2,8 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="center">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +19,7 @@
             android:layout_height="100dp"
             android:src="@drawable/insta_foodies_logo4"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="25dp"
+            android:layout_marginBottom="10dp"
             />
 
      <com.google.android.material.textfield.TextInputLayout
@@ -27,6 +28,34 @@
          android:layout_marginTop="8dp"
          android:layout_marginBottom="8dp">
 
+<!--        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textColorHint="@color/dark_green"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:counterEnabled="true"
+            app:counterMaxLength="27"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:hint="Recipe name"
+                android:maxLength="27"
+                android:textColorHighlight="@color/purple_200"
+                android:textStyle="bold" />
+        </com.google.android.material.textfield.TextInputLayout>-->
          <EditText
              android:id="@+id/input_email"
              android:layout_width="match_parent"
@@ -58,10 +87,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="25dp"
+            android:layout_marginTop="25dp"
             android:background="@drawable/white_rounded_button"
             android:padding="12dp"
             android:text="Login" />
-
 
         <TextView
             android:id="@+id/link_sign_up"
@@ -73,35 +102,39 @@
             android:textColor="@color/DodgerBlue"
             android:textSize="16sp" />
 
-        <Button
-            android:id="@+id/acb_getUser"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/link_sign_up"
-            android:layout_marginTop="50dp"
-            android:hint="get user"
-            android:padding="12dp"
-            android:background="@drawable/white_rounded_button"/>
+        <!--        For testing      -->
+<!--        <Button-->
+<!--            android:id="@+id/acb_getUser"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@+id/link_sign_up"-->
+<!--            android:layout_marginTop="50dp"-->
+<!--            android:hint="get user"-->
+<!--            android:padding="12dp"-->
+<!--            android:visibility="invisible"-->
+<!--            android:background="@drawable/white_rounded_button"/>-->
 
-        <Button
-            android:id="@+id/acb_patchUser"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/acb_getUser"
-            android:layout_marginTop="20dp"
-            android:hint="patch"
-            android:padding="12dp"
-            android:background="@drawable/white_rounded_button"/>
+<!--        <Button-->
+<!--            android:id="@+id/acb_patchUser"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@+id/acb_getUser"-->
+<!--            android:layout_marginTop="20dp"-->
+<!--            android:hint="patch"-->
+<!--            android:padding="12dp"-->
+<!--            android:visibility="invisible"-->
+<!--            android:background="@drawable/white_rounded_button"/>-->
 
-        <Button
-            android:id="@+id/acb_delUser"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/acb_getUser"
-            android:layout_marginTop="20dp"
-            android:hint="delete"
-            android:padding="12dp"
-            android:background="@drawable/white_rounded_button"/>
+<!--        <Button-->
+<!--            android:id="@+id/acb_delUser"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@+id/acb_getUser"-->
+<!--            android:layout_marginTop="20dp"-->
+<!--            android:hint="delete"-->
+<!--            android:padding="12dp"-->
+<!--            android:visibility="invisible"-->
+<!--            android:background="@drawable/white_rounded_button"/>-->
 
 
 

@@ -648,7 +648,9 @@ public class MainChatActivity2 extends AppCompatActivity
             data = new ArrayList<>(usersAndAccounts);
             originalData = new ArrayList<>(usersAndAccounts);
 
-            System.out.println("CustomAutocompleteAdapter - " + data.get(0).getSettings().getProfile_photo());
+            if (!data.isEmpty()){
+                System.out.println("CustomAutocompleteAdapter - " + data.get(0).getSettings().getProfile_photo());
+            }
         }
 
         @NonNull
