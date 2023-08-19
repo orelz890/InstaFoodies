@@ -107,7 +107,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -124,27 +126,27 @@ import java.util.Collections;
 public class reminder extends AppCompatActivity {
 
     // initialize variables
-    TextInputEditText titleEditText, messageEditText;
-    TextView Repit;
-    boolean[] selectedLanguage;
-    ArrayList<Integer> langList = new ArrayList<>();
-    String[] langArray = {"day", "month", "year"};
+    private TextInputEditText titleEditText, messageEditText;
+    private TextView repeatTextView;
+    private boolean[] selectedRepeatOptions;
+    private ArrayList<Integer> selectedRepeatList  = new ArrayList<>();
+    private String[] repeatOptionsArray  = {"One_time","Day", "Week", "Month"};
 
-    @SuppressLint("MissingInflatedId")
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminder);
-        creatNotificationCannel();
+        createNotificationChannel();
 
-        Button button = findViewById(R.id.submitButton);
+        Button submitButton = findViewById(R.id.submitButton);
         titleEditText = findViewById(R.id.titleET);
-        messageEditText = findViewById(R.id.massgeET);
-        Repit = findViewById(R.id.Repit_it);
+        messageEditText = findViewById(R.id.massageET);
+        repeatTextView = findViewById(R.id.Repit_it);
 
-        selectedLanguage = new boolean[langArray.length];
+        selectedRepeatOptions  = new boolean[repeatOptionsArray.length];
 
-        button.setOnClickListener(new View.OnClickListener() {
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePicker datePicker = findViewById(R.id.datepicer);
@@ -160,7 +162,7 @@ public class reminder extends AppCompatActivity {
                 int minute = timePicker.getMinute();
 
                 Calendar calendar = Calendar.getInstance();
-                calendar.set(year, month, day, hour, minute);
+                calendar.set(year, month,  day, hour, minute);
                 long selectedTimeInMillis = calendar.getTimeInMillis();
 
                 Intent intent = new Intent(reminder.this, ReminderBroadcast.class);
@@ -169,29 +171,30 @@ public class reminder extends AppCompatActivity {
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(reminder.this, 0, intent, PendingIntent.FLAG_MUTABLE);
 
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                long timeatbuttonclick = System.currentTimeMillis();
+                long timeAtButtonClick = System.currentTimeMillis();
                 long delayInMillis = selectedTimeInMillis - System.currentTimeMillis();
-                Toast.makeText(Notifications.reminder.this,
-                        timeatbuttonclick + ": time timeatbuttonclick" + selectedTimeInMillis + " time selectedTimeInMillis", Toast.LENGTH_LONG).show();
+                Log.d("AlarmDebug", "Delay in milliseconds: " + delayInMillis);
+
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delayInMillis, pendingIntent);
+                Toast.makeText(Notifications.reminder.this,
+                        timeAtButtonClick + ": time timeAtButtonClick" + selectedTimeInMillis + " time selectedTimeInMillis", Toast.LENGTH_LONG).show();
+                finish();
             }
         });
 
-        Repit.setOnClickListener(new View.OnClickListener() {
+        repeatTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(reminder.this);
-                builder.setTitle("Repeat it every");
-                builder.setCancelable(false);
-
-                builder.setMultiChoiceItems(langArray, selectedLanguage, new DialogInterface.OnMultiChoiceClickListener() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(reminder.this, R.style.AlertDialogTheme);
+                builder.setTitle("Repeat options");
+                builder.setMultiChoiceItems(repeatOptionsArray, selectedRepeatOptions, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                        if (b) {
-                            langList.add(i);
-                            Collections.sort(langList);
+                    public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
+                        if (isChecked) {
+                            selectedRepeatList.add(i);
+
                         } else {
-                            langList.remove(Integer.valueOf(i));
+                            selectedRepeatList.remove(Integer.valueOf(i));
                         }
                     }
                 });
@@ -200,13 +203,13 @@ public class reminder extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         StringBuilder stringBuilder = new StringBuilder();
-                        for (int j = 0; j < langList.size(); j++) {
-                            stringBuilder.append(langArray[langList.get(j)]);
-                            if (j != langList.size() - 1) {
+                        for (int j = 0; j < selectedRepeatList.size(); j++) {
+                            stringBuilder.append(repeatOptionsArray[selectedRepeatList.get(j)]);
+                            if (j < selectedRepeatList.size() - 1) {
                                 stringBuilder.append(", ");
                             }
                         }
-                        titleEditText.setText(stringBuilder.toString());
+                        repeatTextView.setText(stringBuilder.toString());
                     }
                 });
 
@@ -220,28 +223,30 @@ public class reminder extends AppCompatActivity {
                 builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        for (int j = 0; j < selectedLanguage.length; j++) {
-                            selectedLanguage[j] = false;
-                            langList.clear();
-                            titleEditText.setText("");
-
+                        for (int j = 0; j < selectedRepeatOptions.length; j++) {
+                            selectedRepeatOptions[j] = false;
                         }
+                        selectedRepeatList.clear();
+                        repeatTextView.setText(""); // Clear the displayed text
+                        // Do NOT dismiss the dialog, let it stay open
                     }
                 });
-
-                builder.show();
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
     }
 
-    private void creatNotificationCannel() {
-        CharSequence name = "LemubitReminderChannel";
-        String description = " Channel for Lemubit Reminder";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-        NotificationChannel channel = new NotificationChannel("notifylemubit", name, importance);
-        channel.setDescription(description);
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "ReminderChannel";
+            String description = "Channel for reminders";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("reminder_channel", name, importance);
+            channel.setDescription(description);
 
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }

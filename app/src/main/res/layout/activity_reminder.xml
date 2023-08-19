@@ -41,10 +41,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/massgeET"
+        android:id="@+id/massageET"
         android:layout_width="383dp"
         android:layout_height="42dp"
-        android:hint="massge"
+        android:hint="massage"
         android:textSize="20dp"
         android:layout_marginLeft="10dp"
         tools:ignore="MissingConstraints"
@@ -92,7 +92,7 @@
         android:background="@android:drawable/editbox_background"
         android:drawableRight="@android:drawable/arrow_down_float"
         android:drawablePadding="16dp"
-        android:hint="Repeat it every"
+        android:hint="Repeat Options"
         android:padding="12dp" />
 
     <Button

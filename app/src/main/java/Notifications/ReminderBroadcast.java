@@ -18,18 +18,12 @@ public class ReminderBroadcast  extends BroadcastReceiver {
 
         String title = intent.getStringExtra("title");
         String message = intent.getStringExtra("message");
-//        // Retrieve the selected time from the intent
-//        long selectedTimeInMillis = intent.getLongExtra("selectedTime", 0);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "notifylemubit")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "reminder_channel")
                 .setSmallIcon(R.drawable.ic_alert)
                 .setContentTitle(title)  // Set the title from user input
                 .setContentText(message) // Set the message from user input
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
-
-//        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-//        PendingIntent notificationIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-//        alarmManager.set(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, notificationIntent);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
