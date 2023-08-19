@@ -60,6 +60,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -509,7 +510,7 @@ public class ViewPostFragment extends Fragment {
 
     }
 
-    private String captionsForPostOrRecipe(Post post){
+    private String captionsForPostOrRecipe(Post post ){
         String ans="";
         if (post.getRecipe() == null){ans = post.getCaption();}
         else {
@@ -549,17 +550,26 @@ public class ViewPostFragment extends Fragment {
                     + "    Ready in: " + recipe.getTotalTime() + "\n");
 
             ans += "\nIngredients - \n";
-            for (int i = 0; i < recipe.getIngredients().size(); i++) {
-                String[] split = recipe.getIngredients().get(i).split(":");
-                Double weight = Double.parseDouble(split[0]);
-                if (weight < 1000){
-                    split[0] = Math.round(weight) + "g";
+            if (!Objects.equals(post.getUser_id(), "www.allrecipes.com")) {
+
+                for (int i = 0; i < recipe.getIngredients().size(); i++) {
+                    String[] split = recipe.getIngredients().get(i).split(":");
+
+
+                    Double weight = Double.parseDouble(split[0]);
+                    if (weight < 1000) {
+                        split[0] = Math.round(weight) + "g";
+                    } else {
+                        weight = weight / 1000;
+                        split[0] = String.format("%.0f", weight) + " kg";
+                    }
+                    ans += "    " + split[0] + " " + split[1] + "\n";
                 }
-                else {
-                    weight = weight/1000;
-                    split[0] = String.format("%.0f",weight) + " kg";
+            }
+            else {
+                for (int i = 0; i < recipe.getIngredients().size(); i++) {
+                    ans += recipe.getIngredients().get(i);
                 }
-                ans += "    " + split[0] +" "+split[1] + "\n";
             }
 
             ans += "\nInstructions - \n";
