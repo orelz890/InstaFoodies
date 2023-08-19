@@ -44,6 +44,7 @@ import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
 
+import Home.HomeActivity;
 import payment.CustomPaymentDialog;
 import Profile.ProfileActivity;
 import Search.SearchActivity;
@@ -512,7 +513,7 @@ public class ViewProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating to account settings.");
-                Intent intent = new Intent(mContext, SearchActivity.class);
+                Intent intent = new Intent(mContext, HomeActivity.class);
                 startActivity(intent);
             }
         });

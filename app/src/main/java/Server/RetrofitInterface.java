@@ -91,6 +91,16 @@ public interface RetrofitInterface {
     @GET("/getUserFeedPosts/{uid}")
     Call<RequestPosts> getUserFeedPosts (@Path("uid") String uid);
 
+
+
+
+    @GET("/getUserAndHisFeedPosts/{uid}")
+    Call<RequestUserFeed> getUserAndHisFeedPosts (@Path("uid") String uid);
+
+
+
+
+
     @GET("/getProfileFeedPosts/{uid}")
     Call<RequestPosts> getProfileFeedPosts (@Path("uid") String uid);
 

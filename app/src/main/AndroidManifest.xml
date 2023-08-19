@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -24,19 +25,25 @@
         android:theme="@style/Theme.Instafoodies"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
-        <activity android:name="Chat.ImageViewerActivity"></activity> <!-- <activity android:name="Chat.PhoneLoginActivity"> </activity> -->
-        <activity android:name="Chat.SettingsActivity"></activity>
+        <activity
+            android:name="Notifications.FirebaseMessagingHandler"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity android:name="Chat.ImageViewerActivity" /> <!-- <activity android:name="Chat.PhoneLoginActivity"> </activity> -->
+        <activity android:name="Chat.SettingsActivity" />
         <activity
             android:name="Chat.FindFriendsActivity"
-            android:parentActivityName="Chat.MainChatActivity2"></activity>
+            android:parentActivityName="Chat.MainChatActivity2" />
         <activity
             android:name="Chat.RequestsActivity"
-            android:parentActivityName="Chat.MainChatActivity2"></activity>
-        <activity android:name="Chat.ChatProfileActivity"></activity>
+            android:parentActivityName="Chat.MainChatActivity2" />
+        <activity android:name="Chat.ChatProfileActivity" />
         <activity
             android:name="Chat.ChatActivity"
-            android:parentActivityName="Chat.MainChatActivity2"></activity>
+            android:parentActivityName="Chat.MainChatActivity2" />
         <activity
             android:name="Share.NextRecipeActivity"
             android:exported="false">
@@ -93,11 +100,26 @@
                 android:value="" />
         </activity>
 
-        <receiver android:name="Notifications.ReminderBroadcast" /> <!-- the payment part -->
+        <receiver
+            android:name="Notifications.ReminderBroadcast"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service android:name="Notifications.MyFirebaseMessagingService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name="Notifications.MyBroadcastReceiver"
+            android:exported="false"></receiver>
+
         <activity
             android:name="payment.PaypalActivity"
-            android:parentActivityName="Profile.ProfileActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName="Profile.ProfileActivity">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -124,16 +146,13 @@
         </activity>
         <activity android:name="Login.RegisterActivity" />
         <activity android:name="Likes.LikesActivity" />
-        <activity android:name="Profile.ProfileActivity"
-            android:exported="true"
-            android:enableOnBackInvokedCallback="true">
-        </activity>
-
-
+        <activity
+            android:name="Profile.ProfileActivity"
+            android:enableOnBackInvokedCallback="true"
+            android:exported="true"></activity>
         <activity
             android:name="Profile.ChefProfileActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
         <activity android:name="Search.SearchActivity" />
         <activity android:name="Share.ShareActivity" />
         <activity android:name="Share.NextActivity" />

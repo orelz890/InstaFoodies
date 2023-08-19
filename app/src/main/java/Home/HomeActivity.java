@@ -72,7 +72,7 @@ public class HomeActivity extends AppCompatActivity {
     private String uid;
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RequestPosts userFeed;
+    private RequestUserFeed userFeed;
 
     private ImageView messenger;
 
@@ -302,9 +302,9 @@ public class HomeActivity extends AppCompatActivity {
 
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 //        serverMethods.retrofitInterface.getProfileFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
-        serverMethods.retrofitInterface.getUserFeedPosts(uid).enqueue(new Callback<RequestPosts>() {
+        serverMethods.retrofitInterface.getUserAndHisFeedPosts(uid).enqueue(new Callback<RequestUserFeed>() {
             @Override
-            public void onResponse(@NonNull Call<RequestPosts> call, @NonNull Response<RequestPosts> response) {
+            public void onResponse(@NonNull Call<RequestUserFeed> call, @NonNull Response<RequestUserFeed> response) {
                 if (response.isSuccessful()){
                     System.out.println(TAG + " - setupMainFeed - response.isSuccessful()");
                     userFeed = response.body();
@@ -326,7 +326,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<RequestPosts> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<RequestUserFeed> call, @NonNull Throwable t) {
                 System.out.println(TAG + " - setupMainFeed - onFailure: " + t.getMessage());
             }
         });

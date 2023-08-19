@@ -41,12 +41,14 @@ import java.util.UUID;
 import Server.RequestPosts;
 
 
+import Server.RequestUserFeed;
 import Utils.ServerMethods;
 import Utils.StringImageAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.Post;
 import models.Recipe;
+import models.User;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -57,8 +59,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private ServerMethods serverMethods;
 
 
-    private RequestPosts userFeed;
+    private RequestUserFeed userFeed;
 
+    private User user;
 
     private FirebaseAuth mAuth;
     private String uid;
@@ -80,11 +83,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
 
 
-    public PostAdapter(RequestPosts userFeed, Context context, RelativeLayout layout) {
+    public PostAdapter(RequestUserFeed userFeed, Context context, RelativeLayout layout) {
         this.userFeed = userFeed;
         this.mContext = context;
         this.serverMethods = new ServerMethods(context);
         this.layout = layout;
+        this.user = user;
     }
 
 
@@ -523,13 +527,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 else {
                     // Add comment to post using the server
                     Post post = userFeed.getPost(position);
+
                     String comment_id = createHash();
 
-
+                    String fullName = userFeed.getUser().getFull_name();
+                    String profile_photo = userFeed.getAccount().getProfile_photo();
 
                     serverMethods.retrofitInterface.addCommentToPost(post.getUser_id(),
-                            post.getPost_id(), uid, commentText, post.getFull_name(),
-                            post.getProfile_photo(),
+                            post.getPost_id(), uid, commentText, fullName, profile_photo,
                             comment_id).enqueue(new Callback<Comment>() {
                         @Override
                         public void onResponse(@NonNull Call<Comment> call, @NonNull Response<Comment> response) {
