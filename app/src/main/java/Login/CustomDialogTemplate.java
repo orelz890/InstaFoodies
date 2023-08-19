@@ -17,17 +17,8 @@ public class CustomDialogTemplate extends Dialog {
     private String dialogTitle, message, firstButtonText, secondButtonText;
     private View.OnClickListener regularAccountListener, businessAccountListener;
 
-    public CustomDialogTemplate(Context context, String dialogTitle, String message,
-                                String firstButtonText, String secondButtonText,
-                                View.OnClickListener regularListener,
-                                View.OnClickListener businessListener) {
+    public CustomDialogTemplate(Context context) {
         super(context);
-        this.dialogTitle = dialogTitle;
-        this.message = message;
-        this.regularAccountListener = regularListener;
-        this.businessAccountListener = businessListener;
-        this.firstButtonText = firstButtonText;
-        this.secondButtonText = secondButtonText;
     }
 
     @Override
@@ -39,15 +30,11 @@ public class CustomDialogTemplate extends Dialog {
     }
 
     private void setupViews() {
-
+        regularAccountButton = findViewById(R.id.regularAccountButton);
         businessAccountButton = findViewById(R.id.businessAccountButton);
-        businessAccountButton.setText(secondButtonText);
 
-        tvDialogTitle = findViewById(R.id.tvDialogTitle);
-        tvDialogTitle.setText(dialogTitle);
-
+        tvDialogTitle = findViewById(R.id.tvLoginDialogTitle);
         tvMessage = findViewById(R.id.tvMessage);
-        tvMessage.setText(message);
 
 
         ivCancel = findViewById(R.id.ivCancel);
@@ -57,11 +44,37 @@ public class CustomDialogTemplate extends Dialog {
                 dismiss();
             }
         });
-
-        regularAccountButton = findViewById(R.id.regularAccountButton);
-        regularAccountButton.setOnClickListener(regularAccountListener);
-
-        regularAccountButton.setText(firstButtonText);
-        businessAccountButton.setOnClickListener(businessAccountListener);
     }
+
+
+    public CustomDialogTemplate setButtons(String buttonName1, View.OnClickListener Listener1, String buttonName2, View.OnClickListener Listener2){
+        regularAccountButton.setText(buttonName1);
+        regularAccountButton.setOnClickListener(Listener1);
+
+        businessAccountButton.setText(buttonName2);
+        businessAccountButton.setOnClickListener(Listener2);
+
+        return this;
+    }
+
+
+    public CustomDialogTemplate setCancel(View.OnClickListener cancelListener){
+        ivCancel.setOnClickListener(cancelListener);
+
+        return this;
+    }
+
+
+    public CustomDialogTemplate seMessage(String message){
+        tvMessage.setText(message);
+        return this;
+    }
+
+
+    public CustomDialogTemplate seTitle(String title){
+        tvDialogTitle.setText(title);
+
+        return this;
+    }
+
 }

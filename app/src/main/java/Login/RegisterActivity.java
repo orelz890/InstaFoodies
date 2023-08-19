@@ -1,8 +1,11 @@
 package Login;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import android.text.Editable;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,9 +37,9 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
 
     private Context mContext;
-    private String email, username, password,fullname;
-    private EditText mEmail, mPassword, mUsername, mFullName;
-    private TextView loadingPleaseWait;
+    private String email, username, password, fullname, paypalClientId;
+    private EditText mEmail, mPassword, mUsername, mFullName, etPaypalClientId, editText;
+    private TextView loadingPleaseWait, tvTitle;
     private Button btnRegister;
     private ProgressBar mProgressBar;
 
@@ -45,6 +48,8 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseMethods firebaseMethods;
     private ServerMethods serverMethods;
+
+    private Boolean isBusiness;
 
 
     @Override
@@ -65,22 +70,54 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                email = mEmail.getText().toString();
-                fullname = mFullName.getText().toString();
-                username = mUsername.getText().toString();
-                password = mPassword.getText().toString();
+                String text = tvTitle.getText().toString();
 
-                if (checkInputs(email, username, password)) {
-                    mProgressBar.setVisibility(View.VISIBLE);
-                    loadingPleaseWait.setVisibility(View.VISIBLE);
-                    firebaseMethods.registerNewEmail(email, password, username,mProgressBar,loadingPleaseWait);
+                if (text.equals("Choose email")) {
+                    email = editText.getText().toString();
+                    editText.setText("");
+                    tvTitle.setText("Choose username");
+                    editText.setHint("Username");
+                } else if (text.equals("Choose username")) {
+                    username = editText.getText().toString();
+                    editText.setText("");
+                    tvTitle.setText("Write your full name");
+                    editText.setHint("Full name");
+                } else if (text.equals("Write your full name")) {
+                    fullname = editText.getText().toString();
+                    editText.setText("");
+                    tvTitle.setText("Choose password");
+                    editText.setHint("password");
+                    editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                if (!isBusiness) {
+                        btnRegister.setText("Register");
+                    }
+                } else if (text.equals("Choose password")) {
+                    password = editText.getText().toString();
+                    editText.setText("");
+                    if (isBusiness) {
+                        tvTitle.setText("Choose paypal client id");
+                        editText.setHint("Client id");
+                        btnRegister.setText("Register");
+                    } else if (checkInputs(email, username, password)) {
+                        mProgressBar.setVisibility(View.VISIBLE);
+                        loadingPleaseWait.setVisibility(View.VISIBLE);
+                        firebaseMethods.registerNewEmail(email, password, username, mProgressBar, loadingPleaseWait);
+                    }
+                } else if (text.equals("Choose paypal client id")) {
+                    paypalClientId = editText.getText().toString();
+                    editText.setText("");
+                    if (checkInputs(email, username, password)) {
+                        mProgressBar.setVisibility(View.VISIBLE);
+                        loadingPleaseWait.setVisibility(View.VISIBLE);
+                        firebaseMethods.registerNewEmail(email, password, username, mProgressBar, loadingPleaseWait);
+                    }
                 }
             }
         });
     }
 
     private boolean checkInputs(String email, String username, String password) {
-        Log.d(TAG, "checkInputs: checking inputs for null values.");
+        Log.d(TAG, "checkInputs: checking inputs for null values.\nemail = " + email + "\nusername = " + username + "pass = " + password + "\n\n");
         if (email.equals("") || username.equals("") || password.equals("")) {
             Toast.makeText(mContext, "All fields must be filled out.", Toast.LENGTH_SHORT).show();
             return false;
@@ -93,16 +130,32 @@ public class RegisterActivity extends AppCompatActivity {
      */
     private void initWidgets() {
         Log.d(TAG, "initWidgets: Initializing Widgets.");
-        mEmail = (EditText) findViewById(R.id.input_email_re);
-        mUsername = (EditText) findViewById(R.id.input_username);
-        mFullName = (EditText) findViewById(R.id.input_full_name);
+
+        tvTitle = (TextView) findViewById(R.id.tvTitle);
+        editText = (EditText) findViewById(R.id.editText);
+        editText.setHint("Email");
+
+//        mEmail = (EditText) findViewById(R.id.input_email_re);
+//        mUsername = (EditText) findViewById(R.id.input_username);
+//        mFullName = (EditText) findViewById(R.id.input_full_name);
+//        etPaypalClientId = (EditText) findViewById(R.id.etPaypalClientId);
         btnRegister = (Button) findViewById(R.id.btn_register);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         loadingPleaseWait = (TextView) findViewById(R.id.loadingPleaseWait);
-        mPassword = (EditText) findViewById(R.id.input_password_re);
+//        mPassword = (EditText) findViewById(R.id.input_password_re);
         mContext = RegisterActivity.this;
         mProgressBar.setVisibility(View.GONE);
         loadingPleaseWait.setVisibility(View.GONE);
+
+        Intent intent = getIntent();
+        String userType = intent.getExtras().getString("userType");
+        if (userType.equals("business")) {
+//            etPaypalClientId.setVisibility(View.VISIBLE);
+            isBusiness = true;
+        } else {
+//            etPaypalClientId.setVisibility(View.GONE);
+            isBusiness = false;
+        }
 
     }
 
@@ -132,7 +185,7 @@ public class RegisterActivity extends AppCompatActivity {
                 // User is signed in
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
 
-                Call<Boolean> call = serverMethods.retrofitInterface.executeCheckUserName(mUsername.getText().toString());
+                Call<Boolean> call = serverMethods.retrofitInterface.executeCheckUserName(username);
 
                 call.enqueue(new Callback<Boolean>() {
                     @Override
@@ -143,8 +196,11 @@ public class RegisterActivity extends AppCompatActivity {
                         if (response.code() == 200) {
                             if (Boolean.TRUE.equals(result)) {
                                 System.out.println("full_name = " + fullname + "\n");
-                                User user1 = new User(password, mAuth.getCurrentUser().getUid(), email, "", username,fullname);
+                                User user1 = new User(password, mAuth.getCurrentUser().getUid(), email, "", username, fullname);
                                 HashMap<String, Object> stringObjectHashMap = user1.userMapForServer();
+                                if (isBusiness) {
+                                    stringObjectHashMap.put("paypalClientId", paypalClientId);
+                                }
                                 System.out.println("stringObjectHashMap = " + stringObjectHashMap.toString() + "\n");
 
 
@@ -163,6 +219,8 @@ public class RegisterActivity extends AppCompatActivity {
                                             Toast.makeText(RegisterActivity.this, response.message(),
                                                     Toast.LENGTH_LONG).show();
                                         }
+//                                        Intent intent = new Intent(mContext,LoginActivity.class);
+//                                        startActivity(intent);
                                     }
 
                                     @Override

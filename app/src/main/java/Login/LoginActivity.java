@@ -47,6 +47,7 @@ import Utils.ServerMethods;
 import models.User;
 import models.UserAccountSettings;
 import okhttp3.OkHttpClient;
+import payment.PaypalActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -251,6 +252,9 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                startUserTypeDialog();
+
                 email = emailEdit.getText().toString();
                 String pass = passwordEdit.getText().toString();
 
@@ -302,6 +306,34 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    private void startUserTypeDialog() {
+        CustomDialogTemplate customDialog = new CustomDialogTemplate( this);
+        customDialog.show();
+
+        customDialog.seTitle("User Type")
+                .seMessage("Which account do you want to open?\n\nBusiness - can charge followers")
+                .setButtons("Regular", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Handle regular account button click
+                        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                        intent.putExtra("userType", "regular");
+                        startActivity(intent);
+                        customDialog.dismiss();
+                    }
+                },"Business", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Handle business account button click
+                                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                                intent.putExtra("userType", "business");
+                                startActivity(intent);
+                                customDialog.dismiss();
+                            }
+                        });
 
     }
 
@@ -515,8 +547,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating to register screen");
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
+                startUserTypeDialog();
+
             }
         });
 
