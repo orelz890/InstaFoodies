@@ -319,6 +319,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
+
     private void showForgotPasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_forgot_password, null);
@@ -360,11 +361,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-
-
-
     private void startUserTypeDialog() {
-        CustomDialogTemplate customDialog = new CustomDialogTemplate( this);
+        CustomDialogTemplate customDialog = new CustomDialogTemplate(this);
         customDialog.show();
 
         customDialog.seTitle("User Type")
@@ -378,16 +376,16 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(intent);
                         customDialog.dismiss();
                     }
-                },"Business", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Handle business account button click
-                                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                                intent.putExtra("userType", "business");
-                                startActivity(intent);
-                                customDialog.dismiss();
-                            }
-                        });
+                }, "Business", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Handle business account button click
+                        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                        intent.putExtra("userType", "business");
+                        startActivity(intent);
+                        customDialog.dismiss();
+                    }
+                });
 
     }
 
@@ -537,7 +535,7 @@ public class LoginActivity extends AppCompatActivity {
     /*
 ------------------------------------ Firebase ---------------------------------------------
 */
-    private void init(){
+    private void init() {
 
         //initialize the button for logging in
         Button btnLogin = (Button) findViewById(R.id.btn_login);
