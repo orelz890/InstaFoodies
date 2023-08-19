@@ -123,6 +123,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
+import Profile.SignOutFragment;
+
 public class reminder extends AppCompatActivity {
 
     // initialize variables
@@ -132,6 +134,8 @@ public class reminder extends AppCompatActivity {
     private ArrayList<Integer> selectedRepeatList  = new ArrayList<>();
     private String[] repeatOptionsArray  = {"One_time","Day", "Week", "Month"};
 
+    private static final String CHANNEL_ID = "my_channel";
+    private static final int NOTIFICATION_ID = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,7 +172,7 @@ public class reminder extends AppCompatActivity {
                 Intent intent = new Intent(reminder.this, ReminderBroadcast.class);
                 intent.putExtra("title", title);
                 intent.putExtra("message", message);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(reminder.this, 0, intent, PendingIntent.FLAG_MUTABLE);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(reminder.this, NOTIFICATION_ID, intent, PendingIntent.FLAG_IMMUTABLE);
 
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                 long timeAtButtonClick = System.currentTimeMillis();
@@ -177,7 +181,9 @@ public class reminder extends AppCompatActivity {
 
                 alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delayInMillis, pendingIntent);
                 Toast.makeText(Notifications.reminder.this,
-                        timeAtButtonClick + ": time timeAtButtonClick" + selectedTimeInMillis + " time selectedTimeInMillis", Toast.LENGTH_LONG).show();
+                        "Reminder set for " + calendar.getTime(), Toast.LENGTH_LONG).show();
+                System.out.println(Notifications.reminder.this+
+                        "Reminder set for " + calendar.getTime());
                 finish();
             }
         });
@@ -238,7 +244,7 @@ public class reminder extends AppCompatActivity {
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "ReminderChannel";
             String description = "Channel for reminders";
             int importance = NotificationManager.IMPORTANCE_HIGH;
@@ -247,6 +253,6 @@ public class reminder extends AppCompatActivity {
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
-        }
+//        }
     }
 }
