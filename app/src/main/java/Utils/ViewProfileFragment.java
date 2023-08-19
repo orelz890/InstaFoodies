@@ -299,19 +299,29 @@ public class ViewProfileFragment extends Fragment {
         UserAccountSettings friendSettings = mUser.getSettings();
         boolean isBusiness = friendSettings.getIsBusiness();
 
+        String friendUid = mUser.getUser().getUser_id();
+
         if (isBusiness){
+            System.out.println("\nisBusiness = " + isBusiness + "\n");
+
             ivViewChef.setVisibility(View.VISIBLE);
 
             // If its a business and the user is one of its followers he need to pay to see the content
             if (friendSettings.getFollowers_ids().contains(uid)) {
+                System.out.println("\nfriendSettings.getFollowers_ids().contains(uid) = " + friendSettings.getFollowers_ids().contains(uid) + "\n");
+
                 tvFollowHint.setVisibility(View.INVISIBLE);
-                String friendUid = mUser.getUser().getUser_id();
                 showPostsGrid(friendUid);
             }
             // If its a business and the user is not one of its followers
             else {
+                System.out.println("\nsetupGridView: else\n");
+
                 tvFollowHint.setVisibility(View.VISIBLE);
             }
+        }
+        else {
+            showPostsGrid(friendUid);
         }
 
     }
