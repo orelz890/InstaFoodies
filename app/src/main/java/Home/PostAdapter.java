@@ -284,7 +284,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
 
         // Set user photo
-        String profile_photo = userFeed.getPost(position).getProfile_photo();
+        String profile_photo = userFeed.getAccount().getProfile_photo();
         Picasso.get().load(profile_photo).placeholder(R.drawable.profile_image).into(profileImage);
 
         // Setup popup abilities
