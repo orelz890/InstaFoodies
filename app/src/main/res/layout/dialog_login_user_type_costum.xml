@@ -1,0 +1,86 @@
+<!-- res/layout/dialog_custom.xml -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/ivCancel"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/cancel"
+        android:layout_alignParentEnd="true"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/tvDialogTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User type"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Which account do you want to open?\n\nBusiness - can charge followers"
+            android:textSize="18sp"
+            android:textStyle="normal"
+            android:textColor="@color/Gray"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="8dp"
+            />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/regularAccountButton"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="Regular"
+                android:textSize="16sp"
+                android:backgroundTint="@null"
+                android:background="@drawable/circle_dialog_custom_button_background"
+                android:layout_gravity="center"
+                />
+
+            <Space
+                android:layout_width="20dp"
+                android:layout_height="wrap_content"
+                />
+
+            <Button
+                android:id="@+id/businessAccountButton"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="Business"
+                android:textSize="16sp"
+                android:backgroundTint="@null"
+                android:background="@drawable/circle_dialog_custom_button_background"
+                android:layout_gravity="center"
+                />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

@@ -78,7 +78,7 @@ public class EditProfileFragment extends Fragment {
 
 
     //EditProfile Fragment widgets
-    private EditText mDisplayName, mUsername, mWebsite, mDescription, mEmail, mPhoneNumber;
+    private EditText mDisplayName, mUsername, mWebsite, mDescription, mEmail, mPhoneNumber, etPaypalClientID;
     private TextView mChangeProfilePhoto;
     private CircleImageView mProfilePhoto;
 
@@ -105,6 +105,7 @@ public class EditProfileFragment extends Fragment {
         mEmail = (EditText) view.findViewById(R.id.etEmail);
         mEmail.setEnabled(false);
         mPhoneNumber = (EditText) view.findViewById(R.id.etPhoneNumber);
+        etPaypalClientID = (EditText) view.findViewById(R.id.etPaypalClientID);
         mChangeProfilePhoto = (TextView) view.findViewById(R.id.changeProfilePhoto);
         mProgressBar = (ProgressBar) view.findViewById(R.id.edit_profileProgressBar);
 
@@ -293,6 +294,7 @@ public class EditProfileFragment extends Fragment {
         HashMap<String, Object> updatedUserAccountSettings = new HashMap<>();
 
         final String website = mWebsite.getText().toString();
+        final String paypalId = etPaypalClientID.getText().toString();
         final String description = mDescription.getText().toString();
         final String full_name = mDisplayName.getText().toString();
         final String phoneNumber = mPhoneNumber.getText().toString();
@@ -313,6 +315,10 @@ public class EditProfileFragment extends Fragment {
         if (!mUserSettings.getSettings().getDescription().equals(description)) {
             //update description
             updatedUserAccountSettings.put("description", description);
+        }
+        if (!mUserSettings.getSettings().getPaypalClientId().equals(paypalId)) {
+            //update paypalId
+            updatedUserAccountSettings.put("paypalClientId", paypalId);
         }
 
         Call<Void> call = serverMethods.retrofitInterface.executePatchUser(Objects.requireNonNull(mAuth.getCurrentUser()).getUid(), updatedUser);
@@ -345,7 +351,7 @@ public class EditProfileFragment extends Fragment {
                         }
 
                         @Override
-                        public void onFailure(@NonNull Call<Void> call, Throwable t) {
+                        public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                             Toast.makeText(getContext(), "onFailure: " + t.getMessage(),
                                     Toast.LENGTH_LONG).show();
                         }
@@ -360,12 +366,11 @@ public class EditProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<Void> call, Throwable t) {
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                 Toast.makeText(getContext(), "onFailure: " + t.getMessage(),
                         Toast.LENGTH_LONG).show();
             }
         });
-
     }
 
 

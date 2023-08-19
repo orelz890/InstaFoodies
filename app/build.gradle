@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.instafoodies"
-        minSdk 33
+        minSdk 29
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -98,7 +98,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
 
     //paypal
-    implementation 'com.paypal.sdk:paypal-android-sdk:2.14.2'
+    implementation 'com.paypal.sdk:paypal-android-sdk:2.16.0'
 
     // Image classification
     implementation 'com.google.mlkit:image-labeling:17.0.7'

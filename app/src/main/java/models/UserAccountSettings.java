@@ -44,10 +44,15 @@ public class UserAccountSettings implements Parcelable, Serializable {
     @SerializedName("followers_ids")
     private List<String> followers_ids;
 
+    @SerializedName("paypalClientId")
+    private String paypalClientId;
+
+
 
     public UserAccountSettings(UserAccountSettings settings) {
         this(settings.description, settings.profile_photo, settings.isBusiness, settings.followers,
-                settings.following, settings.posts, settings.website, settings.following_ids,settings.followers_ids);
+                settings.following, settings.posts, settings.website, settings.following_ids,
+                settings.followers_ids, settings.getPaypalClientId());
     }
 
 
@@ -59,6 +64,7 @@ public class UserAccountSettings implements Parcelable, Serializable {
         following = in.readInt();
         posts = in.readInt();
         website = in.readString();
+        paypalClientId = in.readString();
         following_ids = in.createStringArrayList();
         followers_ids = in.createStringArrayList();
     }
@@ -96,6 +102,7 @@ public class UserAccountSettings implements Parcelable, Serializable {
         ans.put("website", website);
         ans.put("following_ids", following_ids);
         ans.put("followers_ids", followers_ids);
+        ans.put("paypalClientId", paypalClientId);
         return ans;
     }
 
@@ -110,6 +117,7 @@ public class UserAccountSettings implements Parcelable, Serializable {
         ans.put("website", this.website);
         ans.put("following_ids", this.following_ids);
         ans.put("followers_ids", this.followers_ids);
+        ans.put("paypalClientId", this.paypalClientId);
         return ans;
     }
 
@@ -120,13 +128,24 @@ public class UserAccountSettings implements Parcelable, Serializable {
         this.posts = 0;
         this.profile_photo = "none";
         this.website = "none";
+        this.paypalClientId = "";
         this.isBusiness = false;
         this.following_ids = new ArrayList<>();
         this.followers_ids = new ArrayList<>();
     }
 
-    public UserAccountSettings(String description, String profile_photo, boolean isBusiness, int followers,
-                               int following, int posts, String website, List<String> following_ids,List<String> followers_ids) {
+    public String getPaypalClientId() {
+        return paypalClientId;
+    }
+
+    public void setPaypalClientId(String paypalClientId) {
+        this.paypalClientId = paypalClientId;
+    }
+
+    public UserAccountSettings(String description, String profile_photo, boolean isBusiness,
+                               int followers, int following, int posts, String website,
+                               List<String> following_ids,List<String> followers_ids,
+                               String paypalClientId) {
         this.description = description;
         this.profile_photo = profile_photo;
         this.isBusiness = isBusiness;
@@ -134,6 +153,7 @@ public class UserAccountSettings implements Parcelable, Serializable {
         this.following = following;
         this.posts = posts;
         this.website = website;
+        this.paypalClientId = paypalClientId;
         setFollowing_ids(following_ids);
         setFollowers_ids(followers_ids);
     }
@@ -247,6 +267,7 @@ public class UserAccountSettings implements Parcelable, Serializable {
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(this.description);
         dest.writeString(this.website);
+        dest.writeString(this.paypalClientId);
         dest.writeStringList(this.followers_ids);
         dest.writeStringList(this.following_ids);
         dest.writeBoolean(this.isBusiness);

@@ -1,4 +1,4 @@
-package Profile;
+package payment;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.widget.TextView;
 import com.example.instafoodies.R;
 
 import Search.SearchActivity;
+import models.User;
+import models.UserAccountSettings;
 import payment.PaypalActivity;
 
 
@@ -20,11 +22,15 @@ public class CustomPaymentDialog extends Dialog {
 
     private Context mContext;
     private String noteAndAmount;
+    private UserAccountSettings friendSettings;
+    private User friendUser;
 
-    public CustomPaymentDialog(Context context, String noteAndAmount) {
+    public CustomPaymentDialog(Context context, String noteAndAmount, UserAccountSettings friendSettings, User friendUser) {
         super(context);
         mContext = context;
         this.noteAndAmount = noteAndAmount;
+        this.friendSettings = friendSettings;
+        this.friendUser = friendUser;
     }
 
     @Override
@@ -56,6 +62,8 @@ public class CustomPaymentDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, PaypalActivity.class);
+                intent.putExtra("paypalClientId", friendSettings.getPaypalClientId());
+                intent.putExtra("friendUid", friendUser.getUser_id());
                 mContext.startActivity(intent);
             }
         });

@@ -96,6 +96,7 @@
         <receiver android:name="Notifications.ReminderBroadcast" /> <!-- the payment part -->
         <activity
             android:name="payment.PaypalActivity"
+            android:parentActivityName="Profile.ProfileActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
