@@ -1,5 +1,6 @@
 package Profile;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,17 +11,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -32,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -46,17 +42,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import Server.RequestPosts;
-import Server.RequestUserFeed;
 import Utils.BottomNavigationViewHelper;
 import Utils.FirebaseMethods;
 import Utils.GridImageSelection;
-import Utils.GridImageStringAdapter;
 import Utils.ServerMethods;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
@@ -117,7 +108,7 @@ public class ProfileFragment extends Fragment {
     private int mFollowersCount = 0;
     private int mFollowingCount = 0;
     private int mPostsCount = 0;
-    private UserSettings mcurrentUserSettings = null;
+    private UserSettings mCurrentUserSettings = null;
 
     RequestPosts userFeed;
 
@@ -129,8 +120,8 @@ public class ProfileFragment extends Fragment {
         setupProfileFragmentFields();
         setupBottomNavigationView();
         setupToolbar();
-        if (mcurrentUserSettings != null) {
-            setProfileWidgets(mcurrentUserSettings.getUser(), mcurrentUserSettings.getSettings());
+        if (mCurrentUserSettings != null) {
+            setProfileWidgets(mCurrentUserSettings.getUser(), mCurrentUserSettings.getSettings());
             setupGridViewByOption("myPosts");
         } else {
             setupFirebaseAuth();
@@ -317,6 +308,9 @@ public class ProfileFragment extends Fragment {
                         Boolean ans = response.body();
                         if (Boolean.TRUE.equals(ans)) {
                             setupGridViewByOption("myPosts");
+                            int currentPosts = Integer.parseInt(mPosts.getText().toString());
+                            int newPosts = currentPosts - selectedToDelete.size();
+                            mPosts.setText(String.valueOf(newPosts));
                         } else {
                             Log.d(TAG, "Delete Profile Posts Failed Try Again:");
                             Toast.makeText(getActivity(), "Delete Profile Posts Failed Try Again", Toast.LENGTH_LONG).show();
@@ -335,7 +329,7 @@ public class ProfileFragment extends Fragment {
     }
 
     public void setCurrentUserSettings(UserSettings userSettings) {
-        this.mcurrentUserSettings = userSettings;
+        this.mCurrentUserSettings = userSettings;
     }
 
     @Override
@@ -659,59 +653,69 @@ public class ProfileFragment extends Fragment {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
 
-        if (userAccountSettings.getIsBusiness()){
-            ivChef.setVisibility(View.VISIBLE);
-        }
-        else {
-            ivChef.setVisibility(View.INVISIBLE);
-        }
+        if (mContext instanceof Activity) {
+            Activity activity = (Activity) mContext;
 
-        Glide.with(mContext)
-                .load(userAccountSettings.getProfile_photo())
-                .placeholder(R.drawable.ic_android)
-                .error(R.drawable.ic_android)
-                .fitCenter()
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        // Handle load failed
-                        // Remove the progress bar or perform any necessary actions
-                        return false;
-                    }
+            if (activity.isDestroyed()) {
+                // The activity associated with the context has been destroyed
+            } else {
+                // The activity associated with the context is still active
+                if (userAccountSettings.getIsBusiness()){
+                    ivChef.setVisibility(View.VISIBLE);
+                }
+                else {
+                    ivChef.setVisibility(View.INVISIBLE);
+                }
 
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        // Handle resource ready
-                        // Remove the progress bar or perform any necessary actions
-                        return false;
-                    }
-                })
-                .into(mProfilePhoto);
+                Glide.with(mContext)
+                        .load(userAccountSettings.getProfile_photo())
+                        .placeholder(R.drawable.ic_android)
+                        .error(R.drawable.ic_android)
+                        .fitCenter()
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                // Handle load failed
+                                // Remove the progress bar or perform any necessary actions
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                // Handle resource ready
+                                // Remove the progress bar or perform any necessary actions
+                                return false;
+                            }
+                        })
+                        .into(mProfilePhoto);
 
 
 //        UniversalImageLoader.setImage(userAccountSettings.getProfile_photo(), mProfilePhoto, null, "");
 
-        mDisplayName.setText(user.getFull_name());
-        mUsername.setText(user.getUsername());
+                mDisplayName.setText(user.getFull_name());
+                mUsername.setText(user.getUsername());
 
-        // Convert the link text to clickable links
-        Linkify.addLinks(mWebsite, Linkify.WEB_URLS);
+                // Convert the link text to clickable links
+                Linkify.addLinks(mWebsite, Linkify.WEB_URLS);
 
-        mWebsite.setText(userAccountSettings.getWebsite());
-        mDescription.setText(userAccountSettings.getDescription());
-        mPosts.setText(String.valueOf(userAccountSettings.getPosts()));
-        mFollowing.setText(String.valueOf(userAccountSettings.getFollowing()));
-        mFollowers.setText(String.valueOf(userAccountSettings.getFollowers()));
-        mProgressBar.setVisibility(View.GONE);
+                mWebsite.setText(userAccountSettings.getWebsite());
+                mDescription.setText(userAccountSettings.getDescription());
+                mPosts.setText(String.valueOf(userAccountSettings.getPosts()));
+                mFollowing.setText(String.valueOf(userAccountSettings.getFollowing()));
+                mFollowers.setText(String.valueOf(userAccountSettings.getFollowers()));
+                mProgressBar.setVisibility(View.GONE);
 
-        // Set an OnClickListener to handle link clicks
-        mWebsite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String url = ((TextView) v).getText().toString();
-                openWebPage(url);
+                // Set an OnClickListener to handle link clicks
+                mWebsite.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String url = ((TextView) v).getText().toString();
+                        openWebPage(url);
+                    }
+                });
             }
-        });
+        }
+
     }
 
     // Method to open a web page using an Intent
@@ -797,7 +801,7 @@ public class ProfileFragment extends Fragment {
             public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
 
                 UserSettings userSettings = response.body();
-                mcurrentUserSettings = userSettings;
+                mCurrentUserSettings = userSettings;
                 if (response.code() == 200) {
                     assert userSettings != null;
                     if (userSettings.getSettings() != null) {
