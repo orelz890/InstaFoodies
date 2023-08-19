@@ -1,5 +1,6 @@
 package Profile;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -8,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,20 +28,25 @@ import java.util.ArrayList;
 
 import Utils.BottomNavigationViewHelper;
 import Utils.GridImageAdapter;
+import Utils.ServerMethods;
 import Utils.UniversalImageLoader;
 import Utils.ViewPostFragment;
 import Utils.ViewProfileFragment;
 import models.Post;
 import models.User;
 import models.UserSettings;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class ProfileActivity extends AppCompatActivity implements ProfileFragment.OnGridImageSelectedListener {
+public class ProfileActivity extends AppCompatActivity implements ProfileFragment.OnGridImageSelectedListener, ViewProfileFragment.OnGridImageSelectedListener {
 
     private static final String TAG = "ProfileActivity";
     private Context mContext = ProfileActivity.this;
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
     private FirebaseAuth mAuth;
+    ServerMethods serverMethods;
 
 
     private ProgressBar mProgressBar;
@@ -49,6 +56,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileFragmen
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        serverMethods = new ServerMethods(mContext);
         setContentView(R.layout.activity_profile);
         Log.d(TAG, "onCreate: started.");
         init();
@@ -111,20 +119,98 @@ public class ProfileActivity extends AppCompatActivity implements ProfileFragmen
     }
     @Override
     public void onGridImageSelected(Post post, int activityNumber) {
+        /****working*****/
         Log.d(TAG, "onGridImageSelected: selected an image gridview: " + post.toString());
+        Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(post.getUser_id());
+        call.enqueue(new Callback<UserSettings>() {
+            @Override
+            public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
+                if (response.code() == 200) {
+                    UserSettings userSettings = response.body();
+                    assert userSettings != null;
+                    if (userSettings.getSettings() != null && userSettings.getUser() !=null) {
+                        // sets arguments to be passed to the fragment
+                        ViewPostFragment fragment = new ViewPostFragment();
+                        Bundle args = new Bundle();
+                        args.putParcelable(getString(R.string.post), post);
+                        args.putParcelable("postOwnerUserSettings", userSettings);
+                        args.putInt(getString(R.string.activity_number), activityNumber);
+                        fragment.setArguments(args);
 
-        // sets arguments to be passed to the fragment
-        ViewPostFragment fragment = new ViewPostFragment();
-        Bundle args = new Bundle();
-        args.putParcelable(getString(R.string.post), post);
-        args.putInt(getString(R.string.activity_number), activityNumber);
+                        FragmentTransaction transaction  = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.container, fragment);
+                        transaction.addToBackStack(getString(R.string.view_post_fragment));
+                        transaction.commit();
+                    }
+                } else if (response.code() == 400) {
+                    Toast.makeText(mContext,
+                            "Don't exist", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(mContext, response.message(),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
 
-        fragment.setArguments(args);
+            @Override
+            public void onFailure(@NonNull Call<UserSettings> call, @NonNull Throwable t) {
+                Toast.makeText(mContext, t.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+        /*****working*****/
 
-        FragmentTransaction transaction  = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.container, fragment);
-        transaction.addToBackStack(getString(R.string.view_post_fragment));
-        transaction.commit();
+
+//        Log.d(TAG, "onGridImageSelected: selected an image gridview: " + post.toString());
+//        Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(mAuth.getCurrentUser().getUid());
+//        call.enqueue(new Callback<UserSettings>() {
+//            @Override
+//            public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
+//                if (response.code() == 200) {
+//                    UserSettings userSettings = response.body();
+//                    assert userSettings != null;
+//                    if (userSettings.getSettings() != null && userSettings.getUser() !=null) {
+//                        // sets arguments to be passed to the fragment
+//                        ViewPostFragment fragment = new ViewPostFragment();
+//                        Bundle args = new Bundle();
+//                        args.putParcelable(getString(R.string.post), post);
+//                        args.putParcelable("currentUserSettings", userSettings);
+//                        args.putInt(getString(R.string.activity_number), activityNumber);
+//                        fragment.setArguments(args);
+//
+//                        FragmentTransaction transaction  = getSupportFragmentManager().beginTransaction();
+//                        transaction.replace(R.id.container, fragment);
+//                        transaction.addToBackStack(getString(R.string.view_post_fragment));
+//                        transaction.commit();
+//                    }
+//                } else if (response.code() == 400) {
+//                    Toast.makeText(mContext,
+//                            "Don't exist", Toast.LENGTH_LONG).show();
+//                } else {
+//                    Toast.makeText(mContext, response.message(),
+//                            Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<UserSettings> call, @NonNull Throwable t) {
+//                Toast.makeText(mContext, t.getMessage(),
+//                        Toast.LENGTH_LONG).show();
+//            }
+//        });
+
+
+//        // sets arguments to be passed to the fragment
+//        ViewPostFragment fragment = new ViewPostFragment();
+//        Bundle args = new Bundle();
+//        args.putParcelable(getString(R.string.post), post);
+//        args.putInt(getString(R.string.activity_number), activityNumber);
+//
+//        fragment.setArguments(args);
+//
+//        FragmentTransaction transaction  = getSupportFragmentManager().beginTransaction();
+//        transaction.replace(R.id.container, fragment);
+//        transaction.addToBackStack(getString(R.string.view_post_fragment));
+//        transaction.commit();
 
 
     }

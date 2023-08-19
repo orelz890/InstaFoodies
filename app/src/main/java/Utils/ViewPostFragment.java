@@ -1,24 +1,43 @@
+
 package Utils;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.instafoodies.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,6 +49,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
+import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,25 +61,35 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 
+import Home.CommentsAdapter;
+import Home.PostAdapter;
 import Share.ImageAdapter;
+import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.Like;
 import models.Post;
+import models.Recipe;
 import models.User;
 import models.UserAccountSettings;
+import models.UserSettings;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ViewPostFragment extends Fragment {
 
     private static final String TAG = "ViewPostFragment";
 
 
-    public interface OnCommentThreadSelectedListener{
+    public interface OnCommentThreadSelectedListener {
         void onCommentThreadSelectedListener(Post post);
     }
+
     OnCommentThreadSelectedListener mOnCommentThreadSelectedListener;
 
-    public ViewPostFragment(){
+    public ViewPostFragment() {
         super();
         setArguments(new Bundle());
     }
@@ -75,21 +105,35 @@ public class ViewPostFragment extends Fragment {
     private ViewPager2 viewPager;
     private StringImageAdapter adapter;
 
+    ServerMethods serverMethods = new ServerMethods(getActivity());
+    private CommentsAdapter commentsAdapter;
+    private RecyclerView commentsRecyclerView;
+    private Runnable refreshRunnable;
+    private PopupWindow popupWindow;
+    private Handler handler;
+    private int currentPosition;
+    private static final long REFRESH_INTERVAL = 3000; // 3 seconds
+    private int postMaxLine = 5;
+    private String uid;
+    private RelativeLayout layout;
 
 
-    //widgets
-    private SquareImageView mPostImage;
     private BottomNavigationView bottomNavigationView;
-    private TextView mBackLabel, mCaption, mUsername, mTimestamp, mLikes, mComments;
-    private ImageView mBackArrow, mEllipses, mHeartRed, mHeartWhite, mProfileImage, mComment;
+    public TextView username, imageLikes, postCaption, imageCommentsLink, postTimePosted;
+    public CircleImageView profilePhoto;
+    public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble, imageAddCart, imageAddToCartFill,imageShare;;
+    public ViewPager2 postImages;
+    public View view;
 
 
     //vars
-    private Post mPost;
-    private int mActivityNumber = 0;
+    private Post post;
+    private int mActivityNumber;
+    private UserSettings postOwnerUserSettings;
+    private User postOwnerUser;
+    private UserSettings mCurrentUserSettings;
     private String photoUsername = "";
     private String profilePhotoUrl = "";
-    private UserAccountSettings mUserAccountSettings;
     private GestureDetector mGestureDetector;
 
 //    private Heart mHeart;
@@ -99,73 +143,674 @@ public class ViewPostFragment extends Fragment {
     private String mLikesString = "";
     private User mCurrentUser;
 
-    private View view;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_view_post, container, false);
-
-        this.view = view;
-
+        view = inflater.inflate(R.layout.fragment_view_post, container, false);
         bottomNavigationView = (BottomNavigationView) view.findViewById(R.id.bottomNavViewBar);
-        mBackArrow = (ImageView) view.findViewById(R.id.backArrow);
 
-//        mBackLabel = (TextView) view.findViewById(R.id.tvBackLabel);
+        profilePhoto = view.findViewById(R.id.view_post_profile_photo);
+        username = view.findViewById(R.id.view_post_username);
 
-        mCaption = (TextView) view.findViewById(R.id.image_caption);
-        mUsername = (TextView) view.findViewById(R.id.username);
-        mTimestamp = (TextView) view.findViewById(R.id.image_time_posted);
-        mEllipses = (ImageView) view.findViewById(R.id.ivEllipses);
-        mHeartRed = (ImageView) view.findViewById(R.id.image_heart_red);
-        mHeartWhite = (ImageView) view.findViewById(R.id.image_heart);
-        mProfileImage = (ImageView) view.findViewById(R.id.profile_photo);
-        mLikes = (TextView) view.findViewById(R.id.image_likes);
-        mComment = (ImageView) view.findViewById(R.id.speech_bubble);
-        mComments = (TextView) view.findViewById(R.id.image_comments_link);
+        username = (TextView) view.findViewById(R.id.view_post_username); // <<<
+        profilePhoto = (CircleImageView) view.findViewById(R.id.view_post_profile_photo); // <<<
+        ivEllipses = (ImageView) view.findViewById(R.id.view_post_ivEllipses);
+        postImages = (ViewPager2) view.findViewById(R.id.view_post_post_images_viewpager); // <<<< ///
+        imageHeartRed = (ImageView) view.findViewById(R.id.view_post_image_heart_red);
+        imageHeart = (ImageView) view.findViewById(R.id.view_post_image_heart);
+        imageShare = (ImageView) view.findViewById(R.id.view_post_image_share);
+        commentsBubble = (ImageView) view.findViewById(R.id.view_post_speech_bubble);
+        imageLikes = (TextView) view.findViewById(R.id.view_post_image_likes);
+        postCaption = (TextView) view.findViewById(R.id.view_post_post_caption); // <<<<
+        imageCommentsLink = (TextView) view.findViewById(R.id.view_post_image_comments_link);
+        postTimePosted = (TextView) view.findViewById(R.id.view_post_post_time_posted); // <<<<
+        imageAddCart = view.findViewById(R.id.view_post_add_cart);
+        imageAddToCartFill = view.findViewById(R.id.view_post_add_to_cart_fill);
 
-//        mHeart = new Heart(mHeartWhite, mHeartRed);
 
-//        mGestureDetector = new GestureDetector(getActivity(), new GestureListener());
-//
+        //        mBackArrow = (ImageView) view.findViewById(R.id.backArrow);
+        //        mBackLabel = (TextView) view.findViewById(R.id.tvBackLabel);
+        //        mGestureDetector = new GestureDetector(getActivity(), new GestureListener());
+
 //        setupFirebaseAuth();
+        mAuth = FirebaseAuth.getInstance();
+        init();
         setupBottomNavigationView();
-
 
         return view;
     }
 
-    private void init(){
-        try{
-            mPost = getPostFromBundle();
+    private void init() {
+        try {
+            layout = (RelativeLayout) view.findViewById(R.id.main_view_post);
+            uid = mAuth.getCurrentUser().getUid();
+            //Get the post from the bundle
+            post = getPostFromBundle();
+            //Get the current activity number
             mActivityNumber = getActivityNumFromBundle();
-
+            // Get the owner of the post from the bundle
+            postOwnerUserSettings = getUserSettingsFromBundle();
+/**************************working******************************/
             // Set up the ViewPager
-            viewPager = view.findViewById(R.id.post_image);
-            adapter = new StringImageAdapter(mPost.getImage_paths());
-            viewPager.setAdapter(adapter);
+//            adapter = new StringImageAdapter(post.getImage_paths());
+//            postImages.setAdapter(adapter);
+//
+////             Set up the widgets
+//            setProfileWidgets(postOwnerUserSettings.getUser(), postOwnerUserSettings.getSettings());
+/**************************working******************************/
+            User user = postOwnerUserSettings.getUser();
+            UserAccountSettings userAccountSettings = postOwnerUserSettings.getSettings();
+            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-        }catch (NullPointerException e){
-            Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage() );
+            if (post.getRecipe() == null) {
+                imageAddCart.setVisibility(View.INVISIBLE);
+            }
+
+            // Set the user info & photo
+            if (userAccountSettings != null) {
+                // Set photo
+                String profile_photo = userAccountSettings.getProfile_photo();
+                if (!profile_photo.isEmpty() && !profile_photo.equals("none")) {
+                    Picasso.get().load(profile_photo).into(profilePhoto);
+                } else {
+                    profilePhoto.setImageResource(R.drawable.profile_image);
+                }
+
+                // Set username
+                username.setText(user.getUsername());
+            } else {
+                System.out.println("PostAdapter - onBindViewHolder - userAccountSettings == null");
+            }
+
+
+            // Set the visibility of the add_to_cart ImageView based on whether the post is a recipe
+            if (post.getRecipe() != null) {
+                imageAddCart.setVisibility(View.VISIBLE);
+            } else {
+                imageAddCart.setVisibility(View.GONE);
+            }
+            // Set he post pictures
+            List<String> image_paths = post.getImage_paths();
+            if (image_paths != null && !image_paths.isEmpty()) {
+                adapter = new StringImageAdapter(image_paths);
+                postImages.setAdapter(adapter);
+            }
+
+            // Set the post caption
+            postCaption.setText(getTruncatedCaption(captionsForPostOrRecipe(post)));
+            postCaption.setOnClickListener(new View.OnClickListener() {
+                boolean expanded = false; // Track if content is expanded
+
+                @Override
+                public void onClick(View v) {
+                    if (expanded) {
+                        postCaption.setText(getTruncatedCaption(captionsForPostOrRecipe(post))); // Set truncated caption
+                    } else {
+                        String[] spilt = captionsForPostOrRecipe(post).split("\n");
+                        System.out.println("in post adapter: " + spilt.length);
+                        if (spilt.length > postMaxLine) {
+                            String tempSetText = captionsForPostOrRecipe(post) + "\n See less";
+                            postCaption.setText(tempSetText); // Set full caption with see less
+                        } else {
+                            postCaption.setText(captionsForPostOrRecipe(post)); // Set full caption
+                        }
+                        postCaption.setText(captionsForPostOrRecipe(post)); // Set full caption
+                    }
+                    expanded = !expanded; // Toggle expanded state
+                }
+            });
+
+
+            // Set time
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT'Z", Locale.ENGLISH);
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm", Locale.ENGLISH);
+            try {
+                String inputDateString = post.getDate_created();
+                Date date = inputDateFormat.parse(inputDateString);
+                String formattedDate = outputDateFormat.format(date);
+
+                postTimePosted.setText(formattedDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            // Set how much likes the post has & the heart color
+            if (post.getRecipe() == null) {
+                imageLikes.setText(String.format("%s Likes", post.getLikesCount()));
+            } else {
+                imageLikes.setText(String.format("Recipe: " + post.getRecipe().getTitle() + " has %s Likes", post.getLikesCount()));
+            }
+
+            List<String> liked = post.getLiked_list();
+            if (liked != null && liked.contains(mAuth.getCurrentUser().getUid())) {
+                imageHeart.setImageResource(R.drawable.heart_red);
+            } else {
+                imageHeart.setImageResource(R.drawable.heart);
+            }
+
+            imageHeart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (imageHeart.getDrawable().getConstantState().equals(getActivity().getResources().getDrawable(R.drawable.heart).getConstantState())) {
+                        imageHeart.setImageResource(R.drawable.heart_red);
+                    } else {
+                        imageHeart.setImageResource(R.drawable.heart);
+                    }
+                    updatePostLiked(uid, post);
+                }
+            });
+
+            List<String> cart_list = post.getCart_list();
+            if (cart_list != null && cart_list.contains(uid)) {
+                imageAddCart.setImageResource(R.drawable.added_to_cart);
+            } else {
+                imageAddCart.setImageResource(R.drawable.add_to_cart);
+            }
+
+            imageAddCart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (imageAddCart.getDrawable().getConstantState().equals(getActivity().getResources().getDrawable(R.drawable.add_to_cart).getConstantState())) {
+                        imageAddCart.setImageResource(R.drawable.added_to_cart);
+
+
+                    } else {
+                        imageAddCart.setImageResource(R.drawable.add_to_cart);
+                    }
+                    updateCartPost(uid, post);
+                }
+            });
+
+            imageShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String shareText = createPostShareText(post.getFull_name(), captionsForPostOrRecipe(post), postTimePosted.getText().toString());
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+                    sendIntent.setType("text/plain");
+                    try {
+                        getActivity().startActivity(sendIntent);
+                        //maybe need to change for    mContext.startActivity(Intent.createChooser(sendIntent, "Share via"));
+                        //for better user experience
+                    } catch (android.content.ActivityNotFoundException ex) {
+                        Toast.makeText(getActivity(), "No apps can perform this action.", Toast.LENGTH_SHORT).show();
+                    }}
+            });
+
+            commentsBubble.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(uid);
+                    call.enqueue(new Callback<UserSettings>() {
+                        @Override
+                        public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
+                            if (response.code() == 200) {
+                                UserSettings userSettings = response.body();
+                                assert userSettings != null;
+                                if (userSettings.getSettings() != null && userSettings.getUser() !=null) {
+
+                                    createPopupCommentsWindow(userSettings);
+                                }
+                            } else if (response.code() == 400) {
+                                Toast.makeText(getActivity(),
+                                        "Don't exist", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(getActivity(), response.message(),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<UserSettings> call, @NonNull Throwable t) {
+                            Toast.makeText(getActivity(), t.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                }
+            });
+
+
+        } catch (
+                NullPointerException e) {
+            Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage());
+        }
+
+    }
+
+    private String createPostShareText(String userName, String caption, String timeStamp) {
+        String shareText ="@InstaFoodies - We Love Food\n\n" +  "Shared " + userName +"'s" + " Post";
+        shareText += "\n\n"+caption.split("See less...")[0]+"\n\n"+timeStamp;
+        for (int i = 0; i < post.getImage_paths().size(); i++) {
+            shareText += post.getImage_paths().get(i) + "\n\n";
+        }
+        return shareText;
+    }
+
+
+    private void createPopupCommentsWindow(UserSettings currentUserSettings) {
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View popupView = inflater.inflate(R.layout.custom_popup_comments_window, null);
+
+
+        // Find views in the popupView
+        EditText etNewComment = popupView.findViewById(R.id.et_new_comment_text);
+        CircleImageView profileImage = popupView.findViewById(R.id.user_profile_image);
+        ImageView sendButton = popupView.findViewById(R.id.iv_send);
+
+        // setup RecyclerView
+        commentsRecyclerView = popupView.findViewById(R.id.commentsRecyclerView);
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+
+        // Set user photo
+        Picasso.get().load(currentUserSettings.getSettings().getProfile_photo()).placeholder(R.drawable.profile_image).into(profileImage);
+
+        // Setup popup abilities
+        setupSendMessageButton(sendButton, etNewComment, currentUserSettings);
+
+        // Setup main comment feed
+        setupCommentsMainFeed();
+
+
+        // Get the screen dimensions
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        if (getActivity() != null) {
+            WindowManager windowManager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        }
+
+        int screenHeight = displayMetrics.heightPixels;
+        int screenWidth = displayMetrics.widthPixels;
+
+
+        boolean focusable = true;
+        popupWindow = new PopupWindow(popupView, screenWidth, screenHeight / 2, focusable);
+        layout.post(new Runnable() {
+            @Override
+            public void run() {
+                popupWindow.showAtLocation(layout, Gravity.BOTTOM, 0, 0);
+
+                // Initialize the handler
+                handler = new Handler();
+
+                // Define the refresh runnable
+                refreshRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        // Perform your refresh logic here
+                        refreshPopupContent();
+                        // Schedule the runnable to run again after the refresh interval
+                        handler.postDelayed(this, REFRESH_INTERVAL);
+                    }
+                };
+
+                // Start the initial refresh
+                handler.post(refreshRunnable);
+            }
+        });
+
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                dismissPopupWindow();
+            }
+        });
+    }
+
+    private void dismissPopupWindow() {
+        // Dismiss the popupWindow
+        popupWindow.dismiss();
+        // Remove the runnable when the popupWindow is dismissed
+        handler.removeCallbacks(refreshRunnable);
+    }
+
+    private void refreshPopupContent() {
+        // Implement your refresh logic for the popup content here
+        // This method will be called every 3 seconds while the popup is displayed
+        setupCommentsMainFeed();
+
+    }
+
+    private void setupCommentsMainFeed() {
+        serverMethods.retrofitInterface.getPostComments(post.getUser_id(),post.getPost_id()).enqueue(new Callback<Comment[]>() {
+            @Override
+            public void onResponse(@NonNull Call<Comment[]> call, @NonNull Response<Comment[]> response) {
+                if (response.code() == 200) {
+                    System.out.println("PostAdapter - setupCommentsMainFeed - Success");
+                    Comment[] comments = response.body();
+                    if (comments != null && comments.length > 0) {
+                        System.out.println("comment = " + comments[0].getComment());
+                        commentsAdapter = new CommentsAdapter(comments, getActivity(), post.getUser_id(), post.getPost_id(), serverMethods);
+                        commentsRecyclerView.setAdapter(commentsAdapter);
+                        // Scroll to the last item in the list
+                        int lastPosition = comments.length - 1;
+                        if (lastPosition >= 0) {
+                            commentsRecyclerView.scrollToPosition(lastPosition);
+                        }
+                    }
+                }
+                else {
+                    System.out.println("PostAdapter - setupCommentsMainFeed - Failed");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Comment[]> call, @NonNull Throwable t) {
+                System.out.println("PostAdapter - setupCommentsMainFeed - onFailure - " + t.getMessage());
+
+            }
+        });
+
+    }
+
+    private String captionsForPostOrRecipe(Post post){
+        String ans="";
+        if (post.getRecipe() == null){ans = post.getCaption();}
+        else {
+            Recipe recipe = post.getRecipe();
+            ans=post.getCaption() + "\n\nRECIPE: ";
+            ans += recipe.getTitle() + "\n";
+
+            ans+= "Category: " + recipe.getMain_category() + "-" +recipe.getCategory()+"\n";
+
+            ans += "\nNutrition Facts -  \n";
+            ans += "    Calories: " + recipe.getCalories() + "  \n";
+            ans += "    Fat: " + recipe.getFat() + "  \n";
+            ans += "    Carbs: " + recipe.getCarbs() + "  \n";
+            ans += "    Protein: " + recipe.getProtein() + "\n";
+
+            ans += "\nServings: " + recipe.getServings() + "\n";
+
+            ans += "\nTimes -  \n";
+            ans += "    Prep: " + recipe.getPrepTime() + "  \n";
+            ans += "    Cooking: " + recipe.getCookingTime() + "  \n";
+
+            int readyIn = Proper_time_int(recipe.getCookingTime())+Proper_time_int(recipe.getPrepTime());
+            String ansTotal = "";
+            if (readyIn/60 == 0){
+                ansTotal = readyIn + " mins";
+            }else{
+                if (readyIn%60 == 0){
+                    ansTotal = readyIn/60 + " hrs";}
+                else{
+                    ansTotal = readyIn/60 + " hrs and "+ readyIn%60 + " mins";
+                }
+            }
+            ans += "    Ready in: " + ansTotal +  "\n";
+
+            System.out.println("    Prep: " + recipe.getPrepTime() + "  \n"
+                    + "    Cooking: " + recipe.getCookingTime() + "  \n"
+                    + "    Ready in: " + recipe.getTotalTime() + "\n");
+
+            ans += "\nIngredients - \n";
+            for (int i = 0; i < recipe.getIngredients().size(); i++) {
+                String[] split = recipe.getIngredients().get(i).split(":");
+                Double weight = Double.parseDouble(split[0]);
+                if (weight < 1000){
+                    split[0] = Math.round(weight) + "g";
+                }
+                else {
+                    weight = weight/1000;
+                    split[0] = String.format("%.0f",weight) + " kg";
+                }
+                ans += "    " + split[0] +" "+split[1] + "\n";
+            }
+
+            ans += "\nInstructions - \n";
+            for (int i =0 ; i < recipe.getDirections().size(); i++) {
+                ans += "    Step "+(i+1) + ": " + recipe.getDirections().get(i) + "\n";
+            }
+
+
+        }
+        if (ans.split("\n").length > postMaxLine) {ans +="\n See less...";}
+        return ans;
+    }
+
+    private String getTruncatedCaption(String post) {
+        String fullCaption = post; // Get the full caption
+
+        // Split the caption into lines
+        String[] lines = fullCaption.split("\n");
+
+        StringBuilder truncatedCaption = new StringBuilder();
+        for (int i = 0; i < Math.min(lines.length, postMaxLine); i++) {
+            truncatedCaption.append(lines[i]).append("\n");
+        }
+
+        // If there are more than 6 lines, add an ellipsis
+        if (lines.length > postMaxLine) {
+            truncatedCaption.append("See more..."); // Add ellipsis
+        }
+
+        return truncatedCaption.toString();
+    }
+
+    public static int Proper_time_int(String time) {
+        if (time != null) {
+            try {
+                String[] temp = time.split(" ");
+                if (temp.length < 3) {
+                    if (temp[1].equals("hrs")) {
+                        return ((Integer.parseInt(temp[0])) * 60);
+                    }
+                    return Integer.parseInt(temp[0]);
+                }
+                else {
+                    if (!isNumeric(temp[0])){
+                        return ((Integer.parseInt(temp[1]) * 60) + Integer.parseInt(temp[3]));}
+                    else{
+                        return ((Integer.parseInt(temp[0]) * 60) + Integer.parseInt(temp[2]));}
+
+                }
+            } catch (Exception e) {
+                System.out.println("error:could not convert- " + time);
+            }
+        }
+        return -1;
+    }
+    public static boolean isNumeric(String s){
+        if (s == null)
+            return false;
+        try{
+            double d = Double.parseDouble(s);
+        }
+        catch (NumberFormatException e){
+            return false;
+        }
+        return true;
+    }
+
+    private void setupSendMessageButton(ImageView sendButton, EditText etNewComment,UserSettings currentUserSettings) {
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String commentText = etNewComment.getText().toString();
+                etNewComment.setText("");
+
+                if (TextUtils.isEmpty(commentText)) {
+                    Toast.makeText(getActivity(), "first write your comment...", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    // Add comment to post using the server
+                    String comment_id = createHash();
+
+
+                    serverMethods.retrofitInterface.addCommentToPost(post.getUser_id(),
+                            post.getPost_id(), uid, commentText, currentUserSettings.getUser().getFull_name(),
+                            currentUserSettings.getSettings().getProfile_photo(),
+                            comment_id).enqueue(new Callback<Comment>() {
+                        @Override
+                        public void onResponse(@NonNull Call<Comment> call, @NonNull Response<Comment> response) {
+                            if (response.code() == 200) {
+                                System.out.println("PostAdapter - setupSendMessageButton - Success");
+
+                                Comment comment = response.body();
+                                if (comment != null) {
+                                    post.addComment(comment);
+//                                    requestUserFeed.patchPost(position, post);
+//                                    changeAdapter();
+                                    List<Comment> comments = post.getComments_list();
+                                    commentsAdapter = new CommentsAdapter(comments, getActivity(), post.getUser_id(), post.getPost_id(), serverMethods);
+                                    commentsRecyclerView.setAdapter(commentsAdapter);
+
+                                    // Scroll to the last item in the list
+                                    int lastPosition = comments.size() - 1;
+                                    if (lastPosition >= 0) {
+                                        commentsRecyclerView.scrollToPosition(lastPosition);
+                                    }
+                                }
+                            }
+                            else {
+                                System.out.println("PostAdapter - setupSendMessageButton - Failed");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<Comment> call, @NonNull Throwable t) {
+                            System.out.println("PostAdapter - setupSendMessageButton - onFailure");
+
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+
+    private String createHash() {
+        return "comment_" + UUID.randomUUID().toString();
+    }
+
+
+    private void updatePostLiked(String uid, Post post) {
+        serverMethods.retrofitInterface.addOrRemovePostLiked(uid, post.getUser_id(), post.getPost_id()).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    System.out.println(getActivity() + " - PostAdapter - updatePostLiked - response.isSuccessful()");
+                    Boolean like = response.body();
+                    if (like != null) {
+                        System.out.println("likesCount = " + like);
+                        if (like) {
+                            post.addLike(uid);
+                            imageLikes.setText(String.format("%s Likes", post.getLikesCount()));
+                        } else {
+                            post.removeLike(uid);
+                            imageLikes.setText(String.format("%s Likes", post.getLikesCount()));
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                System.out.println(getActivity() + " - PostAdapter - updatePostLiked - onFailure - " + t.getMessage());
+            }
+        });
+    }
+
+
+    private void updateCartPost(String uid, Post post) {
+        serverMethods.retrofitInterface.addOrRemoveCartPost(uid, post.getUser_id(), post.getPost_id()).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    System.out.println(getActivity() + " - PostAdapter - updateCartPost - response.isSuccessful()");
+                    Boolean like = response.body();
+//                    if (like != null) {
+//                        System.out.println("likesCount = " + like);
+//                        if (like) {
+//                            post.addLike(uid);
+//                            holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+//                        } else {
+//                            post.removeLike(uid);
+//                            holder.image_likes.setText(String.format("%s Likes", post.getLikesCount()));
+//                        }
+//                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                System.out.println(getActivity() + " - PostAdapter - updateCartPost - onFailure - " + t.getMessage());
+            }
+        });
+    }
+
+
+
+    private UserSettings getUserSettingsFromBundle() {
+        Log.d(TAG, "getUserSettingsFromBundle: arguments: " + getArguments());
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            return bundle.getParcelable("postOwnerUserSettings");
+        } else {
+            return null;
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if(isAdded()){
+        if (isAdded()) {
             init();
         }
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        try{
-            mOnCommentThreadSelectedListener = (OnCommentThreadSelectedListener) getActivity();
-        }catch (ClassCastException e){
-            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage() );
-        }
+//    @Override
+//    public void onAttach(@NonNull Context context) {
+//        super.onAttach(context);
+//        try{
+//            mOnCommentThreadSelectedListener = (OnCommentThreadSelectedListener) getActivity();
+//        }catch (ClassCastException e){
+//            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage() );
+//        }
+//    }
+
+    private void setProfileWidgets(User user, UserAccountSettings userAccountSettings) {
+        //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
+        //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
+
+        Glide.with(getActivity())
+                .load(userAccountSettings.getProfile_photo())
+                .placeholder(R.drawable.ic_android)
+                .error(R.drawable.ic_android)
+                .fitCenter()
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        // Handle load failed
+                        // Remove the progress bar or perform any necessary actions
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        // Handle resource ready
+                        // Remove the progress bar or perform any necessary actions
+                        return false;
+                    }
+                })
+                .into(profilePhoto);
+
+        //
+//        mDisplayName.setText(user.getFull_name());
+//        mUsername.setText(user.getUsername());
+//        mWebsite.setText(userAccountSettings.getWebsite());
+//        mDescription.setText(userAccountSettings.getDescription());
+//        mPosts.setText(String.valueOf(userAccountSettings.getPosts()));
+//        mFollowing.setText(String.valueOf(userAccountSettings.getFollowing()));
+//        mFollowers.setText(String.valueOf(userAccountSettings.getFollowers()));
+//        mProgressBar.setVisibility(View.GONE);
+
     }
 
 //    private void getLikesString(){
@@ -491,32 +1136,35 @@ public class ViewPostFragment extends Fragment {
 //        return difference;
 //    }
 //
+
     /**
      * retrieve the activity number from the incoming bundle from profileActivity interface
+     *
      * @return
      */
-    private int getActivityNumFromBundle(){
+    private int getActivityNumFromBundle() {
         Log.d(TAG, "getActivityNumFromBundle: arguments: " + getArguments());
 
         Bundle bundle = this.getArguments();
-        if(bundle != null) {
+        if (bundle != null) {
             return bundle.getInt(getString(R.string.activity_number));
-        }else{
+        } else {
             return 0;
         }
     }
 
     /**
      * retrieve the photo from the incoming bundle from profileActivity interface
+     *
      * @return
      */
-    private Post getPostFromBundle(){
+    private Post getPostFromBundle() {
         Log.d(TAG, "getPhotoFromBundle: arguments: " + getArguments());
 
         Bundle bundle = this.getArguments();
-        if(bundle != null) {
+        if (bundle != null) {
             return bundle.getParcelable(getString(R.string.post));
-        }else{
+        } else {
             return null;
         }
     }
@@ -524,7 +1172,7 @@ public class ViewPostFragment extends Fragment {
     /**
      * BottomNavigationView setup
      */
-    private void setupBottomNavigationView(){
+    private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewHelper.enableNavigation(getContext(), bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();

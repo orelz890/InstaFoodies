@@ -134,6 +134,7 @@ public class ProfileFragment extends Fragment {
 
     private void setupProfileFragmentFields() {
         mAuth= FirebaseAuth.getInstance();
+        mAuth= FirebaseAuth.getInstance();
         mDisplayName = (TextView) view.findViewById(R.id.tv_display_name);
         mUsername = (TextView) view.findViewById(R.id.profileName);
         mWebsite = (TextView) view.findViewById(R.id.tv_website);
@@ -222,7 +223,6 @@ public class ProfileFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_TEXT, list);
         intent.setType("text/plain");
-        intent.setPackage("com.whatsapp");
         try {
             startActivity(intent);
         } catch (Exception exception) {
@@ -301,7 +301,7 @@ public class ProfileFragment extends Fragment {
 
         if (uid != null) {
             serverMethods.retrofitInterface.deleteProfilePosts(uid, selectedToDelete).enqueue(new Callback<Boolean>() {
-//            serverMethods.retrofitInterface.deleteProfilePosts(uid, indexPostIdMap).enqueue(new Callback<Boolean>() {
+                //            serverMethods.retrofitInterface.deleteProfilePosts(uid, indexPostIdMap).enqueue(new Callback<Boolean>() {
                 @Override
                 public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
                     if (response.isSuccessful()) {
@@ -598,7 +598,7 @@ public class ProfileFragment extends Fragment {
                                     if (adapter.getSelectedIndexes().size() > 0) {
                                         adapter.toggleSelection(position); // Toggle selection
                                     } else {
-                                        mOnGridImageSelectedListener.onGridImageSelected(myLikedPosts.getPost(position), ACTIVITY_NUM);
+                                        mOnGridImageSelectedListener.onGridImageSelected(myLikedPosts.getPost(( myLikedPosts.size() -1 ) - position), ACTIVITY_NUM);
                                     }
                                 }
                             });
@@ -862,4 +862,3 @@ public class ProfileFragment extends Fragment {
 
 
 }
-

@@ -60,6 +60,13 @@ import retrofit2.Response;
 
 public class ViewProfileFragment extends Fragment {
 
+
+    public interface OnGridImageSelectedListener {
+        void onGridImageSelected(Post post, int activityNumber);
+    }
+
+    private ViewProfileFragment.OnGridImageSelectedListener mOnGridImageSelectedListener;
+
     private static final String TAG = "ProfileFragment";
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
@@ -98,9 +105,6 @@ public class ViewProfileFragment extends Fragment {
 
     RequestPosts userFeed;
 
-    public interface OnGridImageSelectedListener {
-        void onGridImageSelected(Post post, int activityNumber);
-    }
 
     @Nullable
     @Override
@@ -186,9 +190,18 @@ public class ViewProfileFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        try {
+            mOnGridImageSelectedListener = (ViewProfileFragment.OnGridImageSelectedListener) getActivity();
+        } catch (ClassCastException e) {
+            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage());
+        }
+        super.onAttach(context);
+    }
 
-    private void init() {
-        //onAttach(mContext);
+    private void init(){
+//        onAttach(mContext);
         //set the profile widgets
         setProfileWidgets(mUser.getUser(), mUser.getSettings());
         //get the users profile photos
@@ -353,23 +366,24 @@ public class ViewProfileFragment extends Fragment {
                             GridImageStringAdapter adapter = new GridImageStringAdapter(getActivity(), R.layout.layout_grid_image_view,
                                     "", imgUrls);
                             gridView.setAdapter(adapter);
-                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    Log.d(TAG, "onGridImageSelected: selected an image gridview: " + userFeed.getPost(position).toString());
+                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {                                 @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Log.d(TAG, "onGridImageSelected: selected an image gridview: " + userFeed.getPost(position).toString());
+                                            mOnGridImageSelectedListener.onGridImageSelected(userFeed.getPost(position), ACTIVITY_NUM);
 
-                                    // sets arguments to be passed to the fragment
-                                    ViewPostFragment fragment = new ViewPostFragment();
-                                    Bundle args = new Bundle();
-                                    args.putParcelable(getString(R.string.post), userFeed.getPost(position));
-                                    args.putInt(getString(R.string.activity_number), 4);
 
-                                    fragment.setArguments(args);
-
-                                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                                    transaction.replace(R.id.container, fragment);
-                                    transaction.addToBackStack(getString(R.string.view_post_fragment));
-                                    transaction.commit();
+                                // sets arguments to be passed to the fragment
+//                                ViewPostFragment fragment = new ViewPostFragment();
+//                                Bundle args = new Bundle();
+//                                args.putParcelable(getString(R.string.post), userFeed.getPost(position));
+//                                args.putInt(getString(R.string.activity_number),4 );
+//
+//                                fragment.setArguments(args);
+//
+//                                FragmentTransaction transaction  = getFragmentManager().beginTransaction();
+//                                transaction.replace(R.id.container, fragment);
+//                                transaction.addToBackStack(getString(R.string.view_post_fragment));
+//                                transaction.commit();
 
                                     System.out.println("in gridView.setOnItemClickListener of viewProfileFragment before checking the lisnter");
 //                                        if (mOnGridImageSelectedListener != null) {

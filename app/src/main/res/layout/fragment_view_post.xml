@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/relLayout1">
-
-        <include layout="@layout/snippet_post_toolbar"/>
-
-    </RelativeLayout>
+    android:layout_height="wrap_content"
+    android:id="@+id/main_view_post">
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/relLayout2">
 
-        <include layout="@layout/layout_view_post"/>
+        <include layout="@layout/layout_view_post" />
 
     </RelativeLayout>
+
+
+    <include layout="@layout/layout_bottom_navigation_view"/>
 
 </RelativeLayout>

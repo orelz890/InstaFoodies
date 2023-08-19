@@ -230,7 +230,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 holder.imageShare.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String shareText = createPostShareText(post.getFull_name(), captionsForPostOrRecipe(post), holder.postTimePosted.getText().toString());
+                        String shareText = createPostShareText(post.getFull_name(), captionsForPostOrRecipe(post), holder.postTimePosted.getText().toString(),post.getImage_paths());
                         Intent sendIntent = new Intent();
                         sendIntent.setAction(Intent.ACTION_SEND);
                         sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
@@ -260,9 +260,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
 
-    private String createPostShareText(String userName, String caption, String timeStamp) {
-        String shareText = mAuth.getCurrentUser().getDisplayName()+ " shred "+userName+" post";
+    private String createPostShareText(String userName, String caption, String timeStamp, List<String> image_paths) {
+        String shareText ="@InstaFoodies - We Love Food\n\n" +  "Shared " + userName +"'s" + " Post";
         shareText += "\n\n"+caption.split("See less...")[0]+"\n\n"+timeStamp;
+        for (int i = 0; i < image_paths.size(); i++) {
+            shareText += image_paths.get(i) + "\n\n";
+        }
         return shareText;
     }
 
@@ -585,7 +588,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView username, imageLikes, postCaption, imageCommentsLink, postTimePosted;
+        public TextView username, imageLikes, postCaption,postTimePosted;
         public CircleImageView profilePhoto;
         public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble,imageAddCart,imageAddToCartFill,imageShare;
         public ViewPager2 postImages;
@@ -606,7 +609,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             commentsBubble = (ImageView) itemView.findViewById(R.id.speech_bubble);
             imageLikes = (TextView) itemView.findViewById(R.id.image_likes);
             postCaption = (TextView) itemView.findViewById(R.id.post_caption); // <<<<
-            imageCommentsLink = (TextView) itemView.findViewById(R.id.image_comments_link);
             postTimePosted = (TextView) itemView.findViewById(R.id.post_time_posted); // <<<<
             imageAddCart = itemView.findViewById(R.id.add_cart);
             imageAddToCartFill = itemView.findViewById(R.id.add_to_cart_fill);
