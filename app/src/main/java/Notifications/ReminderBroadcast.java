@@ -28,6 +28,9 @@ public class ReminderBroadcast  extends BroadcastReceiver {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
         notificationManager.notify(200,builder.build());
+
+
+
     }
 
 

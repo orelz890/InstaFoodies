@@ -132,7 +132,7 @@ public class reminder extends AppCompatActivity {
     private TextView repeatTextView;
     private boolean[] selectedRepeatOptions;
     private ArrayList<Integer> selectedRepeatList  = new ArrayList<>();
-    private String[] repeatOptionsArray  = {"One_time","Day", "Week", "Month"};
+    private String[] repeatOptionsArray  = {"OneTime","Day", "Week", "Month"};
 
     private static final String CHANNEL_ID = "my_channel";
     private static final int NOTIFICATION_ID = 123;
