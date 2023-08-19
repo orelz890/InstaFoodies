@@ -92,15 +92,41 @@
             android:padding="12dp"
             android:text="Login" />
 
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/text_forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="29dp"
+            android:layout_marginBottom="25dp"
+            android:text="Forgot Password?"
+            android:textColor="@color/DodgerBlue" />
+
+        <TextView
+            android:id="@+id/text_not_registered"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="New in IstaFoodies?"
+            android:textSize="16sp" />
         <TextView
             android:id="@+id/link_sign_up"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="25dp"
             android:gravity="center"
-            android:text="Not registered? Register here"
+            android:text="Join now"
             android:textColor="@color/DodgerBlue"
             android:textSize="16sp" />
+
 
         <!--        For testing      -->
 <!--        <Button-->
