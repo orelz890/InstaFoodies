@@ -116,6 +116,11 @@ Our UI is meticulously divided into a symphony of modules, each finely tuned to 
 - Component: `Scraping` 📚
 - Responsibilities: Bridges the culinary divide by ingeniously integrating external recipes, inspiring creativity without leaving the app.
 
+### Business account and payment
+
+- Component: `Business` 💸
+- Responsibilities: Empowers professional chefs and cooking enthusiasts to showcase their exclusive content. Users can access this premium content through a subscription-based payment model, offering a convenient and value-added experience.
+
   ---
 
 ## Human Interface Design
@@ -126,21 +131,22 @@ Key screens include:
 
 ## Table of Contents
 
-| Login | Feed | Profile |
+| Login | Register | Feed |
 | :---: | :---: | :---: |
-| <img src="pics/login.jpg" alt="login" width="250" /> | <img src="pics/feed.jpg" alt="feed" width="250" /> | <img src="pics/profile.jpg" alt="profile" width="250" /> |
+| <img src="pics/login.jpg" alt="login" width="250" /> |<img src="pics/register.jpg" alt="register" width="250" />  | <img src="pics/feed.jpg" alt="feed" width="250" /> |
 
-| Post | Networking | Chat |
+| Post | Comments | Scraping |
 | :---: | :---: | :---: |
-| <img src="pics/recipe.jpg" alt="post" width="250" /> | <img src="pics/chats.jpg" alt="networking" width="250" /> | <img src="pics/chat.jpg" alt="chat" width="250" /> |
+|  <img src="pics/post.jpg" alt="post" width="250" />  | <img src="pics/comments.jpg" alt="comments" width="250" /> | <img src="pics/scraping.jpg" alt="scraping update" width="250"  /> |
 
-| Chat Requests | Search | Upload & Update |
+| Networking | Chat Requests | Chat |
 | :---: | :---: | :---: |
-| <img src="pics/requests.jpg" alt="chat requests" width="250" /> | <img src="pics/search.jpg" alt="search" width="250" /> | <img src="pics/upload.jpg" alt="upload update" width="250" /> |
+|<img src="pics/chats.jpg" alt="chats" width="250" />| <img src="pics/requests.jpg" alt="requests" width="250" /> | <img src="pics/chat.jpg" alt="chat" width="250" /> |
 
-| Notifications | Scraping | Register |
+
+| Notifications | Search | Payment |
 | :---: | :---: | :---: |
-| <img src="pics/notifications.jpg" alt="notifications" width="250" /> | <img src="pics/scrapping.jpg" alt="scraping" width="250" /> | <img src="pics/register.jpg" alt="register" width="250" /> |
+| <img src="pics/notifications.jpg" alt="notifications" width="250" /> | <img src="pics/search.jpg" alt="search" width="250" /> | <img src="pics/business.jpg" alt="business" width="250" /> |
 
 
 For a comprehensive tour of each module's symphony, meticulously composed to serenade your culinary senses,
