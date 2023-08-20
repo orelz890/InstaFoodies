@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -66,6 +67,7 @@ import java.util.UUID;
 
 import Home.CommentsAdapter;
 import Home.PostAdapter;
+import Profile.ProfileActivity;
 import Share.ImageAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
@@ -122,7 +124,9 @@ public class ViewPostFragment extends Fragment {
     private BottomNavigationView bottomNavigationView;
     public TextView username, imageLikes, postCaption, imageCommentsLink, postTimePosted;
     public CircleImageView profilePhoto;
-    public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble, imageAddCart, imageAddToCartFill,imageShare;;
+    private TextView imageCounterTextView;
+    public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble, imageAddCart, imageAddToCartFill, imageShare;
+    ;
     public ViewPager2 postImages;
     public View view;
 
@@ -168,13 +172,9 @@ public class ViewPostFragment extends Fragment {
         postTimePosted = (TextView) view.findViewById(R.id.view_post_post_time_posted); // <<<<
         imageAddCart = view.findViewById(R.id.view_post_add_cart);
         imageAddToCartFill = view.findViewById(R.id.view_post_add_to_cart_fill);
+        // Initialize the image counter
+        imageCounterTextView = view.findViewById(R.id.imageCounterTextView);
 
-
-        //        mBackArrow = (ImageView) view.findViewById(R.id.backArrow);
-        //        mBackLabel = (TextView) view.findViewById(R.id.tvBackLabel);
-        //        mGestureDetector = new GestureDetector(getActivity(), new GestureListener());
-
-//        setupFirebaseAuth();
         mAuth = FirebaseAuth.getInstance();
         init();
         setupBottomNavigationView();
@@ -200,6 +200,18 @@ public class ViewPostFragment extends Fragment {
 ////             Set up the widgets
 //            setProfileWidgets(postOwnerUserSettings.getUser(), postOwnerUserSettings.getSettings());
 /**************************working******************************/
+
+            // Add a page change listener to update the image counter when the current page changes
+            postImages.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    updateImageCounter(position);
+                }
+            });
+            updateImageCounter(0); // Set the initial counter to 0
+
+
             User user = postOwnerUserSettings.getUser();
             UserAccountSettings userAccountSettings = postOwnerUserSettings.getSettings();
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
@@ -326,6 +338,22 @@ public class ViewPostFragment extends Fragment {
                 }
             });
 
+            profilePhoto.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //navigate to profile activity
+                    if (!mAuth.getCurrentUser().getUid().equals(post.getUser_id())) {
+                        Intent intent = new Intent(getActivity(), (ProfileActivity.class));
+                        intent.putExtra(getString(R.string.calling_activity), getString(R.string.search_activity));
+                        intent.putExtra(getString(R.string.intent_user), (Parcelable) postOwnerUserSettings);
+                        startActivity(intent);
+                    }else {
+                        Toast.makeText(getActivity(), "You are already on your profile", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+
             imageShare.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -340,7 +368,8 @@ public class ViewPostFragment extends Fragment {
                         //for better user experience
                     } catch (android.content.ActivityNotFoundException ex) {
                         Toast.makeText(getActivity(), "No apps can perform this action.", Toast.LENGTH_SHORT).show();
-                    }}
+                    }
+                }
             });
 
             commentsBubble.setOnClickListener(new View.OnClickListener() {
@@ -353,7 +382,7 @@ public class ViewPostFragment extends Fragment {
                             if (response.code() == 200) {
                                 UserSettings userSettings = response.body();
                                 assert userSettings != null;
-                                if (userSettings.getSettings() != null && userSettings.getUser() !=null) {
+                                if (userSettings.getSettings() != null && userSettings.getUser() != null) {
 
                                     createPopupCommentsWindow(userSettings);
                                 }
@@ -384,9 +413,17 @@ public class ViewPostFragment extends Fragment {
 
     }
 
+
+    private void updateImageCounter(int position) {
+        int totalImages = post.getImage_paths().size();
+        int currentImageIndex = position + 1;
+        String counterText = currentImageIndex + "/" + totalImages;
+        imageCounterTextView.setText(counterText);
+    }
+
     private String createPostShareText(String userName, String caption, String timeStamp) {
-        String shareText ="@InstaFoodies - We Love Food\n\n" +  "Shared " + userName +"'s" + " Post";
-        shareText += "\n\n"+caption.split("See less...")[0]+"\n\n"+timeStamp;
+        String shareText = "@InstaFoodies - We Love Food\n\n" + "Shared " + userName + "'s" + " Post";
+        shareText += "\n\n" + caption.split("See less...")[0] + "\n\n" + timeStamp;
         for (int i = 0; i < post.getImage_paths().size(); i++) {
             shareText += post.getImage_paths().get(i) + "\n\n";
         }
@@ -479,7 +516,7 @@ public class ViewPostFragment extends Fragment {
     }
 
     private void setupCommentsMainFeed() {
-        serverMethods.retrofitInterface.getPostComments(post.getUser_id(),post.getPost_id()).enqueue(new Callback<Comment[]>() {
+        serverMethods.retrofitInterface.getPostComments(post.getUser_id(), post.getPost_id()).enqueue(new Callback<Comment[]>() {
             @Override
             public void onResponse(@NonNull Call<Comment[]> call, @NonNull Response<Comment[]> response) {
                 if (response.code() == 200) {
@@ -495,8 +532,7 @@ public class ViewPostFragment extends Fragment {
                             commentsRecyclerView.scrollToPosition(lastPosition);
                         }
                     }
-                }
-                else {
+                } else {
                     System.out.println("PostAdapter - setupCommentsMainFeed - Failed");
                 }
             }
@@ -510,15 +546,16 @@ public class ViewPostFragment extends Fragment {
 
     }
 
-    private String captionsForPostOrRecipe(Post post ){
-        String ans="";
-        if (post.getRecipe() == null){ans = post.getCaption();}
-        else {
+    private String captionsForPostOrRecipe(Post post) {
+        String ans = "";
+        if (post.getRecipe() == null) {
+            ans = post.getCaption();
+        } else {
             Recipe recipe = post.getRecipe();
-            ans=post.getCaption() + "\n\nRECIPE: ";
+            ans = post.getCaption() + "\n\nRECIPE: ";
             ans += recipe.getTitle() + "\n";
 
-            ans+= "Category: " + recipe.getMain_category() + "-" +recipe.getCategory()+"\n";
+            ans += "Category: " + recipe.getMain_category() + "-" + recipe.getCategory() + "\n";
 
             ans += "\nNutrition Facts -  \n";
             ans += "    Calories: " + recipe.getCalories() + "  \n";
@@ -532,18 +569,18 @@ public class ViewPostFragment extends Fragment {
             ans += "    Prep: " + recipe.getPrepTime() + "  \n";
             ans += "    Cooking: " + recipe.getCookingTime() + "  \n";
 
-            int readyIn = Proper_time_int(recipe.getCookingTime())+Proper_time_int(recipe.getPrepTime());
+            int readyIn = Proper_time_int(recipe.getCookingTime()) + Proper_time_int(recipe.getPrepTime());
             String ansTotal = "";
-            if (readyIn/60 == 0){
+            if (readyIn / 60 == 0) {
                 ansTotal = readyIn + " mins";
-            }else{
-                if (readyIn%60 == 0){
-                    ansTotal = readyIn/60 + " hrs";}
-                else{
-                    ansTotal = readyIn/60 + " hrs and "+ readyIn%60 + " mins";
+            } else {
+                if (readyIn % 60 == 0) {
+                    ansTotal = readyIn / 60 + " hrs";
+                } else {
+                    ansTotal = readyIn / 60 + " hrs and " + readyIn % 60 + " mins";
                 }
             }
-            ans += "    Ready in: " + ansTotal +  "\n";
+            ans += "    Ready in: " + ansTotal + "\n";
 
             System.out.println("    Prep: " + recipe.getPrepTime() + "  \n"
                     + "    Cooking: " + recipe.getCookingTime() + "  \n"
@@ -565,21 +602,22 @@ public class ViewPostFragment extends Fragment {
                     }
                     ans += "    " + split[0] + " " + split[1] + "\n";
                 }
-            }
-            else {
+            } else {
                 for (int i = 0; i < recipe.getIngredients().size(); i++) {
                     ans += recipe.getIngredients().get(i);
                 }
             }
 
             ans += "\nInstructions - \n";
-            for (int i =0 ; i < recipe.getDirections().size(); i++) {
-                ans += "    Step "+(i+1) + ": " + recipe.getDirections().get(i) + "\n";
+            for (int i = 0; i < recipe.getDirections().size(); i++) {
+                ans += "    Step " + (i + 1) + ": " + recipe.getDirections().get(i) + "\n";
             }
 
 
         }
-        if (ans.split("\n").length > postMaxLine) {ans +="\n See less...";}
+        if (ans.split("\n").length > postMaxLine) {
+            ans += "\n See less...";
+        }
         return ans;
     }
 
@@ -611,12 +649,12 @@ public class ViewPostFragment extends Fragment {
                         return ((Integer.parseInt(temp[0])) * 60);
                     }
                     return Integer.parseInt(temp[0]);
-                }
-                else {
-                    if (!isNumeric(temp[0])){
-                        return ((Integer.parseInt(temp[1]) * 60) + Integer.parseInt(temp[3]));}
-                    else{
-                        return ((Integer.parseInt(temp[0]) * 60) + Integer.parseInt(temp[2]));}
+                } else {
+                    if (!isNumeric(temp[0])) {
+                        return ((Integer.parseInt(temp[1]) * 60) + Integer.parseInt(temp[3]));
+                    } else {
+                        return ((Integer.parseInt(temp[0]) * 60) + Integer.parseInt(temp[2]));
+                    }
 
                 }
             } catch (Exception e) {
@@ -625,19 +663,19 @@ public class ViewPostFragment extends Fragment {
         }
         return -1;
     }
-    public static boolean isNumeric(String s){
+
+    public static boolean isNumeric(String s) {
         if (s == null)
             return false;
-        try{
+        try {
             double d = Double.parseDouble(s);
-        }
-        catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             return false;
         }
         return true;
     }
 
-    private void setupSendMessageButton(ImageView sendButton, EditText etNewComment,UserSettings currentUserSettings) {
+    private void setupSendMessageButton(ImageView sendButton, EditText etNewComment, UserSettings currentUserSettings) {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -646,8 +684,7 @@ public class ViewPostFragment extends Fragment {
 
                 if (TextUtils.isEmpty(commentText)) {
                     Toast.makeText(getActivity(), "first write your comment...", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     // Add comment to post using the server
                     String comment_id = createHash();
 
@@ -676,8 +713,7 @@ public class ViewPostFragment extends Fragment {
                                         commentsRecyclerView.scrollToPosition(lastPosition);
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 System.out.println("PostAdapter - setupSendMessageButton - Failed");
                             }
                         }
@@ -753,7 +789,6 @@ public class ViewPostFragment extends Fragment {
             }
         });
     }
-
 
 
     private UserSettings getUserSettingsFromBundle() {

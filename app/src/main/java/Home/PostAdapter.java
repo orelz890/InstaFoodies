@@ -3,6 +3,7 @@ package Home;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -38,6 +39,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
+import Profile.ProfileActivity;
+import Search.SearchActivity;
 import Server.RequestPosts;
 
 
@@ -49,6 +52,7 @@ import models.Comment;
 import models.Post;
 import models.Recipe;
 import models.User;
+import models.UserSettings;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -133,6 +137,44 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     holder.profilePhoto.setImageResource(R.drawable.profile_image);
                 }
 
+                holder.profilePhoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Call<UserSettings> call = serverMethods.retrofitInterface.getBothUserAndHisSettings(post.getUser_id());
+                        call.enqueue(new Callback<UserSettings>() {
+                            @Override
+                            public void onResponse(@NonNull Call<UserSettings> call, @NonNull Response<UserSettings> response) {
+                                if (response.code() == 200) {
+                                    UserSettings userSettings = response.body();
+                                    assert userSettings != null;
+                                    if (userSettings.getSettings() != null && userSettings.getUser() !=null) {
+
+                                        //navigate to profile activity
+                                        Intent intent = new Intent(mContext, (ProfileActivity.class));
+                                        intent.putExtra(mContext.getString(R.string.calling_activity),mContext.getString(R.string.search_activity));
+                                        intent.putExtra(mContext.getString(R.string.intent_user), (Parcelable)userSettings);
+                                        mContext.startActivity(intent);
+                                    }
+                                } else if (response.code() == 400) {
+                                    Toast.makeText(mContext,
+                                            "Don't exist", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(mContext, response.message(),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<UserSettings> call, @NonNull Throwable t) {
+                                Toast.makeText(mContext, t.getMessage(),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                    }
+                });
+
+
                 // Set username
                 holder.username.setText(post.getFull_name());
 
@@ -206,6 +248,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     }
                 });
 
+                // Add a page change listener to update the image counter when the current page changes
+                holder.postImages.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                        updateImageCounter(position, post, holder);
+                    }
+                });
+                updateImageCounter(0, post, holder); // Set the initial counter to 0
+
+
                 List<String> cart_list = post.getCart_list();
                 if (cart_list != null && cart_list.contains(uid)) {
                     holder.imageAddCart.setImageResource(R.drawable.added_to_cart);
@@ -257,6 +310,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         } else {
             System.out.println("PostAdapter - onBindViewHolder - userFeed == null");
         }
+    }
+
+
+    private void updateImageCounter(int position, Post post, PostViewHolder holder) {
+        int totalImages = post.getImage_paths().size();
+        int currentImageIndex = position + 1;
+        String counterText = currentImageIndex + "/" + totalImages;
+        holder.imageCounterTextView.setText(counterText);
     }
 
 
@@ -590,6 +651,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         public TextView username, imageLikes, postCaption,postTimePosted;
         public CircleImageView profilePhoto;
+        private TextView imageCounterTextView;
         public ImageView ivEllipses, imageHeartRed, imageHeart, commentsBubble,imageAddCart,imageAddToCartFill,imageShare;
         public ViewPager2 postImages;
         public StringImageAdapter adapter;
@@ -612,6 +674,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             postTimePosted = (TextView) itemView.findViewById(R.id.post_time_posted); // <<<<
             imageAddCart = itemView.findViewById(R.id.add_cart);
             imageAddToCartFill = itemView.findViewById(R.id.add_to_cart_fill);
+            // Initialize the image counter
+            imageCounterTextView = itemView.findViewById(R.id.imageCounterTextView);
         }
     }
 
