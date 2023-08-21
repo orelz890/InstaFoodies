@@ -115,6 +115,7 @@ Our UI is meticulously divided into a symphony of modules, each finely tuned to 
 
 - Component: `Scraping` 📚
 - Responsibilities: Bridges the culinary divide by ingeniously integrating external recipes, inspiring creativity without leaving the app.
+- Note: Our pursuit is one of enlightenment, driven solely by the thirst for knowledge rather than the pursuit of widespread data consumption. In this noble endeavor, we have meticulously gathered a subset of information, deliberately chosen for educational insight. Our commitment to the integrity of this endeavor is steadfast, as we safeguard the origins of our acquired data, a testament to our respect for the sources that contribute to the enrichment of understanding.
 
 ### Business account and payment
 
@@ -137,7 +138,7 @@ Key screens include:
 
 | Post | Comments | Scraping |
 | :---: | :---: | :---: |
-|  <img src="pics/post.jpg" alt="post" width="250" />  | <img src="pics/comments.jpg" alt="comments" width="250" /> | <img src="pics/scraping.jpg" alt="scraping update" width="250"  /> |
+|  <img src="pics/post.jpg" alt="post" width="250" />  | <img src="pics/comments.jpg" alt="comments" width="250" /> | <img src="pics/scraping.png" alt="scraping" width="250"  /> |
 
 | Networking | Chat Requests | Chat |
 | :---: | :---: | :---: |
@@ -146,7 +147,7 @@ Key screens include:
 
 | Notifications | Search | Payment |
 | :---: | :---: | :---: |
-| <img src="pics/notifications.jpg" alt="notifications" width="250" /> | <img src="pics/search.jpg" alt="search" width="250" /> | <img src="pics/business.jpg" alt="business" width="250" /> |
+| <img src="pics/notifications.jpg" alt="notifications" width="250" /> | <img src="pics/search.jpg" alt="search" width="250" /> | <img src="pics/payment.png" alt="payment" width="250" /> |
 
 
 For a comprehensive tour of each module's symphony, meticulously composed to serenade your culinary senses,
