@@ -142,7 +142,7 @@ Key screens include:
 
 | Networking | Chat Requests | Chat |
 | :---: | :---: | :---: |
-|<img src="pics/chats.jpg" alt="chats" width="250" />| <img src="pics/requests.jpg" alt="requests" width="250" /> | <img src="pics/chat.jpg" alt="chat" width="250" /> |
+|<img src="pics/chats.png" alt="chats" width="250" />| <img src="pics/requests.jpg" alt="requests" width="250" /> | <img src="pics/chat.jpg" alt="chat" width="250" /> |
 
 
 | Notifications | Search | Payment |
