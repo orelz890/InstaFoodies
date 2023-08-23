@@ -176,6 +176,10 @@ Please note that this license is designed to prevent commercial usage of the cod
 
 ## 📬 Contact
 
-If you have any questions, suggestions, or feedback, please don't hesitate to [contact us](smarterfoodies@gmail.com) 📮.
+If you have any questions, suggestions, or feedback, please don't hesitate to contact us:
+
+smarterfoodies@gmail.com 📮.
+
+
 
 
