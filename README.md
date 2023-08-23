@@ -156,6 +156,18 @@ please navigate to the [Decomposed Modules](#decomposed-modules) section above. 
 
 ---
 
+
+## 📚 References
+
+This project incorporates code and inspiration from external sources. We'd like to give credit to the following creators and repositories:
+
+- 📺 [YouTube Video Tutorial](https://www.youtube.com/watch?v=gPqJcPtN18I&list=PLxefhmF0pcPmtdoud8f64EpgapkclCllj) by [Muhammad Ali](Muhammad Ali's Coding Cafe)
+- 💡 Code inspiration and snippets from [Android Instagram Clone Repository](https://github.com/mitchtabian/Android-Instagram-Clone) by [mitchtabian]
+
+We express our gratitude to the original authors for their invaluable contributions 👏.
+
+
+
 ## 📜 License
 
 InstaFoodies UI is proudly crafted under the umbrella of the [MIT License](https://opensource.org/licenses/MIT). This sacred culinary masterpiece is open for you to savor, modify, and distribute, while honoring the terms of the license.
