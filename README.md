@@ -170,7 +170,12 @@ We express our gratitude to the original authors for their invaluable contributi
 
 ## 📜 License
 
-InstaFoodies UI is proudly crafted under the umbrella of the [MIT License](https://opensource.org/licenses/MIT). This sacred culinary masterpiece is open for you to savor, modify, and distribute, while honoring the terms of the license.
+This project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/). This means that you are free to share, adapt, and build upon the material, as long as you provide appropriate attribution, do not use the material for commercial purposes, and do not impose additional legal restrictions.
 
-Embark on a gastronomic odyssey with us at InstaFoodies, where the joy of cooking meets the power of social connection! 🍳📸🥗
+Please note that this license is designed to prevent commercial usage of the code. If you have any questions about how you can use or adapt this code within the terms of the license, feel free to [contact us](mailto:your.email@example.com) 📮.
+
+## 📬 Contact
+
+If you have any questions, suggestions, or feedback, please don't hesitate to [contact us](smarterfoodies@gmail.com) 📮.
+
 
